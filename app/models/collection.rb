@@ -7,11 +7,11 @@ class Collection < ActiveRecord::Base
 
   validates :user, presence: true
   validates :title, presence: true
-  validates :user, exclusion: { in: ->(curators) { [curators.user] } }
+  # validates :user, exclusion: { in: ->(curators) { [curators.user] } }
 
-  def curators
-    User.where(id: collection_curators.pluck(:user_id))
-  end
+  # def curators
+  #   User.where(id: collection_curators.pluck(:user_id))
+  # end
 end
 
 # == Schema Information
