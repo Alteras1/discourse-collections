@@ -13,6 +13,9 @@ enabled_site_setting :discourse_collections_enabled
 module ::DiscourseCollections
   PLUGIN_NAME = "discourse-collections"
   table_name_prefix = ""
+
+  class Error < StandardError
+  end
 end
 
 require_relative "lib/discourse_collections/engine"
