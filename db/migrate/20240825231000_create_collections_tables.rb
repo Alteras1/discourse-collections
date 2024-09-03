@@ -20,6 +20,7 @@ class CreateCollectionsTables < ActiveRecord::Migration[7.0]
       t.timestamps
     end
     add_index :collection_items, :name
+    add_index :collection_items, :collectable_id
 
     create_table :collection_curators do |t|
       t.references :collection, null: false, foreign_key: true

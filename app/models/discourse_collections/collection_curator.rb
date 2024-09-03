@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
-class CollectionCurator < ActiveRecord::Base
-  belongs_to :collection
-  belongs_to :user
+module ::DiscourseCollections
+  class CollectionCurator < ActiveRecord::Base
+    self.table_name = 'collection_curators'
+    belongs_to :collection
+    belongs_to :user
 
-  validates :collection, presence: true
-  validates :user, presence: true
+    validates :collection, presence: true
+    validates :user, presence: true
 
+  end
 end
 
 # == Schema Information
