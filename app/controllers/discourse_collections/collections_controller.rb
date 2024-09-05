@@ -4,12 +4,24 @@ module ::DiscourseCollections
   class CollectionsController < ::ApplicationController
     requires_plugin PLUGIN_NAME
 
+    requires_login only: [:new]
+
     def get_all_collections
-      Rails.logger.info("get_all_collections")
-      render json: {collections: serialize_data(Collection.all, CollectionSerializer)}
+      respond_to do |format|
+        format.html { render layout: false }
+        format.json do
+          collections = Collection.all
+          if collections.empty?
+            render json: {collections: []}
+          end
+          render json: {collections: serialize_data(Collection.all, CollectionSerializer)}
+        end
+      end
     end
 
     def get_collection
+      # TODO: see categories#categories_and_latest for how to do a HTML only response in the event on no JS
+      # to basically treat it as a top level route
       Rails.logger.info("collection #{params[:id]}")
       begin
         render json: CollectionSerializer.new(Collection.find(params[:id]), scope: guardian)

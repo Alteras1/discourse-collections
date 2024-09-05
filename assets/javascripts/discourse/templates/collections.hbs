@@ -1,0 +1,8 @@
+hello world
+{{log "this is the ember template for collections"}}
+{{#each @model as |collection|}}
+<div>
+  {{collection.title}}
+  {{log collection}}
+</div>
+{{/each}}
