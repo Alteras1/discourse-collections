@@ -1,5 +1,6 @@
 hello world
-{{log "this is the ember template for collections"}}
+{{!-- todo, replace with navigation? --}}
+<LinkTo @route="collection-new">New Collection</LinkTo>
 {{#each @model as |collection|}}
 <div>
   {{collection.title}}

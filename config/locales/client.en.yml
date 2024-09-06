@@ -6,4 +6,4 @@ en:
           discourse_collections: "Collections"
   js:
     discourse_collections:
-      placeholder: placeholder
+      collections_title: "Collections"

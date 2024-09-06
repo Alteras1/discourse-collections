@@ -4,7 +4,7 @@ module ::DiscourseCollections
   class CollectionSerializer < ApplicationSerializer
     attributes :id, :title, :description, :created_at, :updated_at, :user
 
-    has_many :collection_items
+    has_many :collection_items, key: 'items'
     has_many :collection_curators, serializer: BasicUserSerializer, key: 'curators'
 
     def user

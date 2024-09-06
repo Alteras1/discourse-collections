@@ -6,6 +6,12 @@ module ::DiscourseCollections
 
     requires_login only: [:new]
 
+    def show
+      guardian.ensure_can_see!(@collection)
+
+      render_serialized(@collection, CollectionSerializer)
+    end
+
     def get_all_collections
       respond_to do |format|
         format.html { render layout: false }
@@ -24,7 +30,7 @@ module ::DiscourseCollections
       # to basically treat it as a top level route
       Rails.logger.info("collection #{params[:id]}")
       begin
-        render json: CollectionSerializer.new(Collection.find(params[:id]), scope: guardian)
+        render json: CollectionSerializer.new(Collection.find(params[:id]), scope: guardian, root: false)
       rescue ActiveRecord::RecordNotFound => e
         render_json_error e.message
       end
@@ -42,6 +48,11 @@ module ::DiscourseCollections
       rescue DiscourseCollections::Error => e
         render_json_error e.message
       end
+    end
+
+    def fetch_collection
+      @collection = Collection.find(params[:id])
+      raise Discourse::NotFound if @collection.blank?
     end
   end
 end
