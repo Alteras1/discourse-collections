@@ -7,3 +7,4 @@ en:
   js:
     discourse_collections:
       collections_title: "Collections"
+      add_to_collection: "Add to Collection"

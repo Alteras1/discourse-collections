@@ -30,6 +30,25 @@ module ::DiscourseCollections
         errors.add(:collectable, "Post must have a topic in the collection")
       end
     end
+
+    before_save :update_topic_custom_field
+    before_destroy :remove_topic_custom_field
+
+    private
+      def update_topic_custom_field
+        if is_topic?
+          # topics are unique, so we can just update the custom field
+          collectable.update_attribute(IN_COLLECTION.to_sym, true)
+        end
+      end
+
+      def remove_topic_custom_field
+        if is_topic? && collectable.send(IN_COLLECTION).present?
+          collectable.update_attribute(IN_COLLECTION.to_sym, false)
+        end
+      end
+
+      # TODO: add method to delete posts when topics are deleted
   end
 end
 
