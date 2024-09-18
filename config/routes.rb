@@ -6,6 +6,7 @@ DiscourseCollections::Engine.routes.draw do
   scope "/collections", format: :json do
     get ":id" => "collections#get_collection"
     post ":collection_id/items" => "collection_items#create"
+    put ":collection_id/items/:collection_item_id" => "collection_items#update"
     delete ":collection_id/items/:collection_item_id" => "collection_items#destroy"
   end
 

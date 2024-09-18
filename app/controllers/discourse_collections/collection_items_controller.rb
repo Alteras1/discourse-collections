@@ -4,7 +4,7 @@ module ::DiscourseCollections
   class CollectionItemsController < ::ApplicationController
     requires_plugin PLUGIN_NAME
 
-    requires_login only: [:create, :destroy]
+    requires_login only: [:create, :update, :destroy]
 
     # POST /collections/:collection_id/items
     # Add a topic/post to a collection
@@ -56,6 +56,30 @@ module ::DiscourseCollections
       rescue DiscourseCollections::Error => e
         render_json_error e.message
       end
+    end
+
+    # PUT /collections/:collection_id/items/:collection_item_id
+    # Update a collection item
+    # @param collection_id [Integer] the id of the collection
+    # @param collection_item_id [Integer] the id of the collection item
+    # @param name [String] the name of the collection item (optional)
+    # @param position [Integer] the position of the collection item (optional)
+    def update
+      # @type [Integer]
+      collection_id = params.require(:collection_id)
+      # @type [Integer]
+      collection_item_id = params.require(:collection_item_id)
+      # @type [String]
+      attributes = params.permit(:name, :position)
+
+      # TODO: validations for user permissions
+
+      # @type [CollectionItem]
+      collection_item = CollectionItem.find(collection_item_id)
+      raise Discourse::NotFound if collection_item.blank?
+
+      collection_item.update!(attributes)
+      render json: CollectionItemSerializer.new(collection_item, scope: guardian)
     end
 
     # DELETE /collections/:collection_id/items/:collection_item_id
