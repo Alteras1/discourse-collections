@@ -25,6 +25,9 @@ after_initialize do
   reloadable_patch do
     # Topic.prepend(DiscourseCollections::TopicExtension)
   end
+
+  register_svg_icon "collections-library"
+
   # Adds a plugin maintained custom field to the topic model.
   # Custom fields are already being pulled in by topic query.
   # This extra field will allow us to determine if a topic is in a collection

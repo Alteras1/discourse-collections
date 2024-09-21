@@ -18,7 +18,7 @@ function initializeAddCollectionFeaturesToTopic(api) {
             },
           });
         },
-        icon: "plus-circle",
+        icon: "collections-library",
         className: "add-to-collection",
         title: "discourse_collections.add_to_collection",
         position: "second-last-hidden",

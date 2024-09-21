@@ -4,7 +4,6 @@ import { action } from "@ember/object";
 import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
 import DModalCancel from "discourse/components/d-modal-cancel";
-import Form from "discourse/components/form";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 
@@ -43,6 +42,7 @@ export default class TopicCollectionModal extends Component {
         adding "{{@model.post.topic.title}}" to collection
         {{! add form for collection chooser and collection item name.
             don't use Form since this is very simple }}
+        <br />
       </:body>
       <:footer>
         <DButton class="btn-primary" @translatedLabel="Submit" />
