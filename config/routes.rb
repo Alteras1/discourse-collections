@@ -8,6 +8,7 @@ DiscourseCollections::Engine.routes.draw do
     post ":collection_id/items" => "collection_items#create"
     put ":collection_id/items/:collection_item_id" => "collection_items#update"
     delete ":collection_id/items/:collection_item_id" => "collection_items#destroy"
+    get "search" => "collections#search"
   end
 
   # dummy routes to allow fallthrough to ember

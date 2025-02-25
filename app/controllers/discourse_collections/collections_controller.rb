@@ -25,6 +25,14 @@ module ::DiscourseCollections
       end
     end
 
+    def search
+      # TODO: consider implementing a more advanced search later (e.g. via tsvector)
+
+      results = Collections.where("title ILIKE ?", "%#{params[:q]}%")
+      # collections = Collection.search(params[:q])
+      # render json: {collections: serialize_data(collections, CollectionSerializer)}
+    end
+
     def get_collection
       # TODO: see categories#categories_and_latest for how to do a HTML only response in the event on no JS
       # to basically treat it as a top level route
