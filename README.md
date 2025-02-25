@@ -1,4 +1,4 @@
-# **Plugin Name** Plugin
+# Discourse Collections
 
 **Plugin Summary**
 
