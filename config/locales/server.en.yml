@@ -1,1 +1,3 @@
 en:
+  site_settings:
+    discourse_collections_enabled: "Enable Discourse Collections"
