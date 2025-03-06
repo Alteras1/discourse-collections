@@ -1,4 +1,4 @@
-discourse_collections:
-  discourse_collections_enabled:
+collections:
+  collections_enabled:
     default: true
     client: true

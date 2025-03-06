@@ -8,9 +8,9 @@
 # url: TODO
 # required_version: 3.0.0
 
-enabled_site_setting :discourse_collections_enabled
+enabled_site_setting :collections_enabled
 
-module ::DiscourseCollections
+module ::Collections
   PLUGIN_NAME = "discourse-collections"
 
   COLLECTION_INDEX = "collection_index"
@@ -20,6 +20,7 @@ module ::DiscourseCollections
   class Initializer
     attr_reader :plugin
 
+    # @param [Plugin::Instance] plugin
     def initialize(plugin)
       @plugin = plugin
     end
@@ -41,9 +42,10 @@ module ::DiscourseCollections
   end
 end
 
-require_relative "lib/discourse_collections/engine"
+require_relative "lib/collections/engine"
 
 after_initialize do
-  DiscourseCollections::Initializers.apply(self)
-
+  reloadable_patch do |plugin|
+    Collections::Initializers.apply(self)
+  end
 end

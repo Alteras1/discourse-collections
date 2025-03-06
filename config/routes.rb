@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-DiscourseCollections::Engine.routes.draw do
-  get "/examples" => "examples#index"
+Collections::Engine.routes.draw do
+  get "collections" => "collections#index", format: :json
   # define routes here
 end
 
-Discourse::Application.routes.draw { mount ::DiscourseCollections::Engine, at: "collections" }
+Discourse::Application.routes.draw { mount ::Collections::Engine, at: "/" }

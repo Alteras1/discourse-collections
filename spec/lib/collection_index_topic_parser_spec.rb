@@ -4,7 +4,7 @@ RSpec.configure do |c|
   c.filter_run_when_matching :focus
 end
 
-RSpec.describe ::DiscourseCollections::CollectionIndexTopicParser do
+RSpec.describe ::Collections::CollectionIndexTopicParser do
   context 'when parsing sections' do
     it 'extracts the index from a HTML fragment with only a single list and no header' do
       cooked_text = <<-HTML

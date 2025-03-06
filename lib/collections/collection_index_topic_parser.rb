@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# Parses the collection index from a topic's cooked text.
-# Must be initialized with a cooked text string.
-# only intakes the text to parse. Topic validation must be done externally
-# based on https://github.com/discourse/discourse-doc-categories/blob/main/lib/doc_categories/doc_index_topic_parser.rb
-module ::DiscourseCollections
+module ::Collections
+  # Parses the collection index from a topic's cooked text.
+  # Must be initialized with a cooked text string.
+  # only intakes the text to parse. Topic validation must be done externally
+  # based on https://github.com/discourse/discourse-doc-categories/blob/main/lib/doc_categories/doc_index_topic_parser.rb
   class CollectionIndexTopicParser
     HEADING_TAGS = %w[h1 h2 h3 h4 h5 h6]
     LIST_TAGS = %w[ol ul]
