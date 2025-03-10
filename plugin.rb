@@ -45,7 +45,5 @@ end
 require_relative "lib/collections/engine"
 
 after_initialize do
-  reloadable_patch do |plugin|
-    Collections::Initializers.apply(self)
-  end
+  Collections::Initializers.apply(self)
 end
