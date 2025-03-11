@@ -7,3 +7,6 @@ en:
       destroy_failed: "Failed to delete collection"
       not_found: "Collection not found"
       create_failed: "Failed to create collection"
+      bind_topic_not_in_collection: "Topic is not part of this collection. To add it, edit the index, or use force=true"
+      bind_topic_in_another_collection: "Topic is already part of another collection. To move it, edit the index, or use force=true"
+      unbind_topic_not_in_collection: "Topic is not part of this collection"

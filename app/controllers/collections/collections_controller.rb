@@ -40,7 +40,7 @@ module ::Collections
 
     def create
       raise Discourse::InvalidAccess unless guardian.change_collection_status_of_topic?(@topic)
-      success = Collections::CollectionHandler.create_collection_for_topic(@topic)
+      success = Collections::CollectionHandler.create_collection_for_topic(@topic, current_user)
       # TODO add response
       
       return render_json_error I18n.t("collections.errors.create_failed"), status: 500 unless success
@@ -69,26 +69,37 @@ module ::Collections
     def bind
       raise Discourse::InvalidAccess unless guardian.change_collection_index_of_topic?(@topic)
 
-      @index
-      @topic
-      @collection
+      force = params[:force]
+      if !@collection.bounded_topics_based_on_payload.include?(@topic.id) && !force
+        return render_json_error I18n.t("collections.errors.bind_topic_not_in_collection"), status: 406
+      end
 
-      # TODO check index
+      if existing_col_id = @topic.custom_fields[Collections::COLLECTION_INDEX]
+        # already in a collection
+        if existing_col_id == @index.id
+          return render body: nil, status: 200
+        end
+        return render_json_error I18n.t("collections.errors.bind_topic_in_another_collection"), status: 406 if existing_col_id && !force
+      end
 
-      # TODO add response
-
+      @topic.custom_fields[Collections::COLLECTION_INDEX] = @index.id
+      @topic.save_custom_fields
+      
+      MessageBus.publish("/topic/#{@topic.id}", reload_topic: true)
+      render body: nil, status: 200
     end
 
     def unbind
       raise Discourse::InvalidAccess unless guardian.change_collection_index_of_topic?(@topic)
-      @index
-      @topic
-      @collection
 
-      # TODO check index
+      if @topic.custom_fields[Collections::COLLECTION_INDEX] != @index.id
+        return render_json_error I18n.t("collections.errors.unbind_topic_not_in_collection"), status: 406
+      end
 
-      # TODO add response
+      TopicCustomField.delete_by(name: Collections::COLLECTION_INDEX, value: @index.id, topic_id: @topic.id)
+      MessageBus.publish("/topic/#{@topic.id}", reload_topic: true)
 
+      render body: nil, status: 200
     end
   end
 end
