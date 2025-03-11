@@ -1,3 +1,9 @@
 en:
   site_settings:
     discourse_collections_enabled: "Enable Discourse Collections"
+  collections:
+    errors:
+      preview_params_missing: "Must provide raw or cooked"
+      destroy_failed: "Failed to delete collection"
+      not_found: "Collection not found"
+      create_failed: "Failed to create collection"

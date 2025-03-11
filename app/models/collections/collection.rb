@@ -20,7 +20,12 @@ module ::Collections
 
     after_commit :clean_up_connected_topics, on: :destroy
     def clean_up_connected_topics
-      TopicCustomField.where(name: Collections::COLLECTION_INDEX, value: topic_id).delete_all
+      associated_topic_ids = TopicCustomField.where(name: Collections::COLLECTION_INDEX, value: topic_id).pluck(:topic_id)
+      TopicCustomField.delete_by(name: Collections::COLLECTION_INDEX, value: topic_id)
+      associated_topic_ids.each do |t_id|
+        MessageBus.publish("/topic/#{t_id}", reload_topic: true)
+      end
+      MessageBus.publish("/topic/#{topic_id}", reload_topic: true)
     end
 
     private
@@ -42,8 +47,7 @@ end
 #
 # Table name: collections
 #
-#  id         :integer          not null, primary key
-#  topic_id   :integer          not null
+#  topic_id   :integer          not null, primary key
 #  payload    :jsonb            not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null

@@ -3,7 +3,7 @@
 module ::Collections
   class CollectionHandler
     def self.preview_collection(cooked_text)
-      Collections::CollectionIndexTopicParser.new(cooked_text).sections.to_json
+      Collections::CollectionIndexTopicParser.new(cooked_text).sections
     end
 
     def self.create_collection_for_topic(topic)
@@ -20,7 +20,7 @@ module ::Collections
       begin
         Topic.transaction do
           collection.save!
-          topic.custom_fields[Collections::IS_COLLECTION] = is_collection
+          topic.custom_fields[Collections::IS_COLLECTION] = true
           topic.save_custom_fields
           list_of_topics.each do |t_id|
             t = Topic.find_by(id: t_id)
