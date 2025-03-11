@@ -33,7 +33,6 @@ module ::Collections
             # initial build is always limited to the topics that OP owns
             next unless t.user_id == topic.user_id
             
-            # TODO: add a guard for the topic check here
             t.custom_fields[Collections::COLLECTION_INDEX] = topic.id
             t.save_custom_fields
           end

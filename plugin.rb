@@ -16,6 +16,7 @@ module ::Collections
   COLLECTION_INDEX = "collection_index"
   IS_COLLECTION = "is_collection"
   COLLECTION = "collection"
+  OWNED_COLLECTION = "owned_collection"
 
   class Initializer
     attr_reader :plugin
