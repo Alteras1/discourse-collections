@@ -16,7 +16,7 @@ module ::Collections
           else
             collection = Collections::Collection.find_by(topic_id: object.topic.public_send(Collections::COLLECTION_INDEX))
           end
-          collection.present? ? Collections::CollectionSerializer.new(collection, scope: self, root: false) : nil
+          collection.present? ? Collections::CollectionSerializer.new(collection, scope: scope, root: false) : nil
         end
 
         plugin.add_to_serializer(
@@ -25,7 +25,7 @@ module ::Collections
           include_condition: -> { object.topic.public_send(Collections::IS_COLLECTION) }
         ) do
           collection = Collections::Collection.find_by(topic_id: object.topic.id)
-          collection.present? ? Collections::CollectionIndexSerializer.new(collection, scope: self, root: false) : nil
+          collection.present? ? Collections::CollectionIndexSerializer.new(collection, scope: scope, root: false) : nil
         end
 
         plugin.add_to_serializer(
@@ -35,7 +35,7 @@ module ::Collections
         ) do
           # this is a child topic view
           collection = Collections::Collection.find_by(topic_id: object.topic.public_send(Collections::COLLECTION_INDEX))
-          collection.present? ? Collections::CollectionSerializer.new(collection, scope: self, root: false) : nil
+          collection.present? ? Collections::CollectionSerializer.new(collection, scope: scope, root: false) : nil
         end
       end
     end

@@ -11,19 +11,17 @@ module ::Collections
     # with symbolized keys. This is not meant to be used for writing. If you
     # need to write to the payload, you should use the `payload` attribute
     # directly.
-    # 
-    # @return [Array<Hash>]
     def sections
       return nil if payload.blank?
-      initialize_open_struct_deeply payload
+      {s: payload}.deep_symbolize_keys()[:s]
     end
 
     def bounded_topics_based_on_payload
       return [] if payload.blank?
       sections
-        .flat_map { |section| section.links.map { |link| Collections::Url.extract_topic_id_from_url(link[:href]) } }
+        .flat_map { |section| section[:links].map { |link| Collections::Url.extract_topic_id_from_url(link[:href]) } }
         .compact
-        .to_set
+        .uniq
     end
 
     def actual_bounded_topics
@@ -46,19 +44,6 @@ module ::Collections
         MessageBus.publish("/topic/#{t_id}", reload_topic: true)
       end
       MessageBus.publish("/topic/#{topic_id}", reload_topic: true)
-    end
-
-    private
-
-    def initialize_open_struct_deeply(value)
-      case value
-      when Hash
-        OpenStruct.new(value.transform_values { |hash_value| send __method__, hash_value })
-      when Array
-        value.map { |element| send __method__, element }
-      else
-        value
-      end
     end
   end
 end

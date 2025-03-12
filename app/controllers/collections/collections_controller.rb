@@ -40,10 +40,10 @@ module ::Collections
 
     def create
       raise Discourse::InvalidAccess unless guardian.change_collection_status_of_topic?(@topic)
-      success = Collections::CollectionHandler.create_collection_for_topic(@topic, current_user)
+      success = Collections::CollectionHandler.create_collection_for_topic(@topic)
       
       return render_json_error I18n.t("collections.errors.create_failed"), status: 500 unless success
-      render_serialized(Collections::Collection.find_by_topic_id(@topic.id), Collections::CollectionSerializer, {scope: guardian, root: false})
+      render_serialized(Collections::Collection.find_by_topic_id(@topic.id), Collections::CollectionIndexSerializer, {scope: guardian, root: false})
     end
 
     def destroy

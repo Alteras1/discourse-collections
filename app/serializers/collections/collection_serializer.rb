@@ -6,7 +6,7 @@ module ::Collections
 
     def sections
       object.sections.map do |section|
-        section.links.map do |link|
+        section[:links] = section[:links].map do |link|
           id = Collections::Url.extract_topic_id_from_url(link[:href])
           processed_link = {
             title: link[:title],
@@ -28,6 +28,7 @@ module ::Collections
           end
           processed_link
         end
+        section
       end
     end
 
