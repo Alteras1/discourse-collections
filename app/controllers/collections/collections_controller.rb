@@ -35,7 +35,7 @@ module ::Collections
     def read
       collection = Collections::Collection.find_by_topic_id(@topic.id)
       raise Discourse::NotFound unless collection
-      render_serialized(collection, Collections::CollectionSerializer, {scope: guardian, root: false})
+      render_serialized(collection, Collections::CollectionIndexSerializer, {scope: guardian, root: false})
     end
 
     def create
