@@ -1,6 +1,8 @@
 en:
   site_settings:
-    discourse_collections_enabled: "Enable Discourse Collections"
+    collections_enabled: "Enable Discourse Collections"
+    collection_by_topic_owner: "Allow topic owner to create/edit collections"
+    collection_modification_by_allowed_groups: "Allow groups to create/edit any collection on any topic"
   collections:
     errors:
       preview_params_missing: "Must provide raw or cooked"

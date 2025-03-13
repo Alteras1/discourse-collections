@@ -22,7 +22,8 @@ module ::Collections
 
         plugin.on(:topic_recovered) do |topic, user|
           next unless topic.custom_fields[Collections::IS_COLLECTION]
-          Collections::CollectionHandler.create_collection_for_topic(topic.id)
+          auto_bind = Guardian.new(user).change_collection_status_of_topic?(topic)
+          Collections::CollectionHandler.create_collection_for_topic(topic.id, auto_bind: auto_bind)
         end
 
         plugin.add_model_callback(:post, :after_commit) do
@@ -30,7 +31,8 @@ module ::Collections
           return if previous_changes[:cooked].blank?
           topic = Topic.find_by(id: topic_id)
           return unless topic&.custom_fields&.[](Collections::IS_COLLECTION)
-          Collections::CollectionHandler.create_collection_for_topic(topic)
+          auto_bind = Guardian.new(user).change_collection_status_of_topic?(topic)
+          Collections::CollectionHandler.create_collection_for_topic(topic, auto_bind: auto_bind)
         end
       end
     end

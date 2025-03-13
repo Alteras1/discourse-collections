@@ -6,7 +6,7 @@ module ::Collections
       Collections::CollectionIndexTopicParser.new(cooked_text).sections
     end
 
-    def self.create_collection_for_topic(topic)
+    def self.create_collection_for_topic(topic, auto_bind: true)
       payload = Collections::CollectionIndexTopicParser.new(topic.ordered_posts.first.cooked).sections
       existing_col = Collections::Collection.find_by(topic_id: topic.id)
       if existing_col
@@ -25,6 +25,8 @@ module ::Collections
           collection.save!
           topic.custom_fields[Collections::IS_COLLECTION] = true
           topic.save_custom_fields
+
+          next unless auto_bind
           list_of_topics.each do |t_id|
             t = Topic.find_by(id: t_id)
             next unless t
@@ -50,6 +52,7 @@ module ::Collections
         return false
       end
 
+      return true unless auto_bind
       list_of_topics_to_remove&.each do |t_id|
         MessageBus.publish("/topic/#{t_id}", reload_topic: true)
       end

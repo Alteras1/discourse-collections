@@ -49,11 +49,13 @@ after_initialize do
   add_to_class(:guardian, :change_collection_status_of_topic?) do |topic|
     # set to can edit, as this will cover OP and staff.
     # should we need to extend this, ie. as a new permission, we can extend this method
-    can_edit_topic?(topic)
+    return can_edit_topic?(topic) if SiteSetting.collection_by_topic_owner
+    current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
   end
 
   add_to_class(:guardian, :change_collection_index_of_topic?) do |topic|
-    can_edit_topic?(topic)
+    return can_edit_topic?(topic) if SiteSetting.collection_by_topic_owner
+    current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
   end
   Collections::Initializers.apply(self)
 end
