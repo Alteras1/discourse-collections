@@ -9,7 +9,7 @@ module ::Collections
         section[:links] = section[:links].map do |link|
           id = Collections::Url.extract_topic_id_from_url(link[:href])
           processed_link = {
-            title: link[:title],
+            text: link[:text],
             href: link[:href],
             topic_id: id,
             can_view: available_topics.include?(id) || id.nil?
@@ -18,7 +18,7 @@ module ::Collections
             sub_links = link[:sub_links]&.map do |sub_link|
               id = Collections::Url.extract_topic_id_from_url(sub_link[:href])
               {
-                title: sub_link[:title],
+                text: sub_link[:text],
                 href: sub_link[:href],
                 topic_id: id,
                 can_view: available_topics.include?(id)

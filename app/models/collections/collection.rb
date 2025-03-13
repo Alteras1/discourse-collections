@@ -61,3 +61,21 @@ end
 #
 #  index_collections_on_topic_id  (topic_id) UNIQUE
 #
+# payload expected to have structure:
+# [
+#   {
+#     text: "section",
+#     links: [
+#       {
+#         text: "link",
+#         href: "https://link.com",
+#         sub_links: [
+#           {
+#             text: "sub link",
+#             href: "https://sublink.com"
+#           }
+#         ]
+#       }
+#     ]
+#   }
+# ]
