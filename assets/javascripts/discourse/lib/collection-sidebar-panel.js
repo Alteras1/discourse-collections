@@ -144,6 +144,6 @@ class CollectionSidebarSectionLink extends BaseCustomSidebarSectionLink {
   }
 
   get prefixValue() {
-    return "far-file";
+    return "far-square";
   }
 }

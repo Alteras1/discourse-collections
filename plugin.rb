@@ -10,6 +10,8 @@
 
 enabled_site_setting :collections_enabled
 
+register_asset "stylesheets/common/index.scss"
+
 module ::Collections
   PLUGIN_NAME = "discourse-collections"
 
