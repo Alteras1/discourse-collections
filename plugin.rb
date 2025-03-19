@@ -48,6 +48,10 @@ end
 require_relative "lib/collections/engine"
 
 after_initialize do
+
+  register_svg_icon "collections-layers"
+  register_svg_icon "collections-add"
+
   add_to_class(:guardian, :change_collection_status_of_topic?) do |topic|
     # set to can edit, as this will cover OP and staff.
     # should we need to extend this, ie. as a new permission, we can extend this method

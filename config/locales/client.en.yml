@@ -5,5 +5,9 @@ en:
         categories:
           discourse_collections: "Collections"
   js:
-    discourse_plugin_name:
-      placeholder: placeholder
+    collections:
+      post_menu:
+        create: "Create collection"
+        delete: "Delete collection"
+        add: "Add this topic to a collection"
+        remove: "Remove this topic from a collection"
