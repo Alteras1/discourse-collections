@@ -10,12 +10,12 @@ import { i18n } from "discourse-i18n";
 export default class CollectionPostMenuButton extends Component {
   static hidden = true;
 
-  topic = this.args.post.topic;
+  collection = this.args.post.topic.collection;
 
   constructor() {
     super(...arguments);
     console.log(this.args);
-    console.log(this.topic);
+    console.log(this.collection);
   }
 
   @action
@@ -53,13 +53,13 @@ export default class CollectionPostMenuButton extends Component {
     >
       <:content>
         <DropdownMenu as |dropdown|>
-          {{!-- {{#if this.topic.is_collection}}
+          {{!-- {{#if this.collection.is_collection}}
             <dropdown.item class="collection-post-menu_title">
               {{icon "layer-group"}}
               <span>{{i18n "collections.collection_post_menu.title"}}</span>
             </dropdown.item>
           {{/if}} --}}
-          {{#if this.topic.collection_index}}
+          {{#if this.collection.collection_index}}
             <dropdown.item
               class="collection-post-menu__index"
               data-menu-option-id="index"
@@ -73,7 +73,7 @@ export default class CollectionPostMenuButton extends Component {
               />
             </dropdown.item>
           {{/if}}
-          {{#unless this.topic.is_collection}}
+          {{#unless this.collection.is_collection}}
             <dropdown.item
               class="collection-post-menu__create"
               data-menu-option-id="create"
@@ -88,7 +88,7 @@ export default class CollectionPostMenuButton extends Component {
             </dropdown.item>
           {{/unless}}
 
-          {{#if this.topic.collection_index}}
+          {{#if this.collection.collection_index}}
             <dropdown.item
               class="collection-post-menu__remove"
               data-menu-option-id="remove"
@@ -116,7 +116,7 @@ export default class CollectionPostMenuButton extends Component {
             </dropdown.item>
           {{/if}}
 
-          {{#if this.topic.is_collection}}
+          {{#if this.collection.is_collection}}
             <dropdown.divider />
             <dropdown.item
               class="collection-post-menu__delete"

@@ -26,16 +26,22 @@ export default class CollectionSidebarService extends Service {
     this.router.off("routeDidChange", this, this.currentRouteChanged);
   }
 
+  get topicCollectionInfo() {
+    return (
+      this.router.currentRoute?.attributes?.collection ||
+      this.router.currentRoute?.parent?.attributes?.collection ||
+      {}
+    );
+  }
+
   get activeCollection() {
     if (this.sidebarState.currentPanel?.key === ADMIN_PANEL) {
       return {};
     }
 
     return (
-      this.router.currentRoute?.attributes?.owned_collection ||
-      this.router.currentRoute?.parent?.attributes?.owned_collection ||
-      this.router.currentRoute?.attributes?.collection ||
-      this.router.currentRoute?.parent?.attributes?.collection ||
+      this.topicCollectionInfo?.owned_collection ||
+      this.topicCollectionInfo?.collection ||
       {}
     );
   }
@@ -44,10 +50,7 @@ export default class CollectionSidebarService extends Service {
     if (this.sidebarState.currentPanel?.key === ADMIN_PANEL) {
       return;
     }
-    return (
-      this.router.currentRoute?.attributes?.is_collection ||
-      this.router.currentRoute?.parent?.attributes?.is_collection
-    );
+    return this.topicCollectionInfo?.is_collection;
   }
 
   get isVisible() {
