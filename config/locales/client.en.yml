@@ -6,8 +6,51 @@ en:
           discourse_collections: "Collections"
   js:
     collections:
+      template:
+        plain: |-
+          # Section Title (optional)
+          * Item 1: [Item 1](https://example.com)
+          * Item 2: [Item 2](https://example.com)
+
+          # Another Section Title (optional)
+          * Item 3: [Item 3](https://example.com)
+        decorated: |-
+          <div data-collection-index>
+          <!-- use data-collection-index="hidden" to hide the index in the post -->
+
+          # Section Title (optional)
+          * Item 1: [Item 1](https://example.com)
+          * Item 2: [Item 2](https://example.com)
+
+          # Another Section Title (optional)
+          * Item 3: [Item 3](https://example.com)
+          </div>
       post_menu:
-        create: "Create collection"
-        delete: "Delete collection"
-        add: "Add this topic to a collection"
-        remove: "Remove this topic from a collection"
+        title: "collection actions"
+        to_index: "Collection Index"
+        create: "Create Collection"
+        delete: "Delete Collection"
+        add: "Add this to a Collection"
+        remove: "Remove this from Collection"
+      modal:
+        create:
+          preview: "Here is a preview of the collection this topic will create."
+          informational: "Here is an example of the text needed in the post to create a collection."
+          error: "No collection syntax found"
+          create: "Create"
+        add:
+          title: "Add to Collection"
+          select: "Select a collection"
+          not_found: "No collection index found"
+          body: "This will allow this topic to display a collection without modifying the collection list."
+          warning: "This collection does not have this topic in its index. Adding it will not modify the collection list. To properly add it to a new collection, edit the "
+          index: "collection index"
+          warning2: " and add it from there."
+          force: "Continue without modifying the collection list"
+          confirm: "Add"
+        remove:
+          title: "Remove from Collection"
+          body1: "This will prevent the collection from being displayed on this topic, but will not prevent the collection displaying this topic on its list (if applicable). To completely remove this from the collection, edit the "
+          index: "collection index"
+          body2: " and remove it from there."
+          confirm: "Remove"
