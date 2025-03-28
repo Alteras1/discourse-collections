@@ -124,7 +124,7 @@ export default class CollectionPostMenuButton extends Component {
                 <DButton
                   class="collection-post-menu__btn btn-transparent"
                   @action={{this.removeFromCollection}}
-                  @icon="collections-add"
+                  @icon="collections-remove"
                   @label="collections.post_menu.remove"
                 />
               </dropdown.item>

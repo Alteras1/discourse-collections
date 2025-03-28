@@ -20,14 +20,19 @@ export default class CollectionRemoveModal extends Component {
   }
 
   @action
-  async removeFromCollection() {
+  async removeCollectionIndex() {
     console.log("remove");
     this.isLoading = true;
     try {
-      // const remove = await ajax("/collections/" + this.args.model.topic.id, {
-      //   type: "POST",
-      // });
-      // console.log(create);
+      const unbind = await ajax(
+        `/collections/${this.args.model.collection.collection_index}/${this.args.model.topic.id}`,
+        {
+          type: "DELETE",
+        }
+      );
+      console.log(unbind);
+
+      // todo: perform refresh
     } catch (error) {
       popupAjaxError(error);
     } finally {
@@ -56,8 +61,7 @@ export default class CollectionRemoveModal extends Component {
         <DButton
           @icon="trash-can"
           @label="collections.modal.remove.confirm"
-          @action={{this.removeFromCollection}}
-          @disabled={{this.isDisabled}}
+          @action={{this.removeCollectionIndex}}
           @isLoading={{this.isLoading}}
           @class="btn-danger"
         />

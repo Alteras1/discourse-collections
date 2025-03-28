@@ -42,11 +42,12 @@ en:
           title: "Add to Collection"
           select: "Select a collection"
           not_found: "No collection index found"
+          not_collection: "Error: This topic is not a collection index."
           body: "This will allow this topic to display a collection without modifying the collection list."
           warning: "This collection does not have this topic in its index. Adding it will not modify the collection list. To properly add it to a new collection, edit the "
           index: "collection index"
           warning2: " and add it from there."
-          force: "Continue without modifying the collection list"
+          force: "Confirm force add"
           confirm: "Add"
         remove:
           title: "Remove from Collection"

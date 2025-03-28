@@ -1,57 +1,81 @@
 .collection-modal {
   .collection-modal__body {
-    &> p:first-child {
+    & > p:first-child {
       margin-top: 0;
     }
   }
-}
+  .collection-preview {
+    display: block;
+    position: relative;
+    border: 1px solid var(--tertiary);
+    border-radius: var(--d-border-radius);
+    padding: 1rem;
 
-.collection-modal .collection-preview {
-  display: block;
-  position: relative;
-  border: 1px solid var(--tertiary);
-  border-radius: var(--d-border-radius);
-  padding: 1rem;
-
-  label.collection-preview__section-label {
-    cursor: pointer;
-    input {
-      display: none;
-    }
-    svg {
-      display: none;
-      margin-right: 0.5rem;
-    }
-    &:has(input:checked) {
-      svg.d-icon-angle-down {
-        display: block;
-      }
-    }
-    &:has(input:not(:checked)) {
-      svg.d-icon-angle-right {
-        display: block;
-      }
-      & + .collection-preview__section {
+    label.collection-preview__section-label {
+      cursor: pointer;
+      input {
         display: none;
       }
+      svg {
+        display: none;
+        margin-right: 0.5rem;
+      }
+      &:has(input:checked) {
+        svg.d-icon-angle-down {
+          display: block;
+        }
+      }
+      &:has(input:not(:checked)) {
+        svg.d-icon-angle-right {
+          display: block;
+        }
+        & + .collection-preview__section {
+          display: none;
+        }
+      }
+    }
+
+    .collection-preview__link,
+    .collection-preview__sublink {
+      svg {
+        margin-right: 0.5rem;
+      }
+    }
+
+    .collection-preview__sublink {
+      margin-left: 1rem;
+    }
+
+    &.warn {
+      border-color: var(--danger);
+      .warning {
+        color: var(--danger);
+        font-weight: bold;
+      }
     }
   }
 
-  .collection-preview__link, .collection-preview__sublink {
-    svg {
-      margin-right: 0.5rem;
-    }
+  label:has(+ div .collection-modal__error) {
+    color: var(--danger);
   }
 
-  .collection-preview__sublink {
-    margin-left: 1rem;
-  }
-
-  &.warn {
+  details:has(+ .collection-modal__error) .select-kit-header {
     border-color: var(--danger);
-    .warning {
-      color: var(--danger);
-      font-weight: bold;
-    }
+  }
+
+  .collection-modal__error {
+    font-size: var(--font-down-1-rem);
+    font-weight: bold;
+    color: var(--danger);
+    margin-top: 0.5rem;
+  }
+
+  .collection-modal__warning {
+    margin-bottom: 0;
+  }
+  .collection-modal__force-add-label {
+    margin-bottom: 0;
+    margin-left: 2rem;
+    cursor: pointer;
   }
 }

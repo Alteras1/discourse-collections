@@ -1,5 +1,7 @@
+import { Input } from "@ember/component";
 import { action } from "@ember/object";
 import { fn, hash } from "@ember/helper";
+import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
 import Component from "@glimmer/component";
@@ -13,10 +15,26 @@ import TopicChooser from "select-kit/components/topic-chooser";
 import { and } from "truth-helpers";
 
 export default class CollectionAddModal extends Component {
+  @service store;
+
   @tracked preview = [];
-  @tracked isDisabled = true;
   @tracked isLoading = false;
   @tracked selectedTopic = [];
+  @tracked selectedCollectionId;
+  @tracked needsCheckbox = false;
+  @tracked collectionError = false;
+  @tracked isForce = false;
+
+  get collectionIndexUrl() {
+    return `/t/-/${this.selectedCollectionId}/1`;
+  }
+
+  get isDisabled() {
+    if (this.needsCheckbox) {
+      return !this.isForce || !this.selectedCollectionId;
+    }
+    return !this.selectedCollectionId;
+  }
 
   constructor() {
     super(...arguments);
@@ -24,26 +42,66 @@ export default class CollectionAddModal extends Component {
   }
 
   @action
-  async createCollection() {
+  async addCollectionIndex() {
     this.isLoading = true;
     try {
-      const create = await ajax("/collections/" + this.args.model.topic.id, {
-        type: "POST",
-      });
-      console.log(create);
+      const bind = await ajax(
+        `/collections/${this.selectedCollectionId}/${this.args.model.topic.id}`,
+        {
+          type: "POST",
+          data: {
+            force: this.isForce,
+          },
+        }
+      );
+      console.log(bind);
     } catch (error) {
       popupAjaxError(error);
     } finally {
       this.isLoading = false;
       this.args.closeModal();
     }
+    // todo: perform refresh
   }
 
   @action
-  onChangeTopic(fieldSet, topicId, topic) {
+  async onChangeTopic(fieldSet, topicId, topic) {
     this.selectedTopic = [topic];
-    console.log(this.selectedTopic)
+    console.log(this.selectedTopic);
     fieldSet(topicId);
+    this.selectedCollectionId = null;
+    if (await this.validateTopicCollection(topicId)) {
+      this.selectedCollectionId = topicId;
+    }
+  }
+
+  async validateTopicCollection(testId) {
+    this.collectionError = false;
+    this.needsCheckbox = false;
+
+    if (!testId) {
+      return false;
+    }
+
+    let col;
+    try {
+      col = await ajax("/collections/" + testId, {
+        type: "GET",
+      });
+    } catch (error) {
+      this.collectionError = true;
+      return false;
+    }
+    if (!col?.unbound_topics.some((t) => t.id === this.args.model.topic.id)) {
+      this.needsCheckbox = true;
+    }
+    return true;
+  }
+
+  @action
+  onChangeCheckbox(fieldSet, value) {
+    this.isForce = value;
+    fieldSet(value);
   }
 
   <template>
@@ -68,20 +126,46 @@ export default class CollectionAddModal extends Component {
                 @value={{field.value}}
                 @content={{this.selectedTopic}}
                 @onChange={{fn this.onChangeTopic field.set}}
-                {{!-- @options={{hash additionalFilters="status:public"}} TODO: add search filter --}}
+                @options={{hash additionalFilters="is:collection"}}
               />
+              {{#if this.collectionError}}
+                <span class="collection-modal__error">{{i18n
+                    "collections.modal.add.not_collection"
+                  }}</span>
+              {{/if}}
             </field.Custom>
           </form.Field>
         </Form>
+        {{#if this.needsCheckbox}}
+          <p class="collection-modal__warning">
+            {{i18n "collections.modal.add.warning"}}
+            <a href={{this.collectionIndexUrl}}>{{i18n
+                "collections.modal.add.index"
+              }}</a>
+            {{i18n "collections.modal.add.warning2"}}
+          </p>
+        {{/if}}
       </:body>
       <:footer>
         <DButton
           @label="collections.modal.add.confirm"
-          @action={{this.createCollection}}
+          @action={{this.addCollectionIndex}}
           @disabled={{this.isDisabled}}
           @isLoading={{this.isLoading}}
           @class="btn-primary"
         />
+        {{#if this.needsCheckbox}}
+          <label class="collection-modal__force-add-label">
+            <Input
+              name="collection-modal__force-add"
+              @checked={{this.isForce}}
+              @type="checkbox"
+              @disabled={{this.isLoading}}
+              required
+            />
+            {{i18n "collections.modal.add.force"}}
+          </label>
+        {{/if}}
       </:footer>
     </DModal>
   </template>

@@ -49,8 +49,8 @@ require_relative "lib/collections/engine"
 
 after_initialize do
 
-  register_svg_icon "collections-layers"
   register_svg_icon "collections-add"
+  register_svg_icon "collections-remove"
 
   add_to_class(:guardian, :change_collection_status_of_topic?) do |topic|
     # set to can edit, as this will cover OP and staff.
@@ -63,5 +63,14 @@ after_initialize do
     return can_edit_topic?(topic) if SiteSetting.collection_by_topic_owner
     current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
   end
+
+  register_search_advanced_filter(/is:collection/) do |post|
+    if SiteSetting.collections_enabled
+      post.where("topics.id IN (SELECT topic_id FROM topic_custom_fields WHERE name = '#{Collections::IS_COLLECTION}' AND value = 't')")
+    else
+      post
+    end
+  end
+
   Collections::Initializers.apply(self)
 end
