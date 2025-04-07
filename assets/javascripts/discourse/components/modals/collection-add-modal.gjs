@@ -53,7 +53,6 @@ export default class CollectionAddModal extends Component {
       this.isLoading = false;
       this.args.closeModal();
     }
-    // todo: perform refresh
   }
 
   @action

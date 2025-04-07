@@ -24,8 +24,6 @@ export default class CollectionRemoveModal extends Component {
           type: "DELETE",
         }
       );
-
-      // todo: perform refresh
     } catch (error) {
       popupAjaxError(error);
     } finally {

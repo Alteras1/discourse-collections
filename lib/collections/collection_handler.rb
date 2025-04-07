@@ -54,7 +54,7 @@ module ::Collections
 
       return true unless auto_bind
       list_of_topics_to_remove&.each do |t_id|
-        MessageBus.publish("/topic/#{t_id}", reload_topic: true)
+        MessageBus.publish("/topic/#{t_id}", reload_topic: true, type: "collection_updated")
       end
 
       true

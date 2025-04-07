@@ -52,7 +52,6 @@ export default class CollectionCreateModal extends Component {
       this.isLoading = false;
       this.args.closeModal();
     }
-    // TODO: perform refresh
   }
 
   <template>

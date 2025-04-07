@@ -84,7 +84,7 @@ module ::Collections
       @topic.custom_fields[Collections::COLLECTION_INDEX] = @index.id
       @topic.save_custom_fields
       
-      MessageBus.publish("/topic/#{@topic.id}", reload_topic: true)
+      MessageBus.publish("/topic/#{@topic.id}", type: "collection_updated")
       render body: nil, status: 200
     end
 
@@ -96,7 +96,7 @@ module ::Collections
       end
 
       TopicCustomField.delete_by(name: Collections::COLLECTION_INDEX, value: @index.id, topic_id: @topic.id)
-      MessageBus.publish("/topic/#{@topic.id}", reload_topic: true)
+      MessageBus.publish("/topic/#{@topic.id}", type: "collection_updated")
 
       render body: nil, status: 200
     end

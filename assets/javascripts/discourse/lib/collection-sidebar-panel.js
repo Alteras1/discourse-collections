@@ -1,13 +1,13 @@
 import { cached } from "@glimmer/tracking";
 import { computed } from "@ember/object";
 import { getOwnerWithFallback } from "discourse/lib/get-owner";
-import { SIDEBAR_COLLECTIONS_PANEL } from "../services/collection-sidebar";
 import { samePrefix } from "discourse/lib/get-url";
 import BaseCustomSidebarSection from "discourse/lib/sidebar/base-custom-sidebar-section";
 import BaseCustomSidebarSectionLink from "discourse/lib/sidebar/base-custom-sidebar-section-link";
 import DiscourseURL from "discourse/lib/url";
 import { escapeExpression, unicodeSlugify } from "discourse/lib/utilities";
 import { i18n } from "discourse-i18n";
+import { SIDEBAR_COLLECTIONS_PANEL } from "../services/collection-sidebar";
 
 const sidebarPanelClassBuilder = (BaseCustomSidebarPanel) =>
   class CollectionSidebarPanel extends BaseCustomSidebarPanel {

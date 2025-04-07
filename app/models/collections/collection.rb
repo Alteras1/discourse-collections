@@ -31,9 +31,9 @@ module ::Collections
     after_commit :refresh_bounded_topics, on: [:create, :update]
     def refresh_bounded_topics
       actual_bounded_topics.each do |t_id|
-        MessageBus.publish("/topic/#{t_id}", reload_topic: true)
+        MessageBus.publish("/topic/#{t_id}", type: "collection_updated")
       end
-      MessageBus.publish("/topic/#{topic_id}", reload_topic: true)
+      MessageBus.publish("/topic/#{topic_id}", type: "collection_updated")
     end
 
     after_commit :clean_up_connected_topics, on: :destroy
@@ -41,9 +41,9 @@ module ::Collections
       associated_topic_ids = actual_bounded_topics
       TopicCustomField.delete_by(name: Collections::COLLECTION_INDEX, value: topic_id)
       associated_topic_ids.each do |t_id|
-        MessageBus.publish("/topic/#{t_id}", reload_topic: true)
+        MessageBus.publish("/topic/#{t_id}", type: "collection_updated")
       end
-      MessageBus.publish("/topic/#{topic_id}", reload_topic: true)
+      MessageBus.publish("/topic/#{topic_id}", type: "collection_updated")
     end
   end
 end
