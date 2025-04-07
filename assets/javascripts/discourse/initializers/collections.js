@@ -1,6 +1,6 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
-import sidebarPanelClassBuilder from "../lib/collection-sidebar-panel";
 import CollectionPostMenuButton from "../components/collection-post-menu-button";
+import sidebarPanelClassBuilder from "../lib/collection-sidebar-panel";
 
 export default {
   name: "collections",
@@ -25,8 +25,8 @@ export default {
             return;
           }
           dag.add("collection", CollectionPostMenuButton, {
-            before: "delete",
-            after: "bookmark",
+            before: ["delete", "showMore"],
+            after: ["bookmark", "edit"],
           });
         }
       );

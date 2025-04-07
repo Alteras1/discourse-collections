@@ -1,3 +1,15 @@
+.post-action-menu__collection.warning {
+  &:hover {
+    background-color: var(--danger-low) !important;
+    svg {
+      color: var(--danger) !important;
+    }
+  }
+  svg {
+    color: var(--danger-medium);
+  }
+}
+
 .collection-modal {
   .collection-modal__body {
     & > p:first-child {

@@ -27,6 +27,7 @@ en:
           </div>
       post_menu:
         title: "collection actions"
+        unbound: "Unbound/Orphaned topics"
         to_index: "Collection Index"
         create: "Create Collection"
         delete: "Delete Collection"
@@ -55,3 +56,9 @@ en:
           index: "collection index"
           body2: " and remove it from there."
           confirm: "Remove"
+        unbound:
+          unbound: "Unbound topics"
+          unbound_desc: "These topics are referenced in the collection index, but are not bound to this collection. They will not display this collection when viewed. To resolve, go to the topic and add it to the collection."
+          orphaned: "Orphaned topics"
+          orphaned_desc: "These topics are bound to this collection, but are not referenced in the collection index. They will display this collection when viewed. To resolve, go to the topic and remove it from the collection."
+          NA: "none found"

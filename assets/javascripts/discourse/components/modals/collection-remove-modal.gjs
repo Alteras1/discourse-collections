@@ -1,8 +1,8 @@
+import Component from "@glimmer/component";
+import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
-import Component from "@glimmer/component";
-import { tracked } from "@glimmer/tracking";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { i18n } from "discourse-i18n";
@@ -14,23 +14,16 @@ export default class CollectionRemoveModal extends Component {
     return `/t/-/${this.args.model.collection.collection_index}/1`;
   }
 
-  constructor() {
-    super(...arguments);
-    console.log(this.args.model);
-  }
-
   @action
   async removeCollectionIndex() {
-    console.log("remove");
     this.isLoading = true;
     try {
-      const unbind = await ajax(
+      await ajax(
         `/collections/${this.args.model.collection.collection_index}/${this.args.model.topic.id}`,
         {
           type: "DELETE",
         }
       );
-      console.log(unbind);
 
       // todo: perform refresh
     } catch (error) {

@@ -1,13 +1,13 @@
-import { action } from "@ember/object";
-import DButton from "discourse/components/d-button";
-import DModal from "discourse/components/d-modal";
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import { action } from "@ember/object";
+import { and } from "truth-helpers";
+import DButton from "discourse/components/d-button";
+import DModal from "discourse/components/d-modal";
 import icon from "discourse/helpers/d-icon";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { i18n } from "discourse-i18n";
-import { and } from "truth-helpers";
 
 export default class CollectionCreateModal extends Component {
   @tracked preview = [];
@@ -17,7 +17,6 @@ export default class CollectionCreateModal extends Component {
 
   constructor() {
     super(...arguments);
-    console.log(this.args.model);
     this.getCollectionPreview();
   }
 
@@ -32,9 +31,9 @@ export default class CollectionCreateModal extends Component {
       });
       this.preview = previewData;
       this.isDisabled = !previewData?.length;
-      console.log(previewData);
     } catch (error) {
-      console.log(error);
+      // eslint-disable-next-line no-console
+      console.error(error);
     } finally {
       this.previewReady = true;
     }
@@ -44,16 +43,16 @@ export default class CollectionCreateModal extends Component {
   async createCollection() {
     this.isLoading = true;
     try {
-      const create = await ajax("/collections/" + this.args.model.topic.id, {
+      await ajax("/collections/" + this.args.model.topic.id, {
         type: "POST",
       });
-      console.log(create);
     } catch (error) {
       popupAjaxError(error);
     } finally {
       this.isLoading = false;
       this.args.closeModal();
     }
+    // TODO: perform refresh
   }
 
   <template>
@@ -93,7 +92,9 @@ export default class CollectionCreateModal extends Component {
                 {{/each}}
               </div>
             {{else}}
-              <span class="warning">{{i18n "collections.modal.create.error"}}</span>
+              <span class="warning">{{i18n
+                  "collections.modal.create.error"
+                }}</span>
             {{/each}}
           {{else}}
             <div class="spinner"></div>
@@ -101,7 +102,9 @@ export default class CollectionCreateModal extends Component {
         </div>
         {{#if (and this.previewReady this.isDisabled)}}
           <p>{{i18n "collections.modal.create.informational"}}</p>
-          <pre><code class="language-md">{{i18n "collections.template.decorated"}}</code></pre>
+          <pre><code class="language-md">{{i18n
+                "collections.template.decorated"
+              }}</code></pre>
         {{/if}}
       </:body>
       <:footer>

@@ -1,22 +1,36 @@
 import Component from "@glimmer/component";
 import { action } from "@ember/object";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
+import { and, not } from "truth-helpers";
 import DButton from "discourse/components/d-button";
 import DropdownMenu from "discourse/components/dropdown-menu";
-import icon from "discourse/helpers/d-icon";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { i18n } from "discourse-i18n";
 import DMenu from "float-kit/components/d-menu";
-import { and, or, not } from "truth-helpers";
 import CollectionAddModal from "./modals/collection-add-modal";
 import CollectionCreateModal from "./modals/collection-create-modal";
 import CollectionRemoveModal from "./modals/collection-remove-modal";
+import CollectionUnboundModal from "./modals/collection-unbound-modal";
 
 export default class CollectionPostMenuButton extends Component {
+  static hidden(args) {
+    const { post } = args;
+    const { collection } = post.topic;
+    if (
+      collection.is_collection &&
+      (collection.can_create_delete_collection ||
+        collection.can_add_remove_from_collection) &&
+      (collection.owned_collection?.unbound_topics ||
+        collection.owned_collection?.orphaned_topics)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
   @service modal;
   @service router;
-  static hidden = true;
 
   collection = this.args.post.topic.collection;
 
@@ -24,10 +38,23 @@ export default class CollectionPostMenuButton extends Component {
     return `/t/-/${this.collection.collection_index}/1`;
   }
 
-  constructor() {
-    super(...arguments);
-    console.log(this.collection);
-    console.log(this);
+  get hasIssues() {
+    return !!(
+      this.collection.is_collection &&
+      (this.collection.owned_collection?.unbound_topics ||
+        this.collection.owned_collection?.orphaned_topics)
+    );
+  }
+
+  @action
+  displayCollectionUnbound() {
+    this.modal.show(CollectionUnboundModal, {
+      model: {
+        post: this.args.post,
+        topic: this.args.post.topic,
+        collection: this.collection,
+      },
+    });
   }
 
   @action
@@ -53,11 +80,11 @@ export default class CollectionPostMenuButton extends Component {
     } catch (error) {
       popupAjaxError(error);
     }
+    // TODO: perform refresh
   }
 
   @action
   addToCollection() {
-    console.log("add");
     this.modal.show(CollectionAddModal, {
       model: {
         topic: this.args.post.topic,
@@ -68,7 +95,6 @@ export default class CollectionPostMenuButton extends Component {
 
   @action
   removeFromCollection() {
-    console.log("remove");
     this.modal.show(CollectionRemoveModal, {
       model: {
         topic: this.args.post.topic,
@@ -79,7 +105,7 @@ export default class CollectionPostMenuButton extends Component {
 
   <template>
     <DMenu
-      class="post-action-menu__collection"
+      class="post-action-menu__collection {{if this.hasIssues 'warning'}}"
       ...attributes
       @icon="layer-group"
       @label={{if @showLabel (i18n "collections.post_menu.title")}}
@@ -94,6 +120,16 @@ export default class CollectionPostMenuButton extends Component {
                 @href={{this.collectionIndexUrl}}
                 @icon="circle-info"
                 @label="collections.post_menu.to_index"
+              />
+            </dropdown.item>
+          {{/if}}
+          {{#if this.hasIssues}}
+            <dropdown.item class="collection-post-menu_unbound">
+              <DButton
+                class="collection-post-menu__btn btn-transparent btn-danger"
+                @action={{this.displayCollectionUnbound}}
+                @icon="circle-exclamation"
+                @label="collections.post_menu.unbound"
               />
             </dropdown.item>
           {{/if}}
