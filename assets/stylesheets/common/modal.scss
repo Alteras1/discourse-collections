@@ -49,9 +49,13 @@
 
     .collection-preview__link,
     .collection-preview__sublink {
+      display: block;
       svg {
-        margin-right: 0.5rem;
+        margin-right: 0.5em;
       }
+    }
+    .collection-preview__sublink {
+      margin-left: 1em;
     }
 
     .collection-preview__sublink {

@@ -80,13 +80,13 @@ export default class CollectionCreateModal extends Component {
                     href={{link.href}}
                     target="_blank"
                     class="collection-preview__link"
-                  >{{icon "far-square"}} {{link.text}}</a>
+                  >{{icon "collection-pip"}} {{link.text}}</a>
                   {{#each link.sublinks as |sublink|}}
                     <a
                       href={{sublink.href}}
                       target="_blank"
                       class="collection-preview__sublink"
-                    >{{icon "far-square"}} {{sublink.text}}</a>
+                    >{{icon "collection-pip"}} {{sublink.text}}</a>
                   {{/each}}
                 {{/each}}
               </div>

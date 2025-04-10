@@ -1,0 +1,11 @@
+.collection-sidebar-link.sublink {
+  .sidebar-section-link-prefix {
+    margin-left: var(--d-sidebar-section-link-prefix-margin-right);
+  }
+}
+
+.sidebar-section-link-wrapper:has(> .collection-sidebar-link.sublink):not(
+    :has(> .active-parent)
+  ) {
+  display: none;
+}

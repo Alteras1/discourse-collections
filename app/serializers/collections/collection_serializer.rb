@@ -12,7 +12,7 @@ module ::Collections
             text: link[:text],
             href: link[:href],
             topic_id: id,
-            can_view: available_topics.include?(id) || id.nil?
+            can_view: id.nil? === true || available_topics.include?(id)
           }
           if link[:sub_links].present?
             sub_links = link[:sub_links]&.map do |sub_link|

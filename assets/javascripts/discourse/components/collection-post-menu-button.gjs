@@ -23,8 +23,8 @@ export default class CollectionPostMenuButton extends Component {
       collection.is_collection &&
       (collection.can_create_delete_collection ||
         collection.can_add_remove_from_collection) &&
-      (collection.owned_collection?.unbound_topics ||
-        collection.owned_collection?.orphaned_topics)
+      (collection.owned_collection?.unbound_topics.length ||
+        collection.owned_collection?.orphaned_topics.length)
     ) {
       return false;
     }
@@ -49,8 +49,8 @@ export default class CollectionPostMenuButton extends Component {
   get hasIssues() {
     return !!(
       this.collection.is_collection &&
-      (this.collection.owned_collection?.unbound_topics ||
-        this.collection.owned_collection?.orphaned_topics)
+      (this.collection.owned_collection?.unbound_topics.length ||
+        this.collection.owned_collection?.orphaned_topics.length)
     );
   }
 

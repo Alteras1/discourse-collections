@@ -1,3 +1,4 @@
+/// <reference path="../collection.d.ts" />
 import { tracked } from "@glimmer/tracking";
 import Service, { service } from "@ember/service";
 import { bind } from "discourse/lib/decorators";
@@ -11,7 +12,9 @@ export default class CollectionSidebarService extends Service {
   @service router;
   @service sidebarState;
 
+  /** @type {CollectionTypes.Collection} */
   @tracked _collectionData = null;
+  /** @type {number} */
   @tracked _collectionIndexId = null;
 
   constructor() {
@@ -34,6 +37,10 @@ export default class CollectionSidebarService extends Service {
     );
   }
 
+  /**
+   * Returns the collection information
+   * @type {CollectionTypes.Collection}
+   */
   get activeCollection() {
     if (this.sidebarState.currentPanel?.key === ADMIN_PANEL) {
       return {};
