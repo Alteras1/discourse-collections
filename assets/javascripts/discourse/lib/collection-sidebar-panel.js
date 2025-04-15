@@ -16,6 +16,7 @@ const sidebarPanelClassBuilder = (BaseCustomSidebarPanel) =>
     expandActiveSection = true;
     scrollActiveLinkIntoView = true;
     filterable = true;
+    displayHeader = true;
 
     // const sidebarState = getOwnerWithFallback(this).lookup(
     //   "service:sidebar-state"
@@ -133,7 +134,7 @@ class CollectionSidebarSectionLink extends BaseCustomSidebarSectionLink {
       );
 
       return (
-        this._data.topic_id.toString() === currentTopicRouteInfo?.params?.id
+        this._data.topic_id?.toString() === currentTopicRouteInfo?.params?.id
       );
     }
 
@@ -153,7 +154,7 @@ class CollectionSidebarSectionLink extends BaseCustomSidebarSectionLink {
       );
 
       return (
-        this._parent.topic_id.toString() === currentTopicRouteInfo?.params?.id
+        this._parent.topic_id?.toString() === currentTopicRouteInfo?.params?.id
       );
     }
 

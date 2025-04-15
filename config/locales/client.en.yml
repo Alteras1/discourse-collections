@@ -62,3 +62,9 @@ en:
           orphaned: "Orphaned topics"
           orphaned_desc: "These topics are bound to this collection, but are not referenced in the collection index. They will display this collection when viewed. To resolve, go to the topic and remove it from the collection."
           NA: "none found"
+      sidebar:
+        buttons:
+          main: "Main"
+          main_desc: "Display main sidebar"
+          collection: "View Collection"
+          collection_desc: "Display collection sidebar"

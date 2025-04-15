@@ -1,5 +1,6 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
 import CollectionPostMenuButton from "../components/collection-post-menu-button";
+import CollectionSidebarHeader from "../components/collection-sidebar-header";
 import sidebarPanelClassBuilder from "../lib/collection-sidebar-panel";
 
 export default {
@@ -10,6 +11,7 @@ export default {
 
     withPluginApi("2.0.0", (api) => {
       api.addSidebarPanel(sidebarPanelClassBuilder);
+      api.renderInOutlet("before-sidebar-sections", CollectionSidebarHeader);
 
       api.registerCustomPostMessageCallback(
         "collection_updated",
