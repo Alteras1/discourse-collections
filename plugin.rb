@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 # name: discourse-collections
-# about: TODO
+# about: Discourse Collections Plugin
 # meta_topic_id: TODO
-# version: 0.0.1
+# version: 0.1.0
 # authors: Alteras1
-# url: TODO
-# required_version: 3.0.0
+# url: https://github.com/Alteras1/discourse-collections
+# required_version: 3.4.0
 
 enabled_site_setting :collections_enabled
 

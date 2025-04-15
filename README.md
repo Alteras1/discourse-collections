@@ -1,7 +1,5 @@
 # Discourse Collections
 
-**Plugin Summary**
-
 For more information, please see: **url to meta topic**
 
 To create a collection, first create a list of the topics in the first post of the topic which will serve as the index of the collection. Then in the post action menu, follow the actions for creating a collection.
