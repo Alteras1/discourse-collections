@@ -1,4 +1,15 @@
-TODO_plugin_name:
-  plugin_name_enabled:
-    default: false
+plugins:
+  collections_enabled:
+    default: true
     client: true
+  collection_by_topic_owner:
+    default: true
+    client: true
+  collection_modification_by_allowed_groups:
+    type: group_list
+    list_type: compact
+    default: "1|2|14" # @admins, @moderators, @trust_level_4
+    mandatory_values: "1|2" # @admins, @moderators
+    allow_any: false
+    refresh: true
+    area: "group_permissions"

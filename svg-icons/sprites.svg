@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Additional SVG icons
+-->
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+  <!-- Modified from https://lucide.dev/icons/layers -->
+  <symbol id="collections-add" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83zM16 16.5h6m-3-3v6M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0L15 21"/></symbol>
+  <symbol id="collections-remove" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83zM16 16.5h6M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0L15 21"/></symbol>
+  <!-- From https://lucide.dev/icons/diamond -->
+  <symbol id="collection-pip" viewBox="1 1 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-diamond-icon lucide-diamond"><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0Z"/></symbol>
+</svg>
