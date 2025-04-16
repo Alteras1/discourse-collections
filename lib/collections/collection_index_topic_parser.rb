@@ -26,8 +26,8 @@ module ::Collections
     def parse
       nodes = Nokogiri::HTML5.fragment(@cooked_text, max_tree_depth: -1)
       # <div data-collection-index>
-      if nodes.css('div[data-collection-index]').present?
-        nodes = nodes.css('div[data-collection-index]').first
+      if nodes.css("div[data-collection-index]").present?
+        nodes = nodes.css("div[data-collection-index]").first
       end
 
       # keep track of processed links to avoid duplicates
@@ -35,13 +35,15 @@ module ::Collections
       # and can cause duplicates when building sublists
       @processed_links = []
 
-      nodes.css(*HEADING_TAGS, *LIST_TAGS).each do |node|
-        if heading?(node)
-          add_section(node)
-        elsif list?(node)
-          add_list(node)
+      nodes
+        .css(*HEADING_TAGS, *LIST_TAGS)
+        .each do |node|
+          if heading?(node)
+            add_section(node)
+          elsif list?(node)
+            add_list(node)
+          end
         end
-      end
     end
 
     def heading?(node)
@@ -53,7 +55,7 @@ module ::Collections
     end
 
     def list_item?(node)
-      node.name == 'li'
+      node.name == "li"
     end
 
     def add_section(node, root: false)

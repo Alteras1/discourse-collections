@@ -7,7 +7,8 @@ module ::Collections
     end
 
     def self.create_collection_for_topic(topic, auto_bind: true)
-      payload = Collections::CollectionIndexTopicParser.new(topic.ordered_posts.first.cooked).sections
+      payload =
+        Collections::CollectionIndexTopicParser.new(topic.ordered_posts.first.cooked).sections
       existing_col = Collections::Collection.find_by(topic_id: topic.id)
       if existing_col
         old_list_of_topics = existing_col.bounded_topics_based_on_payload
@@ -34,7 +35,7 @@ module ::Collections
             next if t.custom_fields[Collections::COLLECTION_INDEX] # don't overwrite existing collection index
             # initial build is always limited to the topics that OP owns
             next unless t.user_id == topic.user_id
-            
+
             t.custom_fields[Collections::COLLECTION_INDEX] = topic.id
             t.save_custom_fields
           end
@@ -59,6 +60,5 @@ module ::Collections
 
       true
     end
-
   end
 end

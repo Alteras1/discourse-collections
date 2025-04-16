@@ -54,7 +54,7 @@ export default class CollectionRemoveModal extends Component {
           @label="collections.modal.remove.confirm"
           @action={{this.removeCollectionIndex}}
           @isLoading={{this.isLoading}}
-          @class="btn-danger"
+          class="btn-danger"
         />
       </:footer>
     </DModal>

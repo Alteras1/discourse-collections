@@ -11,7 +11,7 @@ module ::Collections
         plugin.add_to_class(:topic, Collections::IS_COLLECTION.to_sym) do
           custom_fields[Collections::IS_COLLECTION] || false
         end
-      
+
         plugin.add_to_class(:topic, "#{Collections::IS_COLLECTION}=") do |value|
           custom_fields[Collections::IS_COLLECTION] = value
         end
@@ -24,18 +24,14 @@ module ::Collections
         plugin.add_to_class(:topic, Collections::COLLECTION_INDEX.to_sym) do
           custom_fields[Collections::COLLECTION_INDEX]
         end
-      
+
         plugin.add_to_class(:topic, "#{Collections::COLLECTION_INDEX}=") do |value|
           custom_fields[Collections::COLLECTION_INDEX] = value
         end
 
-        plugin.add_to_serializer(
-          :topic_view,
-          Collections::COLLECTION.to_sym,
-        ) do
+        plugin.add_to_serializer(:topic_view, Collections::COLLECTION.to_sym) do
           Collections::CollectionInfoSerializer.new(object.topic, scope: scope, root: false)
         end
-
       end
     end
   end

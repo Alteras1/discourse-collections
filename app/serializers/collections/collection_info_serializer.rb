@@ -10,14 +10,19 @@ module ::Collections
 
     def collection
       return nil unless object.public_send(Collections::COLLECTION_INDEX)
-      col = Collections::Collection.find_by(topic_id: object.public_send(Collections::COLLECTION_INDEX))
+      col =
+        Collections::Collection.find_by(topic_id: object.public_send(Collections::COLLECTION_INDEX))
       col.present? ? Collections::CollectionSerializer.new(col, scope: scope, root: false) : nil
     end
 
     def owned_collection
       return nil unless object.public_send(Collections::IS_COLLECTION)
       col = Collections::Collection.find_by(topic_id: object.id)
-      col.present? ? Collections::CollectionIndexSerializer.new(col, scope: scope, root: false) : nil
+      if col.present?
+        Collections::CollectionIndexSerializer.new(col, scope: scope, root: false)
+      else
+        nil
+      end
     end
 
     def can_create_delete_collection
@@ -27,6 +32,5 @@ module ::Collections
     def can_add_remove_from_collection
       scope.change_collection_index_of_topic?(object)
     end
-
   end
 end

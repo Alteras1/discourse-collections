@@ -2,8 +2,8 @@
 
 module ::Collections
   class Collection < ActiveRecord::Base
-    self.table_name = 'collections'
-    self.primary_key = 'topic_id'
+    self.table_name = "collections"
+    self.primary_key = "topic_id"
 
     belongs_to :topic
     validates :payload, presence: true
@@ -14,13 +14,15 @@ module ::Collections
     # directly.
     def sections
       return nil if payload.blank?
-      {s: payload}.deep_symbolize_keys()[:s]
+      { s: payload }.deep_symbolize_keys()[:s]
     end
 
     def bounded_topics_based_on_payload
       return [] if payload.blank?
       sections
-        .flat_map { |section| section[:links].map { |link| Collections::Url.extract_topic_id_from_url(link[:href]) } }
+        .flat_map do |section|
+          section[:links].map { |link| Collections::Url.extract_topic_id_from_url(link[:href]) }
+        end
         .compact
         .uniq
     end
@@ -29,7 +31,7 @@ module ::Collections
       TopicCustomField.where(name: Collections::COLLECTION_INDEX, value: topic_id).pluck(:topic_id)
     end
 
-    after_commit :refresh_bounded_topics, on: [:create, :update]
+    after_commit :refresh_bounded_topics, on: %i[create update]
     def refresh_bounded_topics
       actual_bounded_topics.each do |t_id|
         MessageBus.publish("/topic/#{t_id}", type: "collection_updated")

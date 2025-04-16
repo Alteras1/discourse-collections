@@ -24,26 +24,40 @@ module ::Collections
     def preview
       cooked = params[:cooked]
       raw = params[:raw]
-      raise Discourse::InvalidParameters, I18n.t("collections.errors.preview_params_missing") unless cooked || raw
+      unless cooked || raw
+        raise Discourse::InvalidParameters, I18n.t("collections.errors.preview_params_missing")
+      end
       if cooked
         render_json_dump(Collections::CollectionHandler.preview_collection(cooked))
       else
-        render_json_dump(Collections::CollectionHandler.preview_collection(PrettyText.cook(raw, {})))
+        render_json_dump(
+          Collections::CollectionHandler.preview_collection(PrettyText.cook(raw, {})),
+        )
       end
     end
 
     def read
       collection = Collections::Collection.find_by_topic_id(@topic.id)
       raise Discourse::NotFound unless collection
-      render_serialized(collection, Collections::CollectionIndexSerializer, {scope: guardian, root: false})
+      render_serialized(
+        collection,
+        Collections::CollectionIndexSerializer,
+        { scope: guardian, root: false },
+      )
     end
 
     def create
       raise Discourse::InvalidAccess unless guardian.change_collection_status_of_topic?(@topic)
       success = Collections::CollectionHandler.create_collection_for_topic(@topic)
-      
-      return render_json_error I18n.t("collections.errors.create_failed"), status: 500 unless success
-      render_serialized(Collections::Collection.find_by_topic_id(@topic.id), Collections::CollectionIndexSerializer, {scope: guardian, root: false})
+
+      unless success
+        return render_json_error I18n.t("collections.errors.create_failed"), status: 500
+      end
+      render_serialized(
+        Collections::Collection.find_by_topic_id(@topic.id),
+        Collections::CollectionIndexSerializer,
+        { scope: guardian, root: false },
+      )
     end
 
     def destroy
@@ -52,7 +66,6 @@ module ::Collections
       raise Discourse::NotFound unless collection
       success = false
       Collections::Collection.transaction do
-        
         success = collection.destroy
         @topic.custom_fields.delete(Collections::IS_COLLECTION.to_s)
         @topic.save_custom_fields
@@ -70,20 +83,25 @@ module ::Collections
 
       force = params[:force]
       if !@collection.bounded_topics_based_on_payload.include?(@topic.id) && !force
-        return render_json_error I18n.t("collections.errors.bind_topic_not_in_collection"), status: 406
+        return(
+          render_json_error I18n.t("collections.errors.bind_topic_not_in_collection"), status: 406
+        )
       end
 
       if existing_col_id = @topic.custom_fields[Collections::COLLECTION_INDEX]
         # already in a collection
-        if existing_col_id == @index.id
-          return render body: nil, status: 200
+        return render body: nil, status: 200 if existing_col_id == @index.id
+        if existing_col_id && !force
+          return(
+            render_json_error I18n.t("collections.errors.bind_topic_in_another_collection"),
+                              status: 406
+          )
         end
-        return render_json_error I18n.t("collections.errors.bind_topic_in_another_collection"), status: 406 if existing_col_id && !force
       end
 
       @topic.custom_fields[Collections::COLLECTION_INDEX] = @index.id
       @topic.save_custom_fields
-      
+
       MessageBus.publish("/topic/#{@topic.id}", type: "collection_updated")
       render body: nil, status: 200
     end
@@ -92,10 +110,16 @@ module ::Collections
       raise Discourse::InvalidAccess unless guardian.change_collection_index_of_topic?(@topic)
 
       if @topic.custom_fields[Collections::COLLECTION_INDEX] != @index.id
-        return render_json_error I18n.t("collections.errors.unbind_topic_not_in_collection"), status: 406
+        return(
+          render_json_error I18n.t("collections.errors.unbind_topic_not_in_collection"), status: 406
+        )
       end
 
-      TopicCustomField.delete_by(name: Collections::COLLECTION_INDEX, value: @index.id, topic_id: @topic.id)
+      TopicCustomField.delete_by(
+        name: Collections::COLLECTION_INDEX,
+        value: @index.id,
+        topic_id: @topic.id,
+      )
       MessageBus.publish("/topic/#{@topic.id}", type: "collection_updated")
 
       render body: nil, status: 200

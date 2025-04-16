@@ -2,7 +2,6 @@
 
 module ::Collections
   module Initializers
-
     # add/remove collection object depending on is_collection
     # after lifecycle event so that normal topic save can't be interrupted
 

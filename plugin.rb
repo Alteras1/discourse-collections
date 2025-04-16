@@ -48,7 +48,6 @@ end
 require_relative "lib/collections/engine"
 
 after_initialize do
-
   register_svg_icon "collections-add"
   register_svg_icon "collections-remove"
   register_svg_icon "collection-pip"
@@ -67,7 +66,9 @@ after_initialize do
 
   register_search_advanced_filter(/is:collection/) do |post|
     if SiteSetting.collections_enabled
-      post.where("topics.id IN (SELECT topic_id FROM topic_custom_fields WHERE name = '#{Collections::IS_COLLECTION}' AND value = 't')")
+      post.where(
+        "topics.id IN (SELECT topic_id FROM topic_custom_fields WHERE name = '#{Collections::IS_COLLECTION}' AND value = 't')",
+      )
     else
       post
     end

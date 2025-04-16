@@ -79,12 +79,14 @@ export default class CollectionCreateModal extends Component {
                   <a
                     href={{link.href}}
                     target="_blank"
+                    rel="noopener noreferrer"
                     class="collection-preview__link"
                   >{{icon "collection-pip"}} {{link.text}}</a>
                   {{#each link.sublinks as |sublink|}}
                     <a
                       href={{sublink.href}}
                       target="_blank"
+                      rel="noopener noreferrer"
                       class="collection-preview__sublink"
                     >{{icon "collection-pip"}} {{sublink.text}}</a>
                   {{/each}}
@@ -114,7 +116,7 @@ export default class CollectionCreateModal extends Component {
           @action={{this.createCollection}}
           @disabled={{this.isDisabled}}
           @isLoading={{this.isLoading}}
-          @class="btn-primary"
+          class="btn-primary"
         />
       </:footer>
     </DModal>

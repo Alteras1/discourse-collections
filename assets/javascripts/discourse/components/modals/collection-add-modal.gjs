@@ -144,7 +144,7 @@ export default class CollectionAddModal extends Component {
           @action={{this.addCollectionIndex}}
           @disabled={{this.isDisabled}}
           @isLoading={{this.isLoading}}
-          @class="btn-primary"
+          class="btn-primary"
         />
         {{#if this.needsCheckbox}}
           <label class="collection-modal__force-add-label">
