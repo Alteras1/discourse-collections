@@ -3,6 +3,7 @@
 module ::Collections
   class Collection < ActiveRecord::Base
     self.table_name = 'collections'
+    self.primary_key = 'topic_id'
 
     belongs_to :topic
     validates :payload, presence: true
@@ -53,7 +54,7 @@ end
 # Table name: collections
 #
 #  topic_id   :integer          not null, primary key
-#  payload    :jsonb            not null
+#  payload    :json             not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
@@ -61,21 +62,3 @@ end
 #
 #  index_collections_on_topic_id  (topic_id) UNIQUE
 #
-# payload expected to have structure:
-# [
-#   {
-#     text: "section",
-#     links: [
-#       {
-#         text: "link",
-#         href: "https://link.com",
-#         sub_links: [
-#           {
-#             text: "sub link",
-#             href: "https://sublink.com"
-#           }
-#         ]
-#       }
-#     ]
-#   }
-# ]
