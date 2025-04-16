@@ -6,6 +6,8 @@ en:
           discourse_collections: "Collections"
   js:
     collections:
+      composer:
+        label: "Add Collection to Topic"
       template:
         plain: |-
           # Section Title (optional)
@@ -14,17 +16,10 @@ en:
 
           # Another Section Title (optional)
           * Item 3: [Item 3](https://example.com)
-        decorated: |-
+        decorated_start: |-
           <div data-collection-index>
-          <!-- use data-collection-index="hidden" to hide the index in the post -->
-
-          # Section Title (optional)
-          * Item 1: [Item 1](https://example.com)
-          * Item 2: [Item 2](https://example.com)
-
-          # Another Section Title (optional)
-          * Item 3: [Item 3](https://example.com)
-          </div>
+          <!-- to hide the index in the post, use <div data-collection-index hidden> -->
+        decorated_end: </div>
       post_menu:
         title: "collection actions"
         unbound: "Unbound/Orphaned topics"

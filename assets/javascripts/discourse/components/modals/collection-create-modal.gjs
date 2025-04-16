@@ -101,9 +101,11 @@ export default class CollectionCreateModal extends Component {
         </div>
         {{#if (and this.previewReady this.isDisabled)}}
           <p>{{i18n "collections.modal.create.informational"}}</p>
-          <pre><code class="language-md">{{i18n
-                "collections.template.decorated"
-              }}</code></pre>
+          {{! prettier-ignore }}
+          <pre><code class="language-md">{{i18n "collections.template.decorated_start"}}
+{{i18n "collections.template.plain"}}
+{{i18n "collections.template.end"}}
+</code></pre>
         {{/if}}
       </:body>
       <:footer>

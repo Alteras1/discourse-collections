@@ -18,10 +18,6 @@ const sidebarPanelClassBuilder = (BaseCustomSidebarPanel) =>
     filterable = true;
     displayHeader = true;
 
-    // const sidebarState = getOwnerWithFallback(this).lookup(
-    //   "service:sidebar-state"
-    // );
-
     /** @returns {import('../services/collection-sidebar').default} */
     get collectionSidebar() {
       return getOwnerWithFallback(this).lookup("service:collection-sidebar");

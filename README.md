@@ -11,7 +11,7 @@ To create a collection, first create a list of the topics in the first post of t
 - 2nd link name: https://url.here
 ```
 
-If you only want a portion of the post to be parsed for the collection, you can wrap the list in `<div data-collection-index></div>`. If you want it hidden from view in the post itself, you can use `<div data-collection-index=hidden></div>`
+If you only want a portion of the post to be parsed for the collection, you can wrap the list in `<div data-collection-index></div>`. If you want it hidden from view in the post itself, you can use `<div data-collection-index hidden></div>`
 
 ```md
 <div data-collection-index>
