@@ -15,10 +15,8 @@ register_asset "stylesheets/common/index.scss"
 module ::Collections
   PLUGIN_NAME = "discourse-collections"
 
-  COLLECTION_INDEX = "collection_index"
-  IS_COLLECTION = "is_collection"
-  COLLECTION = "collection"
-  OWNED_COLLECTION = "owned_collection"
+  COLLECTION_ID = "collection_id"
+  SUBCOLLECTION_ID = "subcollection_id"
 
   class Initializer
     attr_reader :plugin
