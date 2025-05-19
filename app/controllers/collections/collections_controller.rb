@@ -21,6 +21,20 @@ module ::Collections
       render json: collection.to_json
     end
 
+    def create_collection
+      collection =
+        Collections::Collection.new(
+          collection_params.merge(collection_items_attributes: items_params),
+        )
+
+      if collection.save
+        render json: collection.to_json
+      else
+        render json: { errors: collection.errors }, status: 422
+      end
+
+    end
+
     def items_params
       params.permit(items: %i[id name icon url position is_section_header _destroy])["items"]
     end
