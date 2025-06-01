@@ -12,10 +12,12 @@ export default class CollectionSidebar extends Service {
   @service router;
   @service sidebarState;
 
+  /** @type {CollectionTypes.ProcessedSection[]} */
+  @tracked _sections = [];
   /** @type {CollectionTypes.Collection} */
   @tracked _collectionData = null;
   /** @type {number} */
-  @tracked _collectionIndexId = null;
+  @tracked _collectionId = null;
 
   constructor() {
     super(...arguments);
@@ -46,18 +48,14 @@ export default class CollectionSidebar extends Service {
       return {};
     }
 
-    return (
-      this.topicCollectionInfo?.owned_collection ||
-      this.topicCollectionInfo?.collection ||
-      {}
-    );
+    return this.topicCollectionInfo || {};
   }
 
-  get currentTopicIsIndex() {
+  get currentTopicHasCollection() {
     if (this.sidebarState.currentPanel?.key === ADMIN_PANEL) {
       return;
     }
-    return this.topicCollectionInfo?.is_collection;
+    return !!this.topicCollectionInfo?.id;
   }
 
   get isVisible() {
@@ -65,11 +63,15 @@ export default class CollectionSidebar extends Service {
   }
 
   get collectionData() {
-    return this._collectionData || [];
+    return this._collectionData || {};
   }
 
-  get collectionIndexId() {
-    return this._collectionIndexId;
+  get collectionId() {
+    return this._collectionId;
+  }
+
+  get sectionsConfig() {
+    return this._sections || [];
   }
 
   hideCollectionSidebar() {
@@ -88,7 +90,7 @@ export default class CollectionSidebar extends Service {
   disableCollectionSidebar() {
     this.hideCollectionSidebar();
     this._collectionData = null;
-    this._collectionIndexId = null;
+    this._collectionId = null;
   }
 
   @bind
@@ -100,29 +102,54 @@ export default class CollectionSidebar extends Service {
   }
 
   maybeDisplaySidebar() {
-    const { topic_id: collectionIndex, sections: collectionData } =
-      this.activeCollection;
+    const collection = this.activeCollection;
 
-    if (!collectionIndex) {
+    if (!collection?.id) {
       this.disableCollectionSidebar();
       return;
     }
 
     if (
-      this._collectionIndexId !== collectionIndex ||
-      !deepEqual(this._collectionData, collectionData)
+      this._collectionId !== collection.id ||
+      !deepEqual(this._collectionData, collection)
     ) {
-      this.setSidebarContent(collectionIndex, collectionData);
+      this.setSidebarContent(collection);
     }
   }
 
-  setSidebarContent(collectionId, collectionData) {
-    if (!collectionData) {
+  /**
+   * @param {CollectionTypes.Collection} collection
+   */
+  setSidebarContent(collection) {
+    if (!collection) {
       this.disableCollectionSidebar();
       return;
     }
-    this._collectionIndexId = collectionId;
-    this._collectionData = collectionData;
+    this._collectionId = collection.id;
+    this._collectionData = collection;
+
+    /** @type {CollectionTypes.ProcessedSection[]} */
+    const sections = [];
+    let section = {
+      name: null,
+      links: [],
+    };
+    for (const item of collection.collection_items) {
+      if (item.is_section_header) {
+        sections.push(section);
+        section = {
+          name: item.name,
+          links: [],
+        };
+      } else {
+        section.links.push(item);
+      }
+    }
+    if (section.name || section.links.length) {
+      sections.push(section);
+    }
+
+    this._sections = sections;
     this.showCollectionSidebar();
   }
 }
