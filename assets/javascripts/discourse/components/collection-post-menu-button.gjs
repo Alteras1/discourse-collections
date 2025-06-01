@@ -19,6 +19,9 @@ export default class CollectionPostMenuButton extends Component {
   static hidden(args) {
     const { post } = args;
     const { collection } = post.topic;
+    if (!collection) {
+      return true;
+    }
     if (
       collection.is_collection &&
       (collection.can_create_delete_collection ||

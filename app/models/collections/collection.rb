@@ -7,7 +7,7 @@ module ::Collections
     belongs_to :user
     has_many :collection_items, -> { order("position") }, dependent: :destroy
     validates :user_id, presence: true
-    validates :maintainer_ids, presence: true
+    validates :maintainer_ids, presence: true, allow_blank: true
     validates :is_single_topic, inclusion: [true, false]
 
     accepts_nested_attributes_for :collection_items

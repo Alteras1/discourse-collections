@@ -25,6 +25,16 @@ module ::Collections
         plugin.add_to_class(:topic, "#{Collections::SUBCOLLECTION_ID}=") do |value|
           custom_fields[Collections::SUBCOLLECTION_ID] = value
         end
+
+        plugin.add_to_serializer(
+          :topic_view,
+          Collections::COLLECTION.to_sym,
+          include_condition: -> { topic.public_send(Collections::COLLECTION_ID) },
+        ) do
+          collection = Collections::Collection.find(topic.public_send(Collections::COLLECTION_ID))
+          return nil if collection.blank?
+          Collections::CollectionSerializer.new(collection, scope: scope, root: false)
+        end
       end
     end
   end

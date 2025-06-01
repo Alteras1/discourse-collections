@@ -2,12 +2,6 @@
 
 module ::Collections
   class CollectionItemSerializer < ApplicationSerializer
-    attributes :id,
-              :collection_id,
-              :name,
-              :url,
-              :position,
-              :is_section_header,
-              :topic_id,
+    attributes :id, :collection_id, :name, :url, :position, :is_section_header, :topic_id
   end
 end

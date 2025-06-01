@@ -15,6 +15,11 @@ register_asset "stylesheets/common/index.scss"
 module ::Collections
   PLUGIN_NAME = "discourse-collections"
 
+  # names for serializer
+  COLLECTION = "collection"
+  SUBCOLLECTION = "subcollection"
+
+  # topic custom fields
   COLLECTION_ID = "collection_id"
   SUBCOLLECTION_ID = "subcollection_id"
 
