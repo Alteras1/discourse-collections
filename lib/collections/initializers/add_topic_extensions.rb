@@ -35,6 +35,16 @@ module ::Collections
           return nil if collection.blank?
           Collections::CollectionSerializer.new(collection, scope: scope, root: false)
         end
+
+        plugin.add_to_serializer(
+          :topic_view,
+          Collections::SUBCOLLECTION.to_sym,
+          include_condition: -> { topic.public_send(Collections::SUBCOLLECTION_ID) },
+        ) do
+          sub = Collections::Collection.find(topic.public_send(Collections::SUBCOLLECTION_ID))
+          return nil if sub.blank?
+          Collections::CollectionSerializer.new(sub, scope: scope, root: false)
+        end
       end
     end
   end
