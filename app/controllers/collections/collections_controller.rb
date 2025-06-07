@@ -32,8 +32,6 @@ module ::Collections
       p collection
       # debugger
 
-      # TODO: check if the collection has at least one topic
-
       render_serialized(
         collection,
         ::Collections::CollectionSerializer,
@@ -47,17 +45,32 @@ module ::Collections
           collection_params.merge(collection_items_attributes: items_params),
         )
 
-      # TODO: add validation for collection having only unique topics
+      # TODO: ADD GUARDS
 
-      if collection.save
-        render_serialized(
-          collection,
-          ::Collections::CollectionSerializer,
-          { scope: guardian, root: false },
-        )
+      if collection.is_single_topic
+        topic_id = params.require(:topic_id)
+        if Collections::CollectionHandler.topic_has_subcollection?(topic_id)
+          return(
+            render_json_error I18n.t("collections.errors.subcollection_already_exists"), status: 409
+          )
+        end
+
+        topic = Topic.find(topic_id)
+        collection.transaction do
+          collection.save!
+          Collections::CollectionHandler.attach_subcollection_to_topic(topic, collection)
+        end
       else
-        render json: { errors: collection.errors }, status: 422
+        collection.transaction { collection.save! }
       end
+
+      render_serialized(
+        collection,
+        ::Collections::CollectionSerializer,
+        { scope: guardian, root: false },
+      )
+    rescue ActiveRecord::RecordInvalid
+      render json: { errors: collection.errors }, status: 422
     end
 
     def show
@@ -69,27 +82,24 @@ module ::Collections
     end
 
     def update
+      # TODO: ADD GUARDS!
+      # TODO: ADD GUARDS FOR INDIVIUDAL DELETE!!!!
+      @collection.update!(collection_params.merge(collection_items_attributes: items_params))
+    rescue ActiveRecord::RecordInvalid
+      render json: { errors: collection.errors }, status: 422
     end
 
     def destroy
-      raise Discourse::InvalidAccess unless guardian.can_delete?(@collection)
-      @collection.destroy
-      render body: nil, status: 200
+      # TODO: ADD GUARDS
+
+      guardian.can_delete?(@collection)
+      @collection.destroy!
+      render json: success_json
+    rescue Discourse::InvalidAccess
+      render json: failed_json, status: 403
+    rescue ActiveRecord::RecordNotDestroyed
+      render json: { errors: @collection.errors }, status: 500
     end
-
-    # def create
-    #   raise Discourse::InvalidAccess unless guardian.change_collection_status_of_topic?(@topic)
-    #   success = Collections::CollectionHandler.create_collection_for_topic(@topic)
-
-    #   unless success
-    #     return render_json_error I18n.t("collections.errors.create_failed"), status: 500
-    #   end
-    #   render_serialized(
-    #     Collections::Collection.find_by_topic_id(@topic.id),
-    #     Collections::CollectionIndexSerializer,
-    #     { scope: guardian, root: false },
-    #   )
-    # end
 
     # def destroy
     #   raise Discourse::InvalidAccess unless guardian.change_collection_status_of_topic?(@topic)

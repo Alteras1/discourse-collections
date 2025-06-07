@@ -18,6 +18,8 @@ export default class CollectionSidebar extends Service {
   @tracked _collectionData = null;
   /** @type {number} */
   @tracked _collectionId = null;
+  /** @type {CollectionTypes.Collection} */
+  @tracked _subcollection = null;
 
   constructor() {
     super(...arguments);
@@ -31,10 +33,22 @@ export default class CollectionSidebar extends Service {
     this.router.off("routeDidChange", this, this.currentRouteChanged);
   }
 
+  /**
+   * @type {`${number}`} string containing the current topic ID
+   */
+  get currentTopicId() {
+    return (
+      this.router.currentRoute?.find((route) => route.name === "topic")?.params
+        ?.id || null
+    );
+  }
+
   get topicCollectionInfo() {
     return (
       this.router.currentRoute?.attributes?.collection ||
       this.router.currentRoute?.parent?.attributes?.collection ||
+      this.router.currentRoute?.attributes?.subcollection ||
+      this.router.currentRoute?.parent?.attributes?.subcollection ||
       {}
     );
   }
@@ -56,6 +70,24 @@ export default class CollectionSidebar extends Service {
       return;
     }
     return !!this.topicCollectionInfo?.id;
+  }
+
+  get hasNestedCollection() {
+    return (
+      this.topicSubcollection &&
+      this.activeCollection.id !== this.topicSubcollection.id
+    );
+  }
+
+  /**
+   * @type {CollectionTypes.Collection}
+   */
+  get topicSubcollection() {
+    return (
+      this.router.currentRoute?.attributes?.subcollection ||
+      this.router.currentRoute?.parent?.attributes?.subcollection ||
+      null
+    );
   }
 
   get isVisible() {
@@ -109,29 +141,52 @@ export default class CollectionSidebar extends Service {
       return;
     }
 
+    let subcollection = null;
+    if (this.hasNestedCollection) {
+      subcollection = this.topicSubcollection;
+    }
+
     if (
       this._collectionId !== collection.id ||
-      !deepEqual(this._collectionData, collection)
+      !deepEqual(this._collectionData, collection) ||
+      !deepEqual(this._subcollection, subcollection)
     ) {
-      this.setSidebarContent(collection);
+      this.setSidebarContent(collection, subcollection);
     }
   }
 
   /**
    * @param {CollectionTypes.Collection} collection
+   * @param {CollectionTypes.Collection} subcollection
    */
-  setSidebarContent(collection) {
+  setSidebarContent(collection, subcollection) {
+    console.debug(
+      "Setting collection sidebar content",
+      collection,
+      subcollection
+    );
     if (!collection) {
       this.disableCollectionSidebar();
       return;
     }
     this._collectionId = collection.id;
     this._collectionData = collection;
+    this._subcollection = subcollection;
 
     /** @type {CollectionTypes.ProcessedSection[]} */
     const sections = [];
+
+    if (subcollection?.id) {
+      sections.push({
+        name: subcollection.name,
+        isSub: true,
+        links: subcollection.collection_items,
+      });
+    }
+
     let section = {
       name: null,
+      isSub: false,
       links: [],
     };
     for (const item of collection.collection_items) {
@@ -139,11 +194,12 @@ export default class CollectionSidebar extends Service {
         sections.push(section);
         section = {
           name: item.name,
+          isSub: false,
           links: [],
         };
-      } else {
-        section.links.push(item);
+        continue;
       }
+      section.links.push(item);
     }
     if (section.name || section.links.length) {
       sections.push(section);

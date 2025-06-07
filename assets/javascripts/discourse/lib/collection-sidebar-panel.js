@@ -52,10 +52,18 @@ function prepareCollectionSection({ config, router }) {
       return this.#section.name;
     }
 
+    get isSub() {
+      return this.#section.isSub;
+    }
+
     get name() {
-      return this.text
-        ? `${SIDEBAR_COLLECTIONS_PANEL}__${unicodeSlugify(this.text)}`
-        : `${SIDEBAR_COLLECTIONS_PANEL}::root`;
+      if (this.text) {
+        return `${SIDEBAR_COLLECTIONS_PANEL}__${unicodeSlugify(this.text)}`;
+      } else if (this.isSub) {
+        return `${SIDEBAR_COLLECTIONS_PANEL}__subcollection`;
+      } else {
+        return `${SIDEBAR_COLLECTIONS_PANEL}::root`;
+      }
     }
 
     get title() {
@@ -69,6 +77,7 @@ function prepareCollectionSection({ config, router }) {
             data: link,
             panelName: this.name,
             router,
+            sub: this.isSub,
           })
       );
     }
@@ -91,28 +100,28 @@ class CollectionSidebarSectionLink extends BaseCustomSidebarSectionLink {
   #data;
   #panelName;
   #router;
-  // #parent;
+  #sub;
 
   /**
    * @param {Object} obj
-   * @param {CollectionTypes.CollectionLink} obj.data
+   * @param {CollectionTypes.ProcessedSection['links'][number]} obj.data
    * @param {string} obj.panelName
    * @param {Object} obj.router
-   * @param {CollectionTypes.CollectionLink} [obj.parent]
+   * @param {boolean} obj.sub
    */
-  constructor({ data, panelName, router, parent }) {
+  constructor({ data, panelName, router, sub = false }) {
     super(...arguments);
 
     this.#data = data;
     this.#panelName = panelName;
     this.#router = router;
-    // this.#parent = parent;
+    this.#sub = sub;
   }
 
   get currentWhen() {
-    // if (this.#parent) {
-    //   return false;
-    // }
+    if (this.#sub) {
+      return false;
+    }
     if (DiscourseURL.isInternal(this.href) && samePrefix(this.href)) {
       const currentTopicRouteInfo = this.#router.currentRoute.find(
         (route) => route.name === "topic"
@@ -126,38 +135,12 @@ class CollectionSidebarSectionLink extends BaseCustomSidebarSectionLink {
     return false;
   }
 
-  // get parentCurrentWhen() {
-  //   if (!this.#parent) {
-  //     return false;
-  //   }
-  //   if (
-  //     DiscourseURL.isInternal(this.#parent.href) &&
-  //     samePrefix(this.#parent.href)
-  //   ) {
-  //     const currentTopicRouteInfo = this.#router.currentRoute.find(
-  //       (route) => route.name === "topic"
-  //     );
-
-  //     return (
-  //       this.#parent.topic_id?.toString() === currentTopicRouteInfo?.params?.id
-  //     );
-  //   }
-
-  //   return false;
-  // }
-
   get name() {
     return `${this.#panelName}___${unicodeSlugify(this.text)}`;
   }
 
   get classNames() {
     const list = ["collection-sidebar-link"];
-    // if (this.#parent) {
-    //   list.push("sublink");
-    //   if (this.parentCurrentWhen) {
-    //     list.push("active-parent");
-    //   }
-    // }
     return list.join(" ");
   }
 

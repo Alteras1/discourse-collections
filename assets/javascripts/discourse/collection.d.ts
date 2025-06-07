@@ -29,6 +29,7 @@ declare namespace CollectionTypes {
 
   type ProcessedSection = {
     name: string | null;
+    isSub: boolean;
     links: CollectionLink[];
   };
 }
