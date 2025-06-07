@@ -85,6 +85,11 @@ module ::Collections
       # TODO: ADD GUARDS!
       # TODO: ADD GUARDS FOR INDIVIUDAL DELETE!!!!
       @collection.update!(collection_params.merge(collection_items_attributes: items_params))
+      render_serialized(
+        @collection.reload,
+        ::Collections::CollectionSerializer,
+        { scope: guardian, root: false },
+      )
     rescue ActiveRecord::RecordInvalid
       render json: { errors: collection.errors }, status: 422
     end

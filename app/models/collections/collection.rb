@@ -13,7 +13,7 @@ module ::Collections
     validate :no_headers_if_single_topic, if: :is_single_topic
     validate :includes_one_topic, unless: :is_single_topic
 
-    accepts_nested_attributes_for :collection_items
+    accepts_nested_attributes_for :collection_items, allow_destroy: true
 
     after_destroy :remove_subcollection_id_from_topic_custom_fields, if: :is_single_topic
 
