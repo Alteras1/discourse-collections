@@ -24,21 +24,6 @@ module ::Collections
       raise Discourse::NotFound unless @collection
     end
 
-    def test
-      collection =
-        Collections::Collection.new(
-          collection_params.merge(collection_items_attributes: items_params),
-        )
-      p collection
-      # debugger
-
-      render_serialized(
-        collection,
-        ::Collections::CollectionSerializer,
-        { scope: guardian, root: false },
-      )
-    end
-
     def create
       collection =
         Collections::Collection.new(
@@ -46,6 +31,7 @@ module ::Collections
         )
 
       # TODO: ADD GUARDS
+      # TODO: ADD GUARDS FOR INDIVIDUAL TOPIC CREATION!!!!
 
       if collection.is_single_topic
         topic_id = params.require(:topic_id)
@@ -61,6 +47,12 @@ module ::Collections
           Collections::CollectionHandler.attach_subcollection_to_topic(topic, collection)
         end
       else
+        items = collection.collection_items
+        items
+          .filter_map { |item| Topic.find_by(id: item.topic_id) if item.topic_id }
+          .each do |topic|
+            raise Discourse::InvalidAccess unless guardian.can_create_collection_item?(topic)
+          end
         collection.transaction { collection.save! }
       end
 
@@ -69,6 +61,8 @@ module ::Collections
         ::Collections::CollectionSerializer,
         { scope: guardian, root: false },
       )
+    rescue Discourse::InvalidAccess
+      render json: failed_json, status: 403
     rescue ActiveRecord::RecordInvalid
       render json: { errors: collection.errors }, status: 422
     end
@@ -84,12 +78,26 @@ module ::Collections
     def update
       # TODO: ADD GUARDS!
       # TODO: ADD GUARDS FOR INDIVIUDAL DELETE!!!!
-      @collection.update!(collection_params.merge(collection_items_attributes: items_params))
+      # TODO: ADD GUARDS FOR INDIVIDUAL TOPIC CREATION!!!!
+      # TODO: ADD GUARDS FOR INDIVIDUAL TOPIC EDIT!!!!
+      @collection.assign_attributes(
+        collection_params.merge(collection_items_attributes: items_params),
+      )
+      unless @collection.is_single_topic
+        # If the item is marked for destruction or its URL has changed, we need to check if the user has perms
+
+        items = @collection.collection_items
+        items.filter { |item| item.marked_for_destruction? || item.url_changed? }.each { |item| }
+      end
+
+      @collection.save!
       render_serialized(
         @collection.reload,
         ::Collections::CollectionSerializer,
         { scope: guardian, root: false },
       )
+    rescue Discourse::InvalidAccess
+      render json: failed_json, status: 403
     rescue ActiveRecord::RecordInvalid
       render json: { errors: collection.errors }, status: 422
     end

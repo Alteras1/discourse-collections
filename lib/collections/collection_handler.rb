@@ -2,10 +2,6 @@
 
 module ::Collections
   class CollectionHandler
-    def self.preview_collection(cooked_text)
-      Collections::CollectionIndexTopicParser.new(cooked_text).sections
-    end
-
     def self.topic_has_subcollection?(topic_id)
       TopicCustomField.find_by(topic_id: topic_id, name: Collections::SUBCOLLECTION_ID).present?
     end

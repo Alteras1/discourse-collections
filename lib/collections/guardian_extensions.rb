@@ -2,11 +2,23 @@
 
 module ::Collections
   module GuardianExtensions
-    def can_delete_collection
+    def can_create_collection?
+    end
+
+    def can_edit_collection?(collection)
+    end
+
+    def can_delete_collection?(collection)
       # TODO: Implement logic to check if the user can delete the collection
     end
 
-    def can_delete_collection_item
+    def can_create_collection_item?(collection_item)
+    end
+
+    def can_edit_collection_item?(collection_item)
+    end
+
+    def can_delete_collection_item?(collection_item)
       # TODO: Implement logic to check if the user can delete the collection item
     end
   end
