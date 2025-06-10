@@ -143,6 +143,13 @@ module ::Collections
       items
         .filter { |item| item.topic_id.present? }
         .each { |item| MessageBus.publish("/topic/#{item.topic_id}", type: "collection_updated") }
+      if collection.is_single_topic
+        topic_id =
+          TopicCustomField.where(name: Collections::SUBCOLLECTION_ID, value: collection.id).pick(
+            :topic_id,
+          )
+        MessageBus.publish("/topic/#{topic_id}", type: "collection_updated")
+      end
     end
   end
 end
