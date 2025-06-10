@@ -11,7 +11,7 @@ class CreateCollectionTables < ActiveRecord::Migration[7.2]
     end
 
     create_table :collection_items do |t|
-      t.references :collection, null: false, foreign_key: true
+      t.references :collection, null: false, foreign_key: true # rubocop:disable Discourse/NoAddReferenceOrAliasesActiveRecordMigration
       t.string :name, null: false
       t.string :icon
       t.string :url

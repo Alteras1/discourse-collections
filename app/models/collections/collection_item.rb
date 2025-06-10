@@ -75,3 +75,26 @@ module ::Collections
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: collection_items
+#
+#  id                :bigint           not null, primary key
+#  collection_id     :bigint           not null
+#  name              :string           not null
+#  icon              :string
+#  url               :string
+#  is_section_header :boolean          default(FALSE), not null
+#  position          :integer          default(0), not null
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#
+# Indexes
+#
+#  index_collection_items_on_collection_id  (collection_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (collection_id => collections.id)
+#

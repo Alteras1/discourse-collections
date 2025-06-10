@@ -43,12 +43,10 @@ end
 #
 # Table name: collections
 #
-#  id         :integer          not null, primary key
-#  user_id    :integer          not null
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#
-# Indexes
-#
-#  index_collections_on_topic_id  (topic_id) UNIQUE
+#  id              :bigint           not null, primary key
+#  user_id         :integer          not null
+#  maintainer_ids  :integer          default([]), is an Array
+#  is_single_topic :boolean          default(FALSE), not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
 #
