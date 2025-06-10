@@ -6,8 +6,6 @@ module ::Collections
 
     requires_login except: %i[show test]
     before_action :ensure_collection_exists, only: %i[show destroy update]
-    # before_action :ensure_topic_exists, only: %i[read create destroy bind unbind]
-    # before_action :ensure_index_exists, only: %i[bind unbind]
 
     def items_params
       params.permit(items: %i[id name icon url position is_section_header _destroy])["items"]
@@ -29,9 +27,6 @@ module ::Collections
         Collections::Collection.new(
           collection_params.merge(collection_items_attributes: items_params),
         )
-
-      # TODO: ADD GUARDS
-      # TODO: ADD GUARDS FOR INDIVIDUAL TOPIC CREATION!!!!
 
       if collection.is_single_topic
         topic_id = params.require(:topic_id)
@@ -56,6 +51,8 @@ module ::Collections
         collection.transaction { collection.save! }
       end
 
+      push_messagebus_event collection
+
       render_serialized(
         collection,
         ::Collections::CollectionSerializer,
@@ -76,10 +73,7 @@ module ::Collections
     end
 
     def update
-      # TODO: ADD GUARDS!
-      # TODO: ADD GUARDS FOR INDIVIUDAL DELETE!!!!
-      # TODO: ADD GUARDS FOR INDIVIDUAL TOPIC CREATION!!!!
-      # TODO: ADD GUARDS FOR INDIVIDUAL TOPIC EDIT!!!!
+      raise Discourse::InvalidAccess unless guardian.can_edit?(@collection)
       @collection.assign_attributes(
         collection_params.merge(collection_items_attributes: items_params),
       )
@@ -87,10 +81,29 @@ module ::Collections
         # If the item is marked for destruction or its URL has changed, we need to check if the user has perms
 
         items = @collection.collection_items
-        items.filter { |item| item.marked_for_destruction? || item.url_changed? }.each { |item| }
+        items
+          .filter { |item| item.marked_for_destruction? }
+          .each do |item|
+            raise Discourse::InvalidAccess unless guardian.can_delete_collection_item?(item)
+          end
+
+        items
+          .filter { |item| item.url_changed? }
+          .each do |item|
+            raise Discourse::InvalidAccess unless guardian.can_edit_collection_item?(item)
+          end
+
+        items
+          .filter { |item| item.topic_id.present? && item.new_record? }
+          .each do |item|
+            raise Discourse::InvalidAccess unless guardian.can_create_collection_item?(item)
+          end
       end
 
       @collection.save!
+
+      push_messagebus_event @collection
+
       render_serialized(
         @collection.reload,
         ::Collections::CollectionSerializer,
@@ -103,10 +116,11 @@ module ::Collections
     end
 
     def destroy
-      # TODO: ADD GUARDS
-
-      guardian.can_delete?(@collection)
+      raise Discourse::InvalidAccess unless guardian.can_delete?(@collection)
       @collection.destroy!
+
+      push_messagebus_event @collection
+
       render json: success_json
     rescue Discourse::InvalidAccess
       render json: failed_json, status: 403
@@ -114,69 +128,21 @@ module ::Collections
       render json: { errors: @collection.errors }, status: 500
     end
 
-    # def destroy
-    #   raise Discourse::InvalidAccess unless guardian.change_collection_status_of_topic?(@topic)
-    #   collection = Collections::Collection.find_by_topic_id(@topic.id)
-    #   raise Discourse::NotFound unless collection
-    #   success = false
-    #   Collections::Collection.transaction do
-    #     success = collection.destroy
-    #     @topic.custom_fields.delete(Collections::IS_COLLECTION.to_s)
-    #     @topic.save_custom_fields
-    #   end
+    private
 
-    #   if success
-    #     render body: nil, status: 200
-    #   else
-    #     render_json_error I18n.t("collections.errors.destroy_failed"), status: 500
-    #   end
-    # end
-
-    # def bind
-    #   raise Discourse::InvalidAccess unless guardian.change_collection_index_of_topic?(@topic)
-
-    #   force = params[:force]
-    #   if !@collection.bounded_topics_based_on_payload.include?(@topic.id) && !force
-    #     return(
-    #       render_json_error I18n.t("collections.errors.bind_topic_not_in_collection"), status: 406
-    #     )
-    #   end
-
-    #   if existing_col_id = @topic.custom_fields[Collections::COLLECTION_INDEX]
-    #     # already in a collection
-    #     return render body: nil, status: 200 if existing_col_id == @index.id
-    #     if existing_col_id && !force
-    #       return(
-    #         render_json_error I18n.t("collections.errors.bind_topic_in_another_collection"),
-    #                           status: 406
-    #       )
-    #     end
-    #   end
-
-    #   @topic.custom_fields[Collections::COLLECTION_INDEX] = @index.id
-    #   @topic.save_custom_fields
-
-    #   MessageBus.publish("/topic/#{@topic.id}", type: "collection_updated")
-    #   render body: nil, status: 200
-    # end
-
-    # def unbind
-    #   raise Discourse::InvalidAccess unless guardian.change_collection_index_of_topic?(@topic)
-
-    #   if @topic.custom_fields[Collections::COLLECTION_INDEX] != @index.id
-    #     return(
-    #       render_json_error I18n.t("collections.errors.unbind_topic_not_in_collection"), status: 406
-    #     )
-    #   end
-
-    #   TopicCustomField.delete_by(
-    #     name: Collections::COLLECTION_INDEX,
-    #     value: @index.id,
-    #     topic_id: @topic.id,
-    #   )
-    #   MessageBus.publish("/topic/#{@topic.id}", type: "collection_updated")
-
-    #   render body: nil, status: 200
-    # end
+    def push_messagebus_event(collection)
+      items = collection.collection_items
+      items
+        .filter do |item|
+          item.url_changed? && ::Collections::Url.extract_topic_id_from_url(url_was)
+        end
+        .each do |item|
+          topic_id = ::Collections::Url.extract_topic_id_from_url(item.url_was)
+          MessageBus.publish("/topic/#{topic_id}", type: "collection_updated")
+        end
+      items
+        .filter { |item| item.topic_id.present? }
+        .each { |item| MessageBus.publish("/topic/#{item.topic_id}", type: "collection_updated") }
+    end
   end
 end

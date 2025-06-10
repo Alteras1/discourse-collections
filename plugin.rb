@@ -55,7 +55,7 @@ after_initialize do
   register_svg_icon "collections-remove"
   register_svg_icon "collection-pip"
 
-  # TODO: ADD GUARDIAN EXTENSIONS
+  reloadable_patch { |plugin| Guardian.prepend Collections::GuardianExtensions }
 
   # add_to_class(:guardian, :change_collection_status_of_topic?) do |topic|
   #   # set to can edit, as this will cover OP and staff.

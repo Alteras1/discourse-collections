@@ -5,6 +5,8 @@ module ::Collections
     # add/remove collection object depending on collection_id" and "subcollection_id"
     # after lifecycle event so that normal topic save can't be interrupted
 
+    # TODO: Handle topic lifecycle events
+
     class HandleTopicChanges < Initializer
       def apply
         # plugin.on(:topic_trashed) do |topic|

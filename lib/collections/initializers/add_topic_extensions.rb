@@ -45,6 +45,10 @@ module ::Collections
           return nil if sub.blank?
           Collections::CollectionSerializer.new(sub, scope: scope, root: false)
         end
+
+        plugin.add_to_serializer(:topic_view, :can_create_collection) do
+          scope.can_create_collection_for_topic?(object.topic)
+        end
       end
     end
   end
