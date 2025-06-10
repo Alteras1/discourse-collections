@@ -1,4 +1,4 @@
-/// <reference path="../collection.d.ts" />
+/// <reference path="../typedefs.js" />
 import { cached } from "@glimmer/tracking";
 import { computed } from "@ember/object";
 import { getOwnerWithFallback } from "discourse/lib/get-owner";
@@ -37,7 +37,7 @@ export default sidebarPanelClassBuilder;
 /**
  * Builds the class tree for the collection sidebar section.
  * @param {Object} obj
- * @param {CollectionTypes.ProcessedSection} obj.config
+ * @param {ProcessedSection} obj.config
  * @param {Object} obj.router
  */
 function prepareCollectionSection({ config, router }) {
@@ -104,7 +104,7 @@ class CollectionSidebarSectionLink extends BaseCustomSidebarSectionLink {
 
   /**
    * @param {Object} obj
-   * @param {CollectionTypes.ProcessedSection['links'][number]} obj.data
+   * @param {ProcessedSection['links'][number]} obj.data
    * @param {string} obj.panelName
    * @param {Object} obj.router
    * @param {boolean} obj.sub

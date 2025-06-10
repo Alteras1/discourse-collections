@@ -1,3 +1,4 @@
+/// <reference path="../typedefs.js" />
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
@@ -18,19 +19,14 @@ import CollectionUnboundModal from "./modals/collection-unbound-modal";
 export default class CollectionPostMenuButton extends Component {
   static hidden(args) {
     const { post } = args;
-    const { collection } = post.topic;
+    const { collection, subcollection } = post.topic;
     if (!collection) {
       return true;
     }
-    if (
-      collection.is_collection &&
-      (collection.can_create_delete_collection ||
-        collection.can_add_remove_from_collection) &&
-      (collection.owned_collection?.unbound_topics.length ||
-        collection.owned_collection?.orphaned_topics.length)
-    ) {
+    if (collection.can_edit_collection || subcollection?.can_edit_collection) {
       return false;
     }
+
     return true;
   }
 
@@ -38,11 +34,15 @@ export default class CollectionPostMenuButton extends Component {
   @service router;
   @service appEvents;
 
+  /** @type {Collection} */
   @tracked collection = this.args.post.topic.collection;
+  /** @type {Collection} */
+  @tracked subcollection = this.args.post.topic.subcollection;
 
   constructor() {
     super(...arguments);
     this.appEvents.on("collection:updated", this, this.onCollectionUpdate);
+    console.log(this);
   }
 
   get collectionIndexUrl() {

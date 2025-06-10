@@ -2,10 +2,12 @@ import { withPluginApi } from "discourse/lib/plugin-api";
 import CollectionPostMenuButton from "../components/collection-post-menu-button";
 import CollectionSidebarHeader from "../components/collection-sidebar-header";
 import sidebarPanelClassBuilder from "../lib/collection-sidebar-panel";
+/** @import CollectionSidebar from '../services/collection-sidebar.js' */
 
 export default {
   name: "collections",
   initialize(container) {
+    /** @type {CollectionSidebar} */
     const collectionSidebar = container.lookup("service:collection-sidebar");
     const appEvents = container.lookup("service:app-events");
 
@@ -17,6 +19,7 @@ export default {
         "collection_updated",
         (topicController) => {
           const topic = topicController.model;
+          console.log("Collection updated callback triggered", topic);
           topic.reload().then(() => {
             topicController.send(
               "postChangedRoute",
@@ -29,6 +32,22 @@ export default {
               collection: topic.get("collection"),
             });
             collectionSidebar.maybeDisplaySidebar();
+          });
+        }
+      );
+
+      api.registerValueTransformer(
+        "post-menu-buttons",
+        ({ value: dag, context: { post, state } }) => {
+          if (!state.currentUser) {
+            return;
+          }
+          if (post.post_number !== 1) {
+            return;
+          }
+          dag.add("collection", CollectionPostMenuButton, {
+            before: ["delete", "showMore"],
+            after: ["bookmark", "edit"],
           });
         }
       );

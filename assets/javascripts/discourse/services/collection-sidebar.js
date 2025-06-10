@@ -1,4 +1,4 @@
-/// <reference path="../collection.d.ts" />
+/// <reference path="../typedefs.js" />
 import { tracked } from "@glimmer/tracking";
 import Service, { service } from "@ember/service";
 import { bind } from "discourse/lib/decorators";
@@ -12,13 +12,13 @@ export default class CollectionSidebar extends Service {
   @service router;
   @service sidebarState;
 
-  /** @type {CollectionTypes.ProcessedSection[]} */
+  /** @type {ProcessedSection[]} */
   @tracked _sections = [];
-  /** @type {CollectionTypes.Collection} */
+  /** @type {Collection} */
   @tracked _collectionData = null;
   /** @type {number} */
   @tracked _collectionId = null;
-  /** @type {CollectionTypes.Collection} */
+  /** @type {Collection} */
   @tracked _subcollection = null;
 
   constructor() {
@@ -55,7 +55,7 @@ export default class CollectionSidebar extends Service {
 
   /**
    * Returns the collection information
-   * @type {CollectionTypes.Collection}
+   * @type {Collection}
    */
   get activeCollection() {
     if (this.sidebarState.currentPanel?.key === ADMIN_PANEL) {
@@ -80,7 +80,7 @@ export default class CollectionSidebar extends Service {
   }
 
   /**
-   * @type {CollectionTypes.Collection}
+   * @type {Collection}
    */
   get topicSubcollection() {
     return (
@@ -156,15 +156,10 @@ export default class CollectionSidebar extends Service {
   }
 
   /**
-   * @param {CollectionTypes.Collection} collection
-   * @param {CollectionTypes.Collection} subcollection
+   * @param {Collection} collection
+   * @param {Collection} subcollection
    */
   setSidebarContent(collection, subcollection) {
-    console.debug(
-      "Setting collection sidebar content",
-      collection,
-      subcollection
-    );
     if (!collection) {
       this.disableCollectionSidebar();
       return;
@@ -173,7 +168,7 @@ export default class CollectionSidebar extends Service {
     this._collectionData = collection;
     this._subcollection = subcollection;
 
-    /** @type {CollectionTypes.ProcessedSection[]} */
+    /** @type {ProcessedSection[]} */
     const sections = [];
 
     if (subcollection?.id) {
