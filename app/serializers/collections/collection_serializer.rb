@@ -2,7 +2,13 @@
 
 module ::Collections
   class CollectionSerializer < ApplicationSerializer
-    attributes :id, :is_single_topic, :maintainers, :can_edit_collection, :can_delete_collection
+    attributes :id,
+               :title,
+               :desc,
+               :is_single_topic,
+               :maintainers,
+               :can_edit_collection,
+               :can_delete_collection
     has_many :collection_items,
              serializer: ::Collections::CollectionItemSerializer,
              embed: :objects,

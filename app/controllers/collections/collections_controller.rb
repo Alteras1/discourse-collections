@@ -12,9 +12,14 @@ module ::Collections
     end
 
     def collection_params
-      params.permit(:id, :is_single_topic, :maintainer_ids, maintainer_ids: []).merge!(
-        user: current_user,
-      )
+      params.permit(
+        :id,
+        :title,
+        :desc,
+        :is_single_topic,
+        :maintainer_ids,
+        maintainer_ids: [],
+      ).merge!(user: current_user)
     end
 
     def ensure_collection_exists
