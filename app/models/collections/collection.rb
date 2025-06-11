@@ -10,6 +10,8 @@ module ::Collections
     validates :user_id, presence: true
     validates :maintainer_ids, presence: true, allow_blank: true
     validates :is_single_topic, inclusion: [true, false]
+    validates :title, absence: true, if: :is_single_topic
+    validates :desc, absence: true, if: :is_single_topic
     validate :no_headers_if_single_topic, if: :is_single_topic
     validate :includes_one_topic, unless: :is_single_topic
 
@@ -44,6 +46,8 @@ end
 # Table name: collections
 #
 #  id              :bigint           not null, primary key
+#  title           :string           default(""), not null
+#  desc            :string           default(""), not null
 #  user_id         :integer          not null
 #  maintainer_ids  :integer          default([]), is an Array
 #  is_single_topic :boolean          default(FALSE), not null

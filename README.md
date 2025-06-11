@@ -50,8 +50,8 @@ Plugin created a `collections` table and uses custom fields on Topics to manuall
 | column          | type            | comment                                                       |
 | --------------- | --------------- | ------------------------------------------------------------- |
 | id              | integer primary |                                                               |
-| title           | string          |                                                               |
-| desc            | string          |
+| title           | string          | optional title (collection only)                              |
+| desc            | string          | option description (collection only)                          |
 | user_id         | integer         | owner of the collection                                       |
 | mantainer_ids   | integer array   | ids of users who can add/edit the collection                  |
 | is_single_topic | boolean         | if true, is considered a subcollection tied to a single topic |
@@ -63,7 +63,7 @@ Plugin created a `collections` table and uses custom fields on Topics to manuall
 | column            | type            | comment                                            |
 | ----------------- | --------------- | -------------------------------------------------- |
 | id                | integer default |                                                    |
-| collection_id     | integer ref     | id of the collection                               |
+| collection_id     | integer fk      | id of the collection                               |
 | name              | string          | custom name of the item                            |
 | icon              | string          | custom icon of the item. can be empty              |
 | url               | string          | URL of the item                                    |
