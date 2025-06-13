@@ -24,7 +24,7 @@ export default class CollectionSidebarHeader extends Component {
   @tracked containerElement = null;
 
   get shouldDisplay() {
-    return this.collectionSidebar.collectionIndexId;
+    return this.collectionSidebar.collectionId;
   }
 
   get isCollectionDisplayed() {

@@ -12,14 +12,7 @@ module ::Collections
     end
 
     def collection_params
-      params.permit(
-        :id,
-        :title,
-        :desc,
-        :is_single_topic,
-        :maintainer_ids,
-        maintainer_ids: [],
-      ).merge!(user: current_user)
+      params.permit(:id, :title, :desc, :is_single_topic, :maintainer_ids, maintainer_ids: [])
     end
 
     def ensure_collection_exists
@@ -42,6 +35,8 @@ module ::Collections
         end
 
         topic = Topic.find(topic_id)
+        collection.user_id = topic.user_id
+        raise Discourse::InvalidAccess unless guardian.can_create_collection_for_topic?(topic)
         collection.transaction do
           collection.save!
           Collections::CollectionHandler.attach_subcollection_to_topic(topic, collection)
@@ -53,6 +48,9 @@ module ::Collections
           .each do |topic|
             raise Discourse::InvalidAccess unless guardian.can_create_collection_item?(topic)
           end
+        firstTopicItem = items.detect { |item| item.topic_id.present? }
+        user_id = Topic.where(id: firstTopicItem.topic_id).pick(:user_id)
+        collection.user_id = user_id || current_user.id
         collection.transaction { collection.save! }
       end
 

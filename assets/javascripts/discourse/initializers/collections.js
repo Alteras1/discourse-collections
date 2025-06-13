@@ -19,7 +19,6 @@ export default {
         "collection_updated",
         (topicController) => {
           const topic = topicController.model;
-          console.log("Collection updated callback triggered", topic);
           topic.reload().then(() => {
             topicController.send(
               "postChangedRoute",
@@ -30,6 +29,7 @@ export default {
             appEvents.trigger("collection:updated", {
               topic,
               collection: topic.get("collection"),
+              subcollection: topic.get("subcollection"),
             });
             collectionSidebar.maybeDisplaySidebar();
           });
@@ -45,10 +45,16 @@ export default {
           if (post.post_number !== 1) {
             return;
           }
-          dag.add("collection", CollectionPostMenuButton, {
-            before: ["delete", "showMore"],
-            after: ["bookmark", "edit"],
-          });
+          if (
+            post.topic.can_create_collection ||
+            post.topic.collection?.can_edit_collection ||
+            post.topic.subcollection?.can_edit_collection
+          ) {
+            dag.add("collection", CollectionPostMenuButton, {
+              before: ["delete", "showMore"],
+              after: ["bookmark", "edit"],
+            });
+          }
         }
       );
     });

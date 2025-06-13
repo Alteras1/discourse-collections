@@ -168,6 +168,6 @@ class CollectionSidebarSectionLink extends BaseCustomSidebarSectionLink {
   }
 
   get prefixValue() {
-    return "collection-pip";
+    return this.#data.icon || "collection-pip";
   }
 }

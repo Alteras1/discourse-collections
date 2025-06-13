@@ -14,6 +14,7 @@ module ::Collections
              embed: :objects,
              include: true
     has_one :user, serializer: BasicUserSerializer, embed: :objects, include: true, key: :owner
+    attribute :subcollection_topic_id, if: -> { object.is_single_topic }
 
     def maintainers
       object.maintainer_ids.map do |user_id|
@@ -27,6 +28,10 @@ module ::Collections
 
     def can_delete_collection
       scope.can_delete_collection?(object)
+    end
+
+    def subcollection_topic_id
+      TopicCustomField.where(name: Collections::SUBCOLLECTION_ID, value: id).pick(:topic_id)
     end
   end
 end
