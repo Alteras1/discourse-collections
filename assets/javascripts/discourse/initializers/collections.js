@@ -1,12 +1,13 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
-import I18n from "discourse-i18n";
 import CollectionPostMenuButton from "../components/collection-post-menu-button";
 import CollectionSidebarHeader from "../components/collection-sidebar-header";
 import sidebarPanelClassBuilder from "../lib/collection-sidebar-panel";
+/** @import CollectionSidebar from '../services/collection-sidebar.js' */
 
 export default {
   name: "collections",
   initialize(container) {
+    /** @type {CollectionSidebar} */
     const collectionSidebar = container.lookup("service:collection-sidebar");
     const appEvents = container.lookup("service:app-events");
 
@@ -28,6 +29,7 @@ export default {
             appEvents.trigger("collection:updated", {
               topic,
               collection: topic.get("collection"),
+              subcollection: topic.get("subcollection"),
             });
             collectionSidebar.maybeDisplaySidebar();
           });
@@ -43,33 +45,18 @@ export default {
           if (post.post_number !== 1) {
             return;
           }
-          dag.add("collection", CollectionPostMenuButton, {
-            before: ["delete", "showMore"],
-            after: ["bookmark", "edit"],
-          });
+          if (
+            post.topic.can_create_collection ||
+            post.topic.collection?.can_edit_collection ||
+            post.topic.subcollection?.can_edit_collection
+          ) {
+            dag.add("collection", CollectionPostMenuButton, {
+              before: ["delete", "showMore"],
+              after: ["bookmark", "edit"],
+            });
+          }
         }
       );
-
-      api.addComposerToolbarPopupMenuOption({
-        action: (toolbarEvent) => {
-          const collectionTemplate =
-            I18n.translations[I18n.currentLocale()].js.collections.template;
-          toolbarEvent.applySurround(
-            collectionTemplate.decorated_start,
-            collectionTemplate.decorated_end,
-            collectionTemplate.plain,
-            {
-              multiline: false,
-              useBlockMode: true,
-            }
-          );
-        },
-        icon: "layer-group",
-        label: "js.collections.composer.label",
-        condition: (composer) => {
-          return composer.model.topicFirstPost;
-        },
-      });
     });
   },
 };
