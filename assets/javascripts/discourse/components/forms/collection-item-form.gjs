@@ -142,8 +142,10 @@ export default class CollectionItemForm extends Component {
       {{/if}}
 
       <div
+        {{! template-lint-disable no-pointer-down-event-binding no-invalid-interactive}}
         {{on "mousedown" this.enableDrag}}
         {{on "touchstart" this.enableDrag}}
+        {{! template-lint-disable no-invalid-interactive}}
         {{on "mouseup" this.disableDrag}}
         {{on "touchend" this.disableDrag}}
         class="draggable"
@@ -239,7 +241,7 @@ export default class CollectionItemForm extends Component {
               <UrlTopicChooser
                 @value={{@link.urlName}}
                 @url={{@link.url}}
-                @onChange={{fn this.onChangeURL}}
+                @onChange={{this.onChangeURL}}
               />
             </span>
           {{/if}}
