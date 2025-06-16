@@ -10,7 +10,6 @@ module ::Collections
     validates :position, numericality: { only_integer: true }
     validates :is_section_header, inclusion: [true, false]
     validate :has_url_if_not_section_header, unless: :is_section_header
-    validate :validates_uniquely_belongs_to_topic?, unless: :is_section_header
 
     after_commit :clean_up_connected_topic, on: :destroy
     after_commit :attach_topic_to_collection, on: %i[create update]
@@ -23,21 +22,6 @@ module ::Collections
     def topic_id
       return unless url
       ::Collections::Url.extract_topic_id_from_url(url)
-    end
-
-    def validates_uniquely_belongs_to_topic?
-      return if collection.is_single_topic
-      return unless url
-      return if topic_id.blank?
-
-      # Check if the topic is already in the collection
-      if TopicCustomField.find_by(name: Collections::COLLECTION_ID, value: collection.id)
-        errors.add(:url, I18n.t("collections.errors.topic_in_another_collection"))
-      end
-      # Check if the topic is already in the collection items
-      if collection.collection_items.exists?(url: url)
-        errors.add(:url, "This topic is already in the collection")
-      end
     end
 
     def attach_topic_to_collection

@@ -59,7 +59,24 @@
     border: 1px solid var(--danger);
   }
 
+  .field__url .disabled details {
+    cursor: not-allowed;
+
+    summary {
+      pointer-events: none;
+
+      button {
+        display: none;
+      }
+
+      svg {
+        display: none;
+      }
+    }
+  }
+
   .icon.warning,
+  .name.warning,
   .value.warning {
     position: absolute;
   }
@@ -85,9 +102,15 @@
         color: var(--primary-high);
       }
 
-      label {
+      span {
         display: inline-flex;
         pointer-events: none;
+        font-weight: bold;
+        font-size: var(--font-0);
+        margin-bottom: 5px;
+        align-items: flex-start;
+        color: var(--primary-high);
+        line-height: var(--line-height-medium);
       }
     }
   }
@@ -326,6 +349,14 @@
     display: flex;
     flex-flow: row;
     gap: 0.5em;
+
+    @include viewport.until(sm) {
+      flex-flow: column;
+
+      .maintainers {
+        min-width: none;
+      }
+    }
 
     .owner {
       min-width: 200px;

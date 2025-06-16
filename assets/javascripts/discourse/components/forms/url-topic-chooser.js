@@ -1,4 +1,3 @@
-import { tracked } from "@glimmer/tracking";
 import { set } from "@ember/object";
 import { isEmpty } from "@ember/utils";
 import { classNames } from "@ember-decorators/component";
@@ -34,8 +33,6 @@ export default class UrlTopicChooser extends ComboBoxComponent {
     const searchParams = {};
     if (!isEmpty(filter)) {
       searchParams.typeFilter = "topic";
-      // TODO: check if this can be changed for PMs
-      searchParams.restrictToArchetype = "regular";
       searchParams.searchForId = true;
     }
 

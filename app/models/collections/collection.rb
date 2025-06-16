@@ -14,6 +14,7 @@ module ::Collections
     validates :desc, absence: true, if: :is_single_topic
     validate :no_headers_if_single_topic, if: :is_single_topic
     validate :includes_one_topic, unless: :is_single_topic
+    validate :items_uniquely_belongs_to_topic, unless: :is_single_topic
 
     accepts_nested_attributes_for :collection_items, allow_destroy: true
 
@@ -32,6 +33,19 @@ module ::Collections
     def includes_one_topic
       unless collection_items.any? { |item| item.topic_id != nil }
         errors.add_to_base(I18n.t("collections.errors.topic_required"))
+      end
+    end
+
+    def items_uniquely_belongs_to_topic
+      topic_ids = collection_items.filter_map {|item| item.topic_id if item.topic_id.present?}
+      if topic_ids.detect{ |i| topic_ids.count(i) > 1 }
+        errors.add(:url, "This topic is already in the collection")
+      end
+
+      values = TopicCustomField.where(name: Collections::COLLECTION_ID, topic_id: topic_ids).pluck(:value).map(&:to_i)
+
+      if values.any? {|v| v != id && v != nil}
+        errors.add(:url, I18n.t("collections.errors.topic_in_another_collection"))
       end
     end
 

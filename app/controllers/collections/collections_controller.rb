@@ -25,7 +25,7 @@ module ::Collections
         Collections::Collection.new(
           collection_params.merge(collection_items_attributes: items_params),
         )
-
+      
       if collection.is_single_topic
         topic_id = params.require(:topic_id)
         if Collections::CollectionHandler.topic_has_subcollection?(topic_id)
@@ -137,7 +137,7 @@ module ::Collections
       items = collection.collection_items
       items
         .filter do |item|
-          item.url_changed? && ::Collections::Url.extract_topic_id_from_url(url_was)
+          item.url_changed? && ::Collections::Url.extract_topic_id_from_url(item.url_was)
         end
         .each do |item|
           topic_id = ::Collections::Url.extract_topic_id_from_url(item.url_was)

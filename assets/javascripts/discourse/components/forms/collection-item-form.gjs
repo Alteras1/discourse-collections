@@ -225,12 +225,16 @@ export default class CollectionItemForm extends Component {
               name="link-url"
               aria-label={{i18n "collections.form.link"}}
               class={{@link.valueCssClass}}
+              readonly={{@link.disabled}}
             />
           {{else}}
             <span
               data-value={{@link.urlName}}
               data-placeholder={{i18n "collections.form.link"}}
-              class={{@link.valueCssClass}}
+              class={{concatClass
+                @link.valueCssClass
+                (if @link.disabled "disabled" "")
+              }}
             >
               <UrlTopicChooser
                 @value={{@link.urlName}}

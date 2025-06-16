@@ -12,8 +12,9 @@ import DModal from "discourse/components/d-modal";
 import avatar from "discourse/helpers/avatar";
 import withEventValue from "discourse/helpers/with-event-value";
 import { ajax } from "discourse/lib/ajax";
-import { popupAjaxError } from "discourse/lib/ajax-error";
+import { extractError } from "discourse/lib/ajax-error";
 import { afterRender, bind } from "discourse/lib/decorators";
+import { sanitize } from "discourse/lib/text";
 import { userPath } from "discourse/lib/url";
 import { i18n } from "discourse-i18n";
 import UserChooser from "select-kit/components/user-chooser";
@@ -21,6 +22,7 @@ import { CollectionItem } from "../forms/collection-item";
 import CollectionItemForm from "../forms/collection-item-form";
 
 class CollectionFormData {
+  /** @type {CollectionItem[]} */
   @tracked list;
   @tracked title;
   @tracked desc;
@@ -55,7 +57,10 @@ export default class CollectionForm extends Component {
   @service dialog;
   @service currentUser;
   @service router;
+  @service siteSettings;
 
+  @tracked flash;
+  @tracked flashType;
   @tracked isLoading = false;
 
   /** @type {boolean} */
@@ -77,7 +82,7 @@ export default class CollectionForm extends Component {
       if (this.edit) {
         return "collections.post_menu.manage_collection";
       } else {
-        return "collections.post_menu.create_collections";
+        return "collections.post_menu.create_collection";
       }
     }
   }
@@ -86,9 +91,7 @@ export default class CollectionForm extends Component {
   get transformedModel() {
     /** @type {Collection} */
     const collection = this.args.model.collection;
-    console.log(this.topic);
     if (!collection) {
-      // TODO: determine if a prepopulated item should be added
       return new CollectionFormData({
         owner: this.topic.details.created_by,
         maintainers: [],
@@ -96,7 +99,10 @@ export default class CollectionForm extends Component {
           new CollectionItem({
             router: this.router,
             objectId: this.nextObjectId++,
-            canDelete: true,
+            url: this.topic.url,
+            urlName: this.topic.title,
+            canDelete: false,
+            disabled: true,
           }),
         ]),
       });
@@ -198,31 +204,106 @@ export default class CollectionForm extends Component {
     );
   }
 
-  // TODO: ADD CRUD OPERATIONS
+  setPositions() {
+    this.activeItems.forEach((item, i) => {
+      item.position = i;
+    });
+  }
+
+  @action
+  create() {
+    this.isLoading = true;
+    this.setPositions();
+    const body = {
+      title: this.transformedModel.title,
+      desc: this.transformedModel.desc,
+      is_single_topic: this.isSubcollection,
+      maintainer_ids: this.transformedModel.maintainers.mapBy("id"),
+      items: this.transformedModel.list.map((item) => {
+        return {
+          name: item.name,
+          icon: item.icon,
+          url: item.url,
+          position: item.position,
+          is_section_header: item.isSectionHeader,
+        };
+      }),
+    };
+    if (this.isSubcollection) {
+      body.topic_id = this.topic.id;
+    }
+    return ajax("/collections", {
+      type: "POST",
+      contentType: "application/json",
+      dataType: "json",
+      data: JSON.stringify(body),
+    })
+      .then(() => {
+        this.args.closeModal();
+      })
+      .catch((e) => {
+        this.flash = sanitize(extractError(e));
+        this.flashType = "error";
+        this.isLoading = false;
+      });
+  }
+
+  @action
+  update() {
+    this.isLoading = true;
+    this.setPositions();
+    const body = {
+      title: this.transformedModel.title,
+      desc: this.transformedModel.desc,
+      is_single_topic: this.isSubcollection,
+      maintainer_ids: this.transformedModel.maintainers.mapBy("id"),
+      items: this.transformedModel.list.map((item) => {
+        return {
+          id: item.id,
+          name: item.name,
+          icon: item.icon,
+          url: item.url,
+          position: item.position,
+          is_section_header: item.isSectionHeader,
+          _destroy: item._destroy,
+        };
+      }),
+    };
+    if (this.isSubcollection) {
+      body.topic_id = this.topic.id;
+    }
+    return ajax(`/collections/${this.args.model.collection.id}`, {
+      type: "PUT",
+      contentType: "application/json",
+      dataType: "json",
+      data: JSON.stringify(body),
+    })
+      .then(() => {
+        this.args.closeModal();
+      })
+      .catch((e) => {
+        this.flash = sanitize(extractError(e));
+        this.flashType = "error";
+        this.isLoading = false;
+      });
+  }
 
   @action
   delete() {
     return this.dialog.yesNoConfirm({
       message: i18n("sidebar.sections.custom.delete_confirm"),
       didConfirm: () => {
-        console.log("clicked");
-        // return ajax(`/sidebar_sections/${this.transformedModel.id}`, {
-        //   type: "DELETE",
-        // })
-        //   .then(() => {
-        //     const newSidebarSections = this.currentUser.sidebar_sections.filter(
-        //       (section) => {
-        //         return section.id !== this.transformedModel.id;
-        //       }
-        //     );
-
-        //     this.currentUser.set("sidebar_sections", newSidebarSections);
-        //     this.closeModal();
-        //   })
-        //   .catch((e) => {
-        //     this.flash = sanitize(extractError(e));
-        //     this.flashType = "error";
-        //   });
+        return ajax(`/collections/${this.args.model.collection.id}`, {
+          type: "DELETE",
+        })
+          .then(() => {
+            this.args.closeModal();
+          })
+          .catch((e) => {
+            this.flash = sanitize(extractError(e));
+            this.flashType = "error";
+            this.isLoading = false;
+          });
       },
     });
   }
@@ -231,6 +312,8 @@ export default class CollectionForm extends Component {
     <DModal
       @closeModal={{@closeModal}}
       @title={{i18n this.modalTitle}}
+      @flash={{this.flash}}
+      @flashType={{this.flashType}}
       class="collection-modal"
       @bodyClass="collection-modal__body"
     >
@@ -245,31 +328,35 @@ export default class CollectionForm extends Component {
             }}</p>
 
           {{#if this.isSubcollection}}
-            <div class="collection-modal-form__input-wrapper users">
-              <div class="owner">
-                <label for="collection-owner">
-                  {{i18n "collections.form.owner"}}
-                </label>
-                <a
-                  class="collection-modal-form__owner"
-                  href={{this.ownerPath}}
-                  data-user-card={{this.transformedModel.owner.username}}
-                >
-                  {{avatar this.transformedModel.owner imageSize="small"}}
-                  {{this.transformedModel.owner.username}}
-                </a>
+            {{#if this.siteSettings.collection_by_topic_owner}}
+              <div class="collection-modal-form__input-wrapper users">
+                <div class="owner">
+                  {{! template-lint-disable no-nested-interactive}}
+                  <label for="collection-owner">
+                    {{i18n "collections.form.owner"}}
+                  </label>
+                  {{! template-lint-disable no-nested-interactive}}
+                  <a
+                    class="collection-modal-form__owner"
+                    href={{this.ownerPath}}
+                    data-user-card={{this.transformedModel.owner.username}}
+                  >
+                    {{avatar this.transformedModel.owner imageSize="small"}}
+                    {{this.transformedModel.owner.username}}
+                  </a>
+                </div>
+                <div class="maintainers">
+                  <label for="collection-maintainers">
+                    {{i18n "collections.form.maintainers"}}
+                  </label>
+                  <UserChooser
+                    @value={{this.transformedModel.maintainer_usernames}}
+                    @onChange={{this.setMaintainers}}
+                    @options={{hash excludeCurrentUser=false}}
+                  />
+                </div>
               </div>
-              <div class="maintainers">
-                <label for="collection-maintainers">
-                  {{i18n "collections.form.maintainers"}}
-                </label>
-                <UserChooser
-                  @value={{this.transformedModel.maintainer_usernames}}
-                  @onChange={{fn this.setMaintainers}}
-                  @options={{hash excludeCurrentUser=false}}
-                />
-              </div>
-            </div>
+            {{/if}}
           {{else}}
             <div class="collection-modal-form__input-wrapper">
               <label for="collection-name">
@@ -289,10 +376,11 @@ export default class CollectionForm extends Component {
 
             <details class="collection-modal-form__details">
               <summary>
-                <label>{{i18n "collections.form.details"}}</label>
+                <span>{{i18n "collections.form.details"}}</span>
               </summary>
 
               <div class="collection-modal-form__input-wrapper">
+                {{! template-lint-disable no-nested-interactive}}
                 <label for="collection-desc">
                   {{i18n "collections.form.custom_desc"}}
                 </label>
@@ -308,31 +396,35 @@ export default class CollectionForm extends Component {
                 />
               </div>
 
-              <div class="collection-modal-form__input-wrapper users">
-                <div class="owner">
-                  <label for="collection-owner">
-                    {{i18n "collections.form.owner"}}
-                  </label>
-                  <a
-                    class="collection-modal-form__owner"
-                    href={{this.ownerPath}}
-                    data-user-card={{this.transformedModel.owner.username}}
-                  >
-                    {{avatar this.transformedModel.owner imageSize="small"}}
-                    {{this.transformedModel.owner.username}}
-                  </a>
+              {{#if this.siteSettings.collection_by_topic_owner}}
+                <div class="collection-modal-form__input-wrapper users">
+                  <div class="owner">
+                    {{! template-lint-disable no-nested-interactive}}
+                    <label for="collection-owner">
+                      {{i18n "collections.form.owner"}}
+                    </label>
+                    <a
+                      class="collection-modal-form__owner"
+                      href={{this.ownerPath}}
+                      data-user-card={{this.transformedModel.owner.username}}
+                    >
+                      {{avatar this.transformedModel.owner imageSize="small"}}
+                      {{this.transformedModel.owner.username}}
+                    </a>
+                  </div>
+                  <div class="maintainers">
+                    {{! template-lint-disable no-nested-interactive}}
+                    <label for="collection-maintainers">
+                      {{i18n "collections.form.maintainers"}}
+                    </label>
+                    <UserChooser
+                      @value={{this.transformedModel.maintainer_usernames}}
+                      @onChange={{this.setMaintainers}}
+                      @options={{hash excludeCurrentUser=false}}
+                    />
+                  </div>
                 </div>
-                <div class="maintainers">
-                  <label for="collection-maintainers">
-                    {{i18n "collections.form.maintainers"}}
-                  </label>
-                  <UserChooser
-                    @value={{this.transformedModel.maintainer_usernames}}
-                    @onChange={{fn this.setMaintainers}}
-                    @options={{hash excludeCurrentUser=false}}
-                  />
-                </div>
-              </div>
+              {{/if}}
             </details>
           {{/if}}
 
@@ -402,7 +494,7 @@ export default class CollectionForm extends Component {
         {{#if this.edit}}
           <DButton
             @label="collections.form.save"
-            @action={{this.saveCollection}}
+            @action={{this.update}}
             @disabled={{not this.transformedModel.valid}}
             @isLoading={{this.isLoading}}
             class="btn-primary"
@@ -410,7 +502,7 @@ export default class CollectionForm extends Component {
         {{else}}
           <DButton
             @label="collections.form.create"
-            @action={{this.createCollection}}
+            @action={{this.create}}
             @disabled={{not this.transformedModel.valid}}
             @isLoading={{this.isLoading}}
             class="btn-primary"

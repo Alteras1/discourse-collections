@@ -1,7 +1,7 @@
-import { cached, tracked } from "@glimmer/tracking";
+import { tracked } from "@glimmer/tracking";
 import { isEmpty } from "@ember/utils";
-import { SIDEBAR_SECTION, SIDEBAR_URL } from "discourse/lib/constants";
 import { i18n } from "discourse-i18n";
+import { COLLECTION_URL } from "../../constants";
 
 export class CollectionItem {
   @tracked icon;
@@ -23,13 +23,13 @@ export class CollectionItem {
     position,
     isSectionHeader = false,
     objectId,
-    segment,
     urlName,
     canDelete,
+    disabled,
   }) {
     this.router = router;
     this.id = id;
-    this.icon = icon || "collection-pip";
+    this.icon = icon || (isSectionHeader ? undefined : "collection-pip");
     this.name = name;
     this.url = url;
     this.position = position;
@@ -37,9 +37,9 @@ export class CollectionItem {
     this.httpHost = "http://" + window.location.host;
     this.httpsHost = "https://" + window.location.host;
     this.objectId = objectId;
-    this.segment = segment;
     this.urlName = urlName;
     this.canDelete = canDelete;
+    this.disabled = disabled;
   }
 
   get path() {
@@ -47,6 +47,9 @@ export class CollectionItem {
   }
 
   get valid() {
+    if (this.isSectionHeader) {
+      return this.validName;
+    }
     return this.validIcon && this.validName && this.validValue;
   }
 
@@ -68,7 +71,7 @@ export class CollectionItem {
     }
     if (this.#tooLongIcon) {
       return i18n("sidebar.sections.custom.links.icon.validation.maximum", {
-        count: SIDEBAR_URL.max_icon_length,
+        count: COLLECTION_URL.max_icon_length,
       });
     }
   }
@@ -82,7 +85,7 @@ export class CollectionItem {
     }
     if (this.#tooLongName) {
       return i18n("sidebar.sections.custom.links.name.validation.maximum", {
-        count: SIDEBAR_URL.max_name_length,
+        count: COLLECTION_URL.max_name_length,
       });
     }
   }
@@ -96,7 +99,7 @@ export class CollectionItem {
     }
     if (this.#tooLongValue) {
       return i18n("sidebar.sections.custom.links.value.validation.maximum", {
-        count: SIDEBAR_URL.max_value_length,
+        count: COLLECTION_URL.max_value_length,
       });
     }
     if (this.#invalidValue) {
@@ -125,7 +128,7 @@ export class CollectionItem {
   }
 
   get #tooLongIcon() {
-    return this.icon.length > SIDEBAR_URL.max_icon_length;
+    return this.icon.length > COLLECTION_URL.max_icon_length;
   }
 
   get #blankName() {
@@ -133,7 +136,7 @@ export class CollectionItem {
   }
 
   get #tooLongName() {
-    return this.name.length > SIDEBAR_URL.max_name_length;
+    return this.name.length > COLLECTION_URL.max_name_length;
   }
 
   get #blankValue() {
@@ -141,7 +144,7 @@ export class CollectionItem {
   }
 
   get #tooLongValue() {
-    return this.url.length > SIDEBAR_URL.max_value_length;
+    return this.url.length > COLLECTION_URL.max_value_length;
   }
 
   get #invalidValue() {
