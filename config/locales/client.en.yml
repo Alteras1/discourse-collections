@@ -23,6 +23,7 @@ en:
         collection_title: "Collection title (optional)"
         custom_desc: "Description (optional)"
         owner: "Owner"
+        change_owner: "Change owner"
         section_header: "Section header"
         icon: "Icon"
         name: "Name"

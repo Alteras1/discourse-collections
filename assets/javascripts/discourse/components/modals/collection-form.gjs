@@ -2,14 +2,13 @@ import Component from "@glimmer/component";
 import { cached, tracked } from "@glimmer/tracking";
 import { A } from "@ember/array";
 import { Input, Textarea } from "@ember/component";
-import { fn, hash } from "@ember/helper";
+import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { not } from "truth-helpers";
 import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
-import avatar from "discourse/helpers/avatar";
 import withEventValue from "discourse/helpers/with-event-value";
 import { ajax } from "discourse/lib/ajax";
 import { extractError } from "discourse/lib/ajax-error";
@@ -17,9 +16,9 @@ import { afterRender, bind } from "discourse/lib/decorators";
 import { sanitize } from "discourse/lib/text";
 import { userPath } from "discourse/lib/url";
 import { i18n } from "discourse-i18n";
-import UserChooser from "select-kit/components/user-chooser";
 import { CollectionItem } from "../forms/collection-item";
 import CollectionItemForm from "../forms/collection-item-form";
+import OwnerMaintainerForm from "../forms/owner-maintainer-form";
 
 class CollectionFormData {
   /** @type {CollectionItem[]} */
@@ -217,6 +216,7 @@ export default class CollectionForm extends Component {
     const body = {
       title: this.transformedModel.title,
       desc: this.transformedModel.desc,
+      user_id: this.transformedModel.owner.id,
       is_single_topic: this.isSubcollection,
       maintainer_ids: this.transformedModel.maintainers.mapBy("id"),
       items: this.transformedModel.list.map((item) => {
@@ -255,6 +255,7 @@ export default class CollectionForm extends Component {
     const body = {
       title: this.transformedModel.title,
       desc: this.transformedModel.desc,
+      user_id: this.transformedModel.owner.id,
       is_single_topic: this.isSubcollection,
       maintainer_ids: this.transformedModel.maintainers.mapBy("id"),
       items: this.transformedModel.list.map((item) => {
@@ -329,33 +330,10 @@ export default class CollectionForm extends Component {
 
           {{#if this.isSubcollection}}
             {{#if this.siteSettings.collection_by_topic_owner}}
-              <div class="collection-modal-form__input-wrapper users">
-                <div class="owner">
-                  {{! template-lint-disable no-nested-interactive}}
-                  <label for="collection-owner">
-                    {{i18n "collections.form.owner"}}
-                  </label>
-                  {{! template-lint-disable no-nested-interactive}}
-                  <a
-                    class="collection-modal-form__owner"
-                    href={{this.ownerPath}}
-                    data-user-card={{this.transformedModel.owner.username}}
-                  >
-                    {{avatar this.transformedModel.owner imageSize="small"}}
-                    {{this.transformedModel.owner.username}}
-                  </a>
-                </div>
-                <div class="maintainers">
-                  <label for="collection-maintainers">
-                    {{i18n "collections.form.maintainers"}}
-                  </label>
-                  <UserChooser
-                    @value={{this.transformedModel.maintainer_usernames}}
-                    @onChange={{this.setMaintainers}}
-                    @options={{hash excludeCurrentUser=false}}
-                  />
-                </div>
-              </div>
+              <OwnerMaintainerForm
+                @transformedModel={{this.transformedModel}}
+                @setMaintainersCallback={{this.setMaintainers}}
+              />
             {{/if}}
           {{else}}
             <div class="collection-modal-form__input-wrapper">
@@ -397,33 +375,10 @@ export default class CollectionForm extends Component {
               </div>
 
               {{#if this.siteSettings.collection_by_topic_owner}}
-                <div class="collection-modal-form__input-wrapper users">
-                  <div class="owner">
-                    {{! template-lint-disable no-nested-interactive}}
-                    <label for="collection-owner">
-                      {{i18n "collections.form.owner"}}
-                    </label>
-                    <a
-                      class="collection-modal-form__owner"
-                      href={{this.ownerPath}}
-                      data-user-card={{this.transformedModel.owner.username}}
-                    >
-                      {{avatar this.transformedModel.owner imageSize="small"}}
-                      {{this.transformedModel.owner.username}}
-                    </a>
-                  </div>
-                  <div class="maintainers">
-                    {{! template-lint-disable no-nested-interactive}}
-                    <label for="collection-maintainers">
-                      {{i18n "collections.form.maintainers"}}
-                    </label>
-                    <UserChooser
-                      @value={{this.transformedModel.maintainer_usernames}}
-                      @onChange={{this.setMaintainers}}
-                      @options={{hash excludeCurrentUser=false}}
-                    />
-                  </div>
-                </div>
+                <OwnerMaintainerForm
+                  @transformedModel={{this.transformedModel}}
+                  @setMaintainersCallback={{this.setMaintainers}}
+                />
               {{/if}}
             </details>
           {{/if}}

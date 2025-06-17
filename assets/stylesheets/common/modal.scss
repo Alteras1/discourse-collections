@@ -358,6 +358,24 @@
       }
     }
 
+    .edit-owner {
+      display: inline-block;
+      margin-left: 0.5em;
+
+      span {
+        display: none;
+      }
+    }
+
+    .confirm-cancel {
+      display: inline-block;
+      vertical-align: bottom;
+
+      span {
+        display: none;
+      }
+    }
+
     .owner {
       min-width: 200px;
     }

@@ -25,6 +25,7 @@ module ::Collections
         Collections::Collection.new(
           collection_params.merge(collection_items_attributes: items_params),
         )
+      user_id = params.permit(:user_id)[:user_id]
       
       if collection.is_single_topic
         topic_id = params.require(:topic_id)
@@ -34,8 +35,13 @@ module ::Collections
           )
         end
 
-        topic = Topic.find(topic_id)
-        collection.user_id = topic.user_id
+        if user_id && User.exists?(user_id)
+          collection.user_id = user_id
+        else
+          topic = Topic.find(topic_id)
+          collection.user_id = topic.user_id
+        end
+
         raise Discourse::InvalidAccess unless guardian.can_create_collection_for_topic?(topic)
         collection.transaction do
           collection.save!
@@ -45,11 +51,15 @@ module ::Collections
         items = collection.collection_items
         items
           .filter_map { |item| Topic.find_by(id: item.topic_id) if item.topic_id }
-          .each do |topic|
-            raise Discourse::InvalidAccess unless guardian.can_create_collection_item?(topic)
+          .each do |t|
+            raise Discourse::InvalidAccess unless guardian.can_create_collection_item?(t)
           end
-        firstTopicItem = items.detect { |item| item.topic_id.present? }
-        user_id = Topic.where(id: firstTopicItem.topic_id).pick(:user_id)
+        if user_id && User.exists?(user_id)
+          collection.user_id = user_id
+        else
+          firstTopicItem = items.detect { |item| item.topic_id.present? }
+          user_id = Topic.where(id: firstTopicItem.topic_id).pick(:user_id)
+        end
         collection.user_id = user_id || current_user.id
         collection.transaction { collection.save! }
       end
@@ -77,6 +87,8 @@ module ::Collections
 
     def update
       raise Discourse::InvalidAccess unless guardian.can_edit?(@collection)
+      user_id = params.permit(:user_id)[:user_id]
+
       @collection.assign_attributes(
         collection_params.merge(collection_items_attributes: items_params),
       )
@@ -101,6 +113,10 @@ module ::Collections
           .each do |item|
             raise Discourse::InvalidAccess unless guardian.can_create_collection_item?(item)
           end
+      end
+
+      if user_id && User.exists?(user_id)
+        @collection.user_id = user_id
       end
 
       @collection.save!

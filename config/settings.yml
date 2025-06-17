@@ -13,3 +13,4 @@ discourse_collections:
     allow_any: false
     refresh: true
     area: "group_permissions"
+    client: true
