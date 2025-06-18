@@ -14,10 +14,12 @@ import { i18n } from "discourse-i18n";
 import { SIDEBAR_COLLECTIONS_PANEL } from "../services/collection-sidebar";
 /** @import CollectionSidebar from '../services/collection-sidebar' */
 
-const COLLECTION_SIDEBAR_HEADER_SELECTOR =
+const COLLECTION_SIDEBAR_HEADER_RETURN_SELECTOR =
   ".discourse-collections-sidebar-panel .sidebar-panel-header__row:has(a.sidebar-sections__back-to-forum";
 const MAIN_SIDEBAR_HEADER_SELECTOR =
   ".sidebar-wrapper .sidebar-container .sidebar-sections";
+const COLLECTION_SIDEBAR_HEADER_SELECTOR =
+  ".discourse-collections-sidebar-panel .sidebar-panel-header";
 
 export default class CollectionSidebarHeader extends Component {
   @service router;
@@ -25,7 +27,8 @@ export default class CollectionSidebarHeader extends Component {
   /** @type {CollectionSidebar} */
   @service collectionSidebar;
 
-  @tracked containerElement = null;
+  @tracked mainButtonContainerElement = null;
+  @tracked mainHeaderContainerElement = null;
 
   get shouldDisplay() {
     return this.collectionSidebar.collectionId;
@@ -35,8 +38,16 @@ export default class CollectionSidebarHeader extends Component {
     return this.sidebarState.isCurrentPanel(SIDEBAR_COLLECTIONS_PANEL);
   }
 
+  get title() {
+    return htmlSafe(this.collectionSidebar._collectionData?.title || "");
+  }
+
+  get desc() {
+    return htmlSafe(this.collectionSidebar._collectionData?.desc || "");
+  }
+
   get header() {
-    const title = this.collectionSidebar.topicCollectionInfo?.title || "";
+    const title = this.collectionSidebar._collectionData?.title || "";
     if (title) {
       return htmlSafe(title);
     }
@@ -52,10 +63,14 @@ export default class CollectionSidebarHeader extends Component {
 
       const dom = document.querySelector(
         this.isCollectionDisplayed
-          ? COLLECTION_SIDEBAR_HEADER_SELECTOR
+          ? COLLECTION_SIDEBAR_HEADER_RETURN_SELECTOR
           : MAIN_SIDEBAR_HEADER_SELECTOR
       );
-      this.containerElement = dom;
+      this.mainButtonContainerElement = dom;
+      const headerDom = document.querySelector(
+        COLLECTION_SIDEBAR_HEADER_SELECTOR
+      );
+      this.mainHeaderContainerElement = headerDom;
     });
   }
 
@@ -78,7 +93,7 @@ export default class CollectionSidebarHeader extends Component {
       >
       </div>
       <ConditionalInElement
-        @element={{this.containerElement}}
+        @element={{this.mainButtonContainerElement}}
         @inline={{false}}
         @append={{true}}
       >
@@ -106,6 +121,24 @@ export default class CollectionSidebarHeader extends Component {
           </div>
         {{/if}}
       </ConditionalInElement>
+      {{#if this.title}}
+        <ConditionalInElement
+          @element={{this.mainHeaderContainerElement}}
+          @inline={{false}}
+          @append={{true}}
+        >
+          <div class="sidebar-panel-header__row collection-sidebar__title-row">
+            <span class="collection-sidebar__title">
+              {{this.title}}
+            </span>
+            {{#if this.desc}}
+              <span class="collection-sidebar__desc">
+                {{this.desc}}
+              </span>
+            {{/if}}
+          </div>
+        </ConditionalInElement>
+      {{/if}}
     {{/if}}
   </template>
 }

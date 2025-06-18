@@ -2,6 +2,7 @@ import { withPluginApi } from "discourse/lib/plugin-api";
 import CollectionPostMenuButton from "../components/collection-post-menu-button";
 import CollectionSidebarFooter from "../components/collection-sidebar-footer";
 import CollectionSidebarHeader from "../components/collection-sidebar-header";
+import { CollectionTopicProgressButton } from "../components/collection-topic-progress-button";
 /** @import CollectionSidebar from '../services/collection-sidebar.js' */
 import CollectionForm from "../components/modals/collection-form";
 import sidebarPanelClassBuilder from "../lib/collection-sidebar-panel";
@@ -17,6 +18,10 @@ export default {
       api.addSidebarPanel(sidebarPanelClassBuilder);
       api.renderInOutlet("before-sidebar-sections", CollectionSidebarHeader);
       api.renderInOutlet("sidebar-footer-actions", CollectionSidebarFooter);
+      api.renderInOutlet(
+        "before-topic-progress",
+        CollectionTopicProgressButton
+      );
 
       api.addTopicAdminMenuButton((topic) => {
         const collection = topic.get("collection");

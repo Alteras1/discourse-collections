@@ -8,6 +8,7 @@ import { ADMIN_PANEL, MAIN_PANEL } from "discourse/lib/sidebar/panels";
 export const SIDEBAR_COLLECTIONS_PANEL = "discourse-collections-sidebar";
 
 export default class CollectionSidebar extends Service {
+  @service site;
   @service appEvents;
   @service router;
   @service sidebarState;
@@ -201,6 +202,8 @@ export default class CollectionSidebar extends Service {
     }
 
     this._sections = sections;
-    this.showCollectionSidebar();
+    if (!this.site.mobileView) {
+      this.showCollectionSidebar();
+    }
   }
 }

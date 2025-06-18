@@ -9,7 +9,6 @@ import DropdownMenu from "discourse/components/dropdown-menu";
 import { bind } from "discourse/lib/decorators";
 import { i18n } from "discourse-i18n";
 import DMenu from "float-kit/components/d-menu";
-import CollectionForm from "./modals/collection-form";
 
 export default class CollectionPostMenuButton extends Component {
   static hidden(args) {
@@ -25,9 +24,9 @@ export default class CollectionPostMenuButton extends Component {
     return true;
   }
 
-  @service modal;
   @service router;
   @service appEvents;
+  @service editCollection;
 
   /** @type {Collection} */
   @tracked collection = this.args.post.topic.collection;
@@ -55,24 +54,15 @@ export default class CollectionPostMenuButton extends Component {
 
   @action
   manageCollection() {
-    this.modal.show(CollectionForm, {
-      model: {
-        topic: this.args.post.topic,
-        collection: this.collection,
-        isSubcollection: false,
-      },
-    });
+    this.editCollection.manageCollection(this.args.post.topic, this.collection);
   }
 
   @action
   manageSubcollection() {
-    this.modal.show(CollectionForm, {
-      model: {
-        topic: this.args.post.topic,
-        collection: this.subcollection,
-        isSubcollection: true,
-      },
-    });
+    this.editCollection.manageSubcollection(
+      this.args.post.topic,
+      this.subcollection
+    );
   }
 
   <template>

@@ -11,6 +11,7 @@
 enabled_site_setting :collections_enabled
 
 register_asset "stylesheets/common/index.scss"
+register_asset "stylesheets/mobile/mobile.scss"
 
 module ::Collections
   PLUGIN_NAME = "discourse-collections"

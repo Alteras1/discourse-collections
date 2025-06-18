@@ -9,13 +9,11 @@ import DropdownMenu from "discourse/components/dropdown-menu";
 import icon from "discourse/helpers/d-icon";
 import { bind } from "discourse/lib/decorators";
 import DMenu from "float-kit/components/d-menu";
-import CollectionForm from "./modals/collection-form";
 
 export default class CollectionSidebarFooter extends Component {
   @service site;
-  @service modal;
   @service router;
-  @service currentUser;
+  @service editCollection;
 
   @tracked topic;
 
@@ -61,29 +59,19 @@ export default class CollectionSidebarFooter extends Component {
 
   @action
   manageCollection() {
-    this.modal.show(CollectionForm, {
-      model: {
-        topic: this.topic,
-        collection: this.collection,
-        isSubcollection: false,
-      },
-    });
+    this.editCollection.manageCollection(this.topic, this.collection);
   }
 
   @action
   manageSubcollection() {
-    this.modal.show(CollectionForm, {
-      model: {
-        topic: this.topic,
-        collection: this.subcollection,
-        isSubcollection: true,
-      },
-    });
+    this.editCollection.manageSubcollection(this.topic, this.subcollection);
   }
 
   <template>
     {{#if this.canCreate}}
       <DMenu
+        @modalForMobile={{true}}
+        @contentClass="collection-edit-menu"
         class="btn no-text btn-icon btn-flat sidebar-footer-actions-button collection-sidebar-footer-menu"
       >
         <:trigger>
