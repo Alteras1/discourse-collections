@@ -95,14 +95,22 @@ export default class CollectionForm extends Component {
         owner: this.topic.details.created_by,
         maintainers: [],
         list: A([
-          new CollectionItem({
-            router: this.router,
-            objectId: this.nextObjectId++,
-            url: this.topic.url,
-            urlName: this.topic.title,
-            canDelete: false,
-            disabled: true,
-          }),
+          new CollectionItem(
+            this.isSubcollection
+              ? {
+                  router: this.router,
+                  objectId: this.nextObjectId++,
+                  canDelete: true,
+                }
+              : {
+                  router: this.router,
+                  objectId: this.nextObjectId++,
+                  url: this.topic.url,
+                  urlName: this.topic.title,
+                  canDelete: false,
+                  disabled: true,
+                }
+          ),
         ]),
       });
     }

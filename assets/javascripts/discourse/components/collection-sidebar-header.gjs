@@ -5,11 +5,14 @@ import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import didUpdate from "@ember/render-modifiers/modifiers/did-update";
 import { schedule } from "@ember/runloop";
 import { service } from "@ember/service";
+import { htmlSafe } from "@ember/template";
 import ConditionalInElement from "discourse/components/conditional-in-element";
 import DButton from "discourse/components/d-button";
 import icon from "discourse/helpers/d-icon";
 import { MAIN_PANEL } from "discourse/lib/sidebar/panels";
+import { i18n } from "discourse-i18n";
 import { SIDEBAR_COLLECTIONS_PANEL } from "../services/collection-sidebar";
+/** @import CollectionSidebar from '../services/collection-sidebar' */
 
 const COLLECTION_SIDEBAR_HEADER_SELECTOR =
   ".discourse-collections-sidebar-panel .sidebar-panel-header__row:has(a.sidebar-sections__back-to-forum";
@@ -19,6 +22,7 @@ const MAIN_SIDEBAR_HEADER_SELECTOR =
 export default class CollectionSidebarHeader extends Component {
   @service router;
   @service sidebarState;
+  /** @type {CollectionSidebar} */
   @service collectionSidebar;
 
   @tracked containerElement = null;
@@ -29,6 +33,14 @@ export default class CollectionSidebarHeader extends Component {
 
   get isCollectionDisplayed() {
     return this.sidebarState.isCurrentPanel(SIDEBAR_COLLECTIONS_PANEL);
+  }
+
+  get header() {
+    const title = this.collectionSidebar.topicCollectionInfo?.title || "";
+    if (title) {
+      return htmlSafe(title);
+    }
+    return i18n("collections.sidebar.buttons.collection");
   }
 
   @action
@@ -85,7 +97,7 @@ export default class CollectionSidebarHeader extends Component {
                 class="sidebar-panel-header__col-btn btn-transparent btn-flat btn-text btn-default"
                 @action={{this.displayCollection}}
                 @icon="layer-group"
-                @label="collections.sidebar.buttons.collection"
+                @translatedLabel={{this.header}}
                 @title="collections.sidebar.buttons.collection_desc"
               >
                 {{icon "arrow-right"}}

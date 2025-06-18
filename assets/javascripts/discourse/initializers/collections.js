@@ -1,8 +1,10 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
 import CollectionPostMenuButton from "../components/collection-post-menu-button";
+import CollectionSidebarFooter from "../components/collection-sidebar-footer";
 import CollectionSidebarHeader from "../components/collection-sidebar-header";
-import sidebarPanelClassBuilder from "../lib/collection-sidebar-panel";
 /** @import CollectionSidebar from '../services/collection-sidebar.js' */
+import CollectionForm from "../components/modals/collection-form";
+import sidebarPanelClassBuilder from "../lib/collection-sidebar-panel";
 
 export default {
   name: "collections",
@@ -14,6 +16,47 @@ export default {
     withPluginApi("2.0.0", (api) => {
       api.addSidebarPanel(sidebarPanelClassBuilder);
       api.renderInOutlet("before-sidebar-sections", CollectionSidebarHeader);
+      api.renderInOutlet("sidebar-footer-actions", CollectionSidebarFooter);
+
+      api.addTopicAdminMenuButton((topic) => {
+        const collection = topic.get("collection");
+        return {
+          icon: collection ? "layer-group" : "collections-add",
+          label: collection
+            ? "collections.post_menu.manage_collection"
+            : "collections.post_menu.create_collection",
+          action: () => {
+            const modal = api.container.lookup("service:modal");
+            modal.show(CollectionForm, {
+              model: {
+                topic,
+                collection,
+                isSubcollection: false,
+              },
+            });
+          },
+        };
+      });
+
+      api.addTopicAdminMenuButton((topic) => {
+        const subcollection = topic.get("subcollection");
+        return {
+          icon: subcollection ? "layer-group" : "collections-add",
+          label: subcollection
+            ? "collections.post_menu.manage_subcollection"
+            : "collections.post_menu.create_subcollection",
+          action: () => {
+            const modal = api.container.lookup("service:modal");
+            modal.show(CollectionForm, {
+              model: {
+                topic,
+                collection: subcollection,
+                isSubcollection: true,
+              },
+            });
+          },
+        };
+      });
 
       api.registerCustomPostMessageCallback(
         "collection_updated",

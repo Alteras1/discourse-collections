@@ -57,7 +57,6 @@ export default class CollectionPostMenuButton extends Component {
   manageCollection() {
     this.modal.show(CollectionForm, {
       model: {
-        post: this.args.post,
         topic: this.args.post.topic,
         collection: this.collection,
         isSubcollection: false,
@@ -69,7 +68,6 @@ export default class CollectionPostMenuButton extends Component {
   manageSubcollection() {
     this.modal.show(CollectionForm, {
       model: {
-        post: this.args.post,
         topic: this.args.post.topic,
         collection: this.subcollection,
         isSubcollection: true,
