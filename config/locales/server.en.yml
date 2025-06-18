@@ -5,10 +5,7 @@ en:
     collection_modification_by_allowed_groups: "Allow groups to create/edit any collection on any topic"
   collections:
     errors:
-      preview_params_missing: "Must provide raw or cooked"
-      destroy_failed: "Failed to delete collection"
-      not_found: "Collection not found"
-      create_failed: "Failed to create collection"
-      bind_topic_not_in_collection: "Topic is not part of this collection. To add it, edit the index, or use force=true"
-      bind_topic_in_another_collection: "Topic is already part of another collection. To move it, edit the index, or use force=true"
-      unbind_topic_not_in_collection: "Topic is not part of this collection"
+      topic_in_another_collection: "Topic is already part of another collection."
+      subcollection_already_exists: "This Topic already has a subcollection."
+      topic_required: "At least one topic must be part of this collection"
+      subcollection_no_headers: "This collection is a subcollection for a single topic. No sections allowed"

@@ -11,14 +11,18 @@
 enabled_site_setting :collections_enabled
 
 register_asset "stylesheets/common/index.scss"
+register_asset "stylesheets/mobile/mobile.scss"
 
 module ::Collections
   PLUGIN_NAME = "discourse-collections"
 
-  COLLECTION_INDEX = "collection_index"
-  IS_COLLECTION = "is_collection"
+  # names for serializer
   COLLECTION = "collection"
-  OWNED_COLLECTION = "owned_collection"
+  SUBCOLLECTION = "subcollection"
+
+  # topic custom fields
+  COLLECTION_ID = "collection_id"
+  SUBCOLLECTION_ID = "subcollection_id"
 
   class Initializer
     attr_reader :plugin
@@ -52,27 +56,17 @@ after_initialize do
   register_svg_icon "collections-remove"
   register_svg_icon "collection-pip"
 
-  add_to_class(:guardian, :change_collection_status_of_topic?) do |topic|
-    # set to can edit, as this will cover OP and staff.
-    # should we need to extend this, ie. as a new permission, we can extend this method
-    return can_edit_topic?(topic) if SiteSetting.collection_by_topic_owner
-    current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
-  end
+  reloadable_patch { |plugin| Guardian.prepend Collections::GuardianExtensions }
 
-  add_to_class(:guardian, :change_collection_index_of_topic?) do |topic|
-    return can_edit_topic?(topic) if SiteSetting.collection_by_topic_owner
-    current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
-  end
-
-  register_search_advanced_filter(/is:collection/) do |post|
-    if SiteSetting.collections_enabled
-      post.where(
-        "topics.id IN (SELECT topic_id FROM topic_custom_fields WHERE name = '#{Collections::IS_COLLECTION}' AND value = 't')",
-      )
-    else
-      post
-    end
-  end
+  # register_search_advanced_filter(/is:collection/) do |post|
+  #   if SiteSetting.collections_enabled
+  #     post.where(
+  #       "topics.id IN (SELECT topic_id FROM topic_custom_fields WHERE name = '#{Collections::IS_COLLECTION}' AND value = 't')",
+  #     )
+  #   else
+  #     post
+  #   end
+  # end
 
   Collections::Initializers.apply(self)
 end

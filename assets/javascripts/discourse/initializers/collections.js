@@ -1,18 +1,67 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
-import I18n from "discourse-i18n";
 import CollectionPostMenuButton from "../components/collection-post-menu-button";
+import CollectionSidebarFooter from "../components/collection-sidebar-footer";
 import CollectionSidebarHeader from "../components/collection-sidebar-header";
+import { CollectionTopicProgressButton } from "../components/collection-topic-progress-button";
+/** @import CollectionSidebar from '../services/collection-sidebar.js' */
+import CollectionForm from "../components/modals/collection-form";
 import sidebarPanelClassBuilder from "../lib/collection-sidebar-panel";
 
 export default {
   name: "collections",
   initialize(container) {
+    /** @type {CollectionSidebar} */
     const collectionSidebar = container.lookup("service:collection-sidebar");
     const appEvents = container.lookup("service:app-events");
 
     withPluginApi("2.0.0", (api) => {
       api.addSidebarPanel(sidebarPanelClassBuilder);
       api.renderInOutlet("before-sidebar-sections", CollectionSidebarHeader);
+      api.renderInOutlet("sidebar-footer-actions", CollectionSidebarFooter);
+      api.renderInOutlet(
+        "before-topic-progress",
+        CollectionTopicProgressButton
+      );
+
+      api.addTopicAdminMenuButton((topic) => {
+        const collection = topic.get("collection");
+        return {
+          icon: collection ? "layer-group" : "collections-add",
+          label: collection
+            ? "collections.post_menu.manage_collection"
+            : "collections.post_menu.create_collection",
+          action: () => {
+            const modal = api.container.lookup("service:modal");
+            modal.show(CollectionForm, {
+              model: {
+                topic,
+                collection,
+                isSubcollection: false,
+              },
+            });
+          },
+        };
+      });
+
+      api.addTopicAdminMenuButton((topic) => {
+        const subcollection = topic.get("subcollection");
+        return {
+          icon: subcollection ? "layer-group" : "collections-add",
+          label: subcollection
+            ? "collections.post_menu.manage_subcollection"
+            : "collections.post_menu.create_subcollection",
+          action: () => {
+            const modal = api.container.lookup("service:modal");
+            modal.show(CollectionForm, {
+              model: {
+                topic,
+                collection: subcollection,
+                isSubcollection: true,
+              },
+            });
+          },
+        };
+      });
 
       api.registerCustomPostMessageCallback(
         "collection_updated",
@@ -28,6 +77,7 @@ export default {
             appEvents.trigger("collection:updated", {
               topic,
               collection: topic.get("collection"),
+              subcollection: topic.get("subcollection"),
             });
             collectionSidebar.maybeDisplaySidebar();
           });
@@ -43,33 +93,18 @@ export default {
           if (post.post_number !== 1) {
             return;
           }
-          dag.add("collection", CollectionPostMenuButton, {
-            before: ["delete", "showMore"],
-            after: ["bookmark", "edit"],
-          });
+          if (
+            post.topic.can_create_collection ||
+            post.topic.collection?.can_edit_collection ||
+            post.topic.subcollection?.can_edit_collection
+          ) {
+            dag.add("collection", CollectionPostMenuButton, {
+              before: ["delete", "showMore"],
+              after: ["bookmark", "edit"],
+            });
+          }
         }
       );
-
-      api.addComposerToolbarPopupMenuOption({
-        action: (toolbarEvent) => {
-          const collectionTemplate =
-            I18n.translations[I18n.currentLocale()].js.collections.template;
-          toolbarEvent.applySurround(
-            collectionTemplate.decorated_start,
-            collectionTemplate.decorated_end,
-            collectionTemplate.plain,
-            {
-              multiline: false,
-              useBlockMode: true,
-            }
-          );
-        },
-        icon: "layer-group",
-        label: "js.collections.composer.label",
-        condition: (composer) => {
-          return composer.model.topicFirstPost;
-        },
-      });
     });
   },
 };

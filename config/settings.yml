@@ -1,4 +1,4 @@
-plugins:
+discourse_collections:
   collections_enabled:
     default: true
     client: true
@@ -13,3 +13,4 @@ plugins:
     allow_any: false
     refresh: true
     area: "group_permissions"
+    client: true

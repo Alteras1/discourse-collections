@@ -1,4 +1,4 @@
-/// <reference path="../collection.d.ts" />
+/// <reference path="../typedefs.js" />
 import { tracked } from "@glimmer/tracking";
 import Service, { service } from "@ember/service";
 import { bind } from "discourse/lib/decorators";
@@ -8,14 +8,19 @@ import { ADMIN_PANEL, MAIN_PANEL } from "discourse/lib/sidebar/panels";
 export const SIDEBAR_COLLECTIONS_PANEL = "discourse-collections-sidebar";
 
 export default class CollectionSidebar extends Service {
+  @service site;
   @service appEvents;
   @service router;
   @service sidebarState;
 
-  /** @type {CollectionTypes.Collection} */
+  /** @type {ProcessedSection[]} */
+  @tracked _sections = [];
+  /** @type {Collection} */
   @tracked _collectionData = null;
   /** @type {number} */
-  @tracked _collectionIndexId = null;
+  @tracked _collectionId = null;
+  /** @type {Collection} */
+  @tracked _subcollection = null;
 
   constructor() {
     super(...arguments);
@@ -29,35 +34,61 @@ export default class CollectionSidebar extends Service {
     this.router.off("routeDidChange", this, this.currentRouteChanged);
   }
 
+  /**
+   * @type {`${number}`} string containing the current topic ID
+   */
+  get currentTopicId() {
+    return (
+      this.router.currentRoute?.find((route) => route.name === "topic")?.params
+        ?.id || null
+    );
+  }
+
   get topicCollectionInfo() {
     return (
       this.router.currentRoute?.attributes?.collection ||
       this.router.currentRoute?.parent?.attributes?.collection ||
+      this.router.currentRoute?.attributes?.subcollection ||
+      this.router.currentRoute?.parent?.attributes?.subcollection ||
       {}
     );
   }
 
   /**
    * Returns the collection information
-   * @type {CollectionTypes.Collection}
+   * @type {Collection}
    */
   get activeCollection() {
     if (this.sidebarState.currentPanel?.key === ADMIN_PANEL) {
       return {};
     }
 
-    return (
-      this.topicCollectionInfo?.owned_collection ||
-      this.topicCollectionInfo?.collection ||
-      {}
-    );
+    return this.topicCollectionInfo || {};
   }
 
-  get currentTopicIsIndex() {
+  get currentTopicHasCollection() {
     if (this.sidebarState.currentPanel?.key === ADMIN_PANEL) {
       return;
     }
-    return this.topicCollectionInfo?.is_collection;
+    return !!this.topicCollectionInfo?.id;
+  }
+
+  get hasNestedCollection() {
+    return (
+      this.topicSubcollection &&
+      this.activeCollection.id !== this.topicSubcollection.id
+    );
+  }
+
+  /**
+   * @type {Collection}
+   */
+  get topicSubcollection() {
+    return (
+      this.router.currentRoute?.attributes?.subcollection ||
+      this.router.currentRoute?.parent?.attributes?.subcollection ||
+      null
+    );
   }
 
   get isVisible() {
@@ -65,11 +96,15 @@ export default class CollectionSidebar extends Service {
   }
 
   get collectionData() {
-    return this._collectionData || [];
+    return this._collectionData || {};
   }
 
-  get collectionIndexId() {
-    return this._collectionIndexId;
+  get collectionId() {
+    return this._collectionId;
+  }
+
+  get sectionsConfig() {
+    return this._sections || [];
   }
 
   hideCollectionSidebar() {
@@ -88,7 +123,7 @@ export default class CollectionSidebar extends Service {
   disableCollectionSidebar() {
     this.hideCollectionSidebar();
     this._collectionData = null;
-    this._collectionIndexId = null;
+    this._collectionId = null;
   }
 
   @bind
@@ -100,29 +135,75 @@ export default class CollectionSidebar extends Service {
   }
 
   maybeDisplaySidebar() {
-    const { topic_id: collectionIndex, sections: collectionData } =
-      this.activeCollection;
+    const collection = this.activeCollection;
 
-    if (!collectionIndex) {
+    if (!collection?.id) {
       this.disableCollectionSidebar();
       return;
+    }
+
+    let subcollection = null;
+    if (this.hasNestedCollection) {
+      subcollection = this.topicSubcollection;
     }
 
     if (
-      this._collectionIndexId !== collectionIndex ||
-      !deepEqual(this._collectionData, collectionData)
+      this._collectionId !== collection.id ||
+      !deepEqual(this._collectionData, collection) ||
+      !deepEqual(this._subcollection, subcollection)
     ) {
-      this.setSidebarContent(collectionIndex, collectionData);
+      this.setSidebarContent(collection, subcollection);
     }
   }
 
-  setSidebarContent(collectionId, collectionData) {
-    if (!collectionData) {
+  /**
+   * @param {Collection} collection
+   * @param {Collection} subcollection
+   */
+  setSidebarContent(collection, subcollection) {
+    if (!collection) {
       this.disableCollectionSidebar();
       return;
     }
-    this._collectionIndexId = collectionId;
-    this._collectionData = collectionData;
-    this.showCollectionSidebar();
+    this._collectionId = collection.id;
+    this._collectionData = collection;
+    this._subcollection = subcollection;
+
+    /** @type {ProcessedSection[]} */
+    const sections = [];
+
+    if (subcollection?.id) {
+      sections.push({
+        name: subcollection.name,
+        isSub: true,
+        links: subcollection.collection_items,
+      });
+    }
+
+    let section = {
+      name: null,
+      isSub: false,
+      links: [],
+    };
+    for (const item of collection.collection_items) {
+      if (item.is_section_header) {
+        sections.push(section);
+        section = {
+          name: item.name,
+          isSub: false,
+          links: [],
+        };
+        continue;
+      }
+      section.links.push(item);
+    }
+    if (section.name || section.links.length) {
+      sections.push(section);
+    }
+
+    this._sections = sections;
+    if (!this.site.mobileView) {
+      this.showCollectionSidebar();
+    }
   }
 }

@@ -1,11 +1,17 @@
 {
   "private": true,
   "devDependencies": {
-    "@discourse/lint-configs": "2.12.0",
-    "ember-template-lint": "7.0.4",
-    "eslint": "9.24.0",
+    "@discourse/lint-configs": "2.25.0",
+    "@glimmer/component": "^2.0.0",
+    "@glint/core": "^1.5.2",
+    "@glint/environment-ember-loose": "^1.5.2",
+    "@glint/environment-ember-template-imports": "^1.5.2",
+    "@glint/template": "^1.5.2",
+    "ember-template-lint": "7.8.1",
+    "eslint": "9.28.0",
     "prettier": "3.5.3",
-    "stylelint": "16.16.0"
+    "stylelint": "16.20.0",
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">= 22",

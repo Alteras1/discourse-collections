@@ -6,57 +6,32 @@ en:
           discourse_collections: "Collections"
   js:
     collections:
-      composer:
-        label: "Add Collection to Topic"
-      template:
-        plain: |-
-          # Section Title (optional)
-          * Item 1: [Item 1](https://example.com)
-          * Item 2: [Item 2](https://example.com)
-
-          # Another Section Title (optional)
-          * Item 3: [Item 3](https://example.com)
-        decorated_start: |-
-          <div data-collection-index>
-          <!-- to hide the index in the post, use <div data-collection-index hidden> -->
-        decorated_end: </div>
       post_menu:
         title: "collection actions"
-        unbound: "Unbound/Orphaned topics"
-        to_index: "Collection Index"
-        create: "Create Collection"
-        delete: "Delete Collection"
-        add: "Add this to a Collection"
-        remove: "Remove this from Collection"
-      modal:
-        create:
-          preview: "Here is a preview of the collection this topic will create."
-          informational: "Here is an example of the text needed in the post to create a collection."
-          error: "No collection syntax found"
-          create: "Create"
-        add:
-          title: "Add to Collection"
-          select: "Select a collection"
-          not_found: "No collection index found"
-          not_collection: "Error: This topic is not a collection index."
-          body: "This will allow this topic to display a collection without modifying the collection list."
-          warning: "This collection does not have this topic in its index. Adding it will not modify the collection list. To properly add it to a new collection, edit the "
-          index: "collection index"
-          warning2: " and add it from there."
-          force: "Confirm force add"
-          confirm: "Add"
-        remove:
-          title: "Remove from Collection"
-          body1: "This will prevent the collection from being displayed on this topic, but will not prevent the collection displaying this topic on its list (if applicable). To completely remove this from the collection, edit the "
-          index: "collection index"
-          body2: " and remove it from there."
-          confirm: "Remove"
-        unbound:
-          unbound: "Unbound topics"
-          unbound_desc: "These topics are referenced in the collection index, but are not bound to this collection. They will not display this collection when viewed. To resolve, go to the topic and add it to the collection."
-          orphaned: "Orphaned topics"
-          orphaned_desc: "These topics are bound to this collection, but are not referenced in the collection index. They will display this collection when viewed. To resolve, go to the topic and remove it from the collection."
-          NA: "none found"
+        create_collection: "Create Collection"
+        manage_collection: "Manage Collection"
+        create_subcollection: "Create Subcollection"
+        manage_subcollection: "Manage Subcollection"
+      url_topic_chooser:
+        use_url: "Use as direct URL"
+      form:
+        collection_desc: "This collection will be visible for all linked topics."
+        subcollection_desc: "This subcollection will only be visible for this topic."
+        add_link: "Add link"
+        add_section_header: "Add section header"
+        details: "Additional details"
+        collection_title: "Collection title (optional)"
+        custom_desc: "Description (optional)"
+        owner: "Owner"
+        change_owner: "Change owner"
+        section_header: "Section header"
+        icon: "Icon"
+        name: "Name"
+        link: "Link"
+        create: "Create"
+        save: "Save"
+        maintainers: "Maintainers"
+        maintainers_info: "Maintainers are able to edit the collection, including linking their own topics (if applicable)."
       sidebar:
         buttons:
           main: "Main"

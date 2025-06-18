@@ -1,4 +1,4 @@
-/// <reference path="../collection.d.ts" />
+/// <reference path="../typedefs.js" />
 import { cached } from "@glimmer/tracking";
 import { computed } from "@ember/object";
 import { getOwnerWithFallback } from "discourse/lib/get-owner";
@@ -26,13 +26,9 @@ const sidebarPanelClassBuilder = (BaseCustomSidebarPanel) =>
     @cached
     get sections() {
       const router = getOwnerWithFallback(this).lookup("service:router");
-
-      const collectionSections = this.collectionSidebar.collectionData.map(
-        (config) => {
-          return prepareCollectionSection({ config, router });
-        }
-      );
-      return [...collectionSections];
+      return this.collectionSidebar.sectionsConfig.map((config) => {
+        return prepareCollectionSection({ config, router });
+      });
     }
   };
 
@@ -41,25 +37,33 @@ export default sidebarPanelClassBuilder;
 /**
  * Builds the class tree for the collection sidebar section.
  * @param {Object} obj
- * @param {CollectionTypes.CollectionSection} obj.config
+ * @param {ProcessedSection} obj.config
  * @param {Object} obj.router
  */
 function prepareCollectionSection({ config, router }) {
   return class extends BaseCustomSidebarSection {
-    _section = config;
+    #section = config;
 
     get sectionLinks() {
-      return this._section.links;
+      return this.#section.links;
     }
 
     get text() {
-      return this._section.text;
+      return this.#section.name;
+    }
+
+    get isSub() {
+      return this.#section.isSub;
     }
 
     get name() {
-      return this.text
-        ? `${SIDEBAR_COLLECTIONS_PANEL}__${unicodeSlugify(this.text)}`
-        : `${SIDEBAR_COLLECTIONS_PANEL}::root`;
+      if (this.text) {
+        return `${SIDEBAR_COLLECTIONS_PANEL}__${unicodeSlugify(this.text)}`;
+      } else if (this.isSub) {
+        return `${SIDEBAR_COLLECTIONS_PANEL}__subcollection`;
+      } else {
+        return `${SIDEBAR_COLLECTIONS_PANEL}::root`;
+      }
     }
 
     get title() {
@@ -67,21 +71,15 @@ function prepareCollectionSection({ config, router }) {
     }
 
     get links() {
-      return this.sectionLinks
-        .flatMap((link) => [
-          {
+      return this.sectionLinks.map(
+        (link) =>
+          new CollectionSidebarSectionLink({
             data: link,
             panelName: this.name,
             router,
-          },
-          ...(link.sub_links || []).map((sublink) => ({
-            data: sublink,
-            panelName: this.name,
-            router,
-            parent: link,
-          })),
-        ])
-        .map((link) => new CollectionSidebarSectionLink(link));
+            sub: this.isSub,
+          })
+      );
     }
 
     get displaySection() {
@@ -99,58 +97,38 @@ function prepareCollectionSection({ config, router }) {
 }
 
 class CollectionSidebarSectionLink extends BaseCustomSidebarSectionLink {
-  _data;
-  _panelName;
-  _router;
-  _parent;
+  #data;
+  #panelName;
+  #router;
+  #sub;
 
   /**
    * @param {Object} obj
-   * @param {CollectionTypes.CollectionLink | CollectionTypes.CollectionSubLink} obj.data
+   * @param {ProcessedSection['links'][number]} obj.data
    * @param {string} obj.panelName
    * @param {Object} obj.router
-   * @param {CollectionTypes.CollectionLink} [obj.parent]
+   * @param {boolean} obj.sub
    */
-  constructor({ data, panelName, router, parent }) {
+  constructor({ data, panelName, router, sub = false }) {
     super(...arguments);
 
-    this._data = data;
-    this._panelName = panelName;
-    this._router = router;
-    this._parent = parent;
+    this.#data = data;
+    this.#panelName = panelName;
+    this.#router = router;
+    this.#sub = sub;
   }
 
   get currentWhen() {
-    if (this._parent) {
+    if (this.#sub) {
       return false;
     }
     if (DiscourseURL.isInternal(this.href) && samePrefix(this.href)) {
-      const currentTopicRouteInfo = this._router.currentRoute.find(
+      const currentTopicRouteInfo = this.#router.currentRoute.find(
         (route) => route.name === "topic"
       );
 
       return (
-        this._data.topic_id?.toString() === currentTopicRouteInfo?.params?.id
-      );
-    }
-
-    return false;
-  }
-
-  get parentCurrentWhen() {
-    if (!this._parent) {
-      return false;
-    }
-    if (
-      DiscourseURL.isInternal(this._parent.href) &&
-      samePrefix(this._parent.href)
-    ) {
-      const currentTopicRouteInfo = this._router.currentRoute.find(
-        (route) => route.name === "topic"
-      );
-
-      return (
-        this._parent.topic_id?.toString() === currentTopicRouteInfo?.params?.id
+        this.#data.topic_id?.toString() === currentTopicRouteInfo?.params?.id
       );
     }
 
@@ -158,36 +136,30 @@ class CollectionSidebarSectionLink extends BaseCustomSidebarSectionLink {
   }
 
   get name() {
-    return `${this._panelName}___${unicodeSlugify(this.text)}`;
+    return `${this.#panelName}___${unicodeSlugify(this.text)}`;
   }
 
   get classNames() {
     const list = ["collection-sidebar-link"];
-    if (this._parent) {
-      list.push("sublink");
-      if (this.parentCurrentWhen) {
-        list.push("active-parent");
-      }
-    }
     return list.join(" ");
   }
 
   get href() {
-    return this._data.href;
+    return this.#data.url;
   }
 
   get text() {
-    return this._data.text;
+    return this.#data.name;
   }
 
   get title() {
     return this.text;
   }
 
-  @computed("data.text")
+  @computed("data.name")
   get keywords() {
     return {
-      navigation: this._data.text.toLowerCase().split(/s+/g),
+      navigation: this.#data.name.toLowerCase().split(/s+/g),
     };
   }
 
@@ -196,6 +168,6 @@ class CollectionSidebarSectionLink extends BaseCustomSidebarSectionLink {
   }
 
   get prefixValue() {
-    return "collection-pip";
+    return this.#data.icon || "collection-pip";
   }
 }
