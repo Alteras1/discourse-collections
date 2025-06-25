@@ -5,8 +5,9 @@ module ::Collections
     def can_create_collection_for_topic?(topic)
       return false if current_user.nil?
       if SiteSetting.collection_by_topic_owner &&
-           current_user.in_any_groups?(SiteSetting.collection_by_topic_owner_allow_groups_map)
-        return can_edit_topic?(topic)
+           current_user.in_any_groups?(SiteSetting.collection_by_topic_owner_allow_groups_map) &&
+           can_edit_topic?(topic)
+        return true
       end
       current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
     end
@@ -21,8 +22,9 @@ module ::Collections
     def can_delete_collection?(collection)
       return false if current_user.nil?
       if SiteSetting.collection_by_topic_owner &&
-           current_user.in_any_groups?(SiteSetting.collection_by_topic_owner_allow_groups_map)
-        return collection.user_id == current_user.id
+           current_user.in_any_groups?(SiteSetting.collection_by_topic_owner_allow_groups_map) &&
+           collection.user_id == current_user.id
+        return true
       end
       current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
     end
