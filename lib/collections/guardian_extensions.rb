@@ -4,7 +4,7 @@ module ::Collections
   module GuardianExtensions
     def can_create_collection_for_topic?(topic)
       if SiteSetting.collection_by_topic_owner &&
-           current_user.in_any_groups?(SiteSetting.collection_by_topic_owner_allow_groups)
+           current_user.in_any_groups?(SiteSetting.collection_by_topic_owner_allow_groups_map)
         return can_edit_topic?(topic)
       end
       current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
@@ -18,7 +18,7 @@ module ::Collections
 
     def can_delete_collection?(collection)
       if SiteSetting.collection_by_topic_owner &&
-           current_user.in_any_groups?(SiteSetting.collection_by_topic_owner_allow_groups)
+           current_user.in_any_groups?(SiteSetting.collection_by_topic_owner_allow_groups_map)
         return collection.user_id == current_user.id
       end
       current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
