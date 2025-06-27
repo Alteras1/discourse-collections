@@ -6,7 +6,7 @@ discourse_collections:
     default: true
     client: true
   collection_by_topic_owner_allow_groups:
-    default: "10"
+    default: "11"
     type: group_list
     allow_any: false
     refresh: true
