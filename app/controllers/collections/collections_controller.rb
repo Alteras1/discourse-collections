@@ -26,9 +26,10 @@ module ::Collections
           collection_params.merge(collection_items_attributes: items_params),
         )
       user_id = params.permit(:user_id)[:user_id]
-      
+
       if collection.is_single_topic
         topic_id = params.require(:topic_id)
+        topic = Topic.find(topic_id)
         if Collections::CollectionHandler.topic_has_subcollection?(topic_id)
           return(
             render_json_error I18n.t("collections.errors.subcollection_already_exists"), status: 409
@@ -38,7 +39,6 @@ module ::Collections
         if user_id && User.exists?(user_id)
           collection.user_id = user_id
         else
-          topic = Topic.find(topic_id)
           collection.user_id = topic.user_id
         end
 
@@ -115,9 +115,7 @@ module ::Collections
           end
       end
 
-      if user_id && User.exists?(user_id)
-        @collection.user_id = user_id
-      end
+      @collection.user_id = user_id if user_id && User.exists?(user_id)
 
       @collection.save!
 
