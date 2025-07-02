@@ -26,23 +26,15 @@ module ::Collections
           custom_fields[Collections::SUBCOLLECTION_ID] = value
         end
 
-        plugin.add_to_serializer(
-          :topic_view,
-          Collections::COLLECTION.to_sym,
-          include_condition: -> { topic.public_send(Collections::COLLECTION_ID) },
-        ) do
+        plugin.add_to_serializer(:topic_view, Collections::COLLECTION.to_sym) do
+          return nil if topic.public_send(Collections::COLLECTION_ID).blank?
           collection = Collections::Collection.find(topic.public_send(Collections::COLLECTION_ID))
-          return nil if collection.blank?
           Collections::CollectionSerializer.new(collection, scope: scope, root: false)
         end
 
-        plugin.add_to_serializer(
-          :topic_view,
-          Collections::SUBCOLLECTION.to_sym,
-          include_condition: -> { topic.public_send(Collections::SUBCOLLECTION_ID) },
-        ) do
+        plugin.add_to_serializer(:topic_view, Collections::SUBCOLLECTION.to_sym) do
+          return nil if topic.public_send(Collections::SUBCOLLECTION_ID).blank?
           sub = Collections::Collection.find(topic.public_send(Collections::SUBCOLLECTION_ID))
-          return nil if sub.blank?
           Collections::CollectionSerializer.new(sub, scope: scope, root: false)
         end
 
