@@ -92,6 +92,7 @@ module ::Collections
       @collection.assign_attributes(
         collection_params.merge(collection_items_attributes: items_params),
       )
+      topic_ids_deleted = []
       unless @collection.is_single_topic
         # If the item is marked for destruction or its URL has changed, we need to check if the user has perms
 
@@ -100,6 +101,7 @@ module ::Collections
           .filter { |item| item.marked_for_destruction? }
           .each do |item|
             raise Discourse::InvalidAccess unless guardian.can_delete_collection_item?(item)
+            topic_ids_deleted << item.topic_id if item.topic_id.present?
           end
 
         items
@@ -120,6 +122,7 @@ module ::Collections
       @collection.save!
 
       push_messagebus_event @collection
+      push_messagebus_event_for_topic_ids(topic_ids_deleted) if topic_ids_deleted.any?
 
       render_serialized(
         @collection.reload,
@@ -134,9 +137,19 @@ module ::Collections
 
     def destroy
       raise Discourse::InvalidAccess unless guardian.can_delete?(@collection)
+
+      topic_ids_deleted = []
+      if @collection.is_single_topic
+        topic_ids_deleted << TopicCustomField.where(name: Collections::SUBCOLLECTION_ID, value: collection.id).pick(
+            :topic_id,
+          )
+      else
+        topic_ids_deleted = @collection.collection_items.filter_map { |item| item.topic_id if item.topic_id.present? }
+      end
+
       @collection.destroy!
 
-      push_messagebus_event @collection
+      push_messagebus_event_for_topic_ids(topic_ids_deleted) if topic_ids_deleted.any?
 
       render json: success_json
     rescue Discourse::InvalidAccess
@@ -165,6 +178,12 @@ module ::Collections
           TopicCustomField.where(name: Collections::SUBCOLLECTION_ID, value: collection.id).pick(
             :topic_id,
           )
+        MessageBus.publish("/topic/#{topic_id}", type: "collection_updated")
+      end
+    end
+
+    def push_messagebus_event_for_topic_ids(topic_ids)
+      topic_ids.each do |topic_id|
         MessageBus.publish("/topic/#{topic_id}", type: "collection_updated")
       end
     end

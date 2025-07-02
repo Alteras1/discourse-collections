@@ -3,7 +3,7 @@
 # name: discourse-collections
 # about: Discourse Collections Plugin
 # meta_topic_id: TODO
-# version: 1.0.0
+# version: 1.0.1
 # authors: Alteras1
 # url: https://github.com/Alteras1/discourse-collections
 # required_version: 3.4.0
