@@ -3,7 +3,6 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import { or } from "truth-helpers";
 import DButton from "discourse/components/d-button";
 import DropdownMenu from "discourse/components/dropdown-menu";
 import { bind } from "discourse/lib/decorators";
@@ -38,6 +37,14 @@ export default class CollectionPostMenuButton extends Component {
   constructor() {
     super(...arguments);
     this.appEvents.on("collection:updated", this, this.onCollectionUpdate);
+  }
+
+  get canManageCollection() {
+    return this.canCreate || this.collection?.can_edit_collection;
+  }
+
+  get canManageSubcollection() {
+    return this.canCreate || this.subcollection?.can_edit_collection;
   }
 
   @bind
@@ -75,7 +82,7 @@ export default class CollectionPostMenuButton extends Component {
     >
       <:content>
         <DropdownMenu as |dropdown|>
-          {{#if (or this.canCreate this.collection?.can_edit_collection)}}
+          {{#if this.canManageCollection}}
             <dropdown.item class="collection-post-menu__collection">
               <DButton
                 class="collection-post-menu__btn btn-transparent"
@@ -90,7 +97,7 @@ export default class CollectionPostMenuButton extends Component {
             </dropdown.item>
           {{/if}}
 
-          {{#if (or this.canCreate this.subcollection?.can_edit_collection)}}
+          {{#if this.canManageSubcollection}}
             <dropdown.item class="collection-post-menu__subcollection">
               <DButton
                 class="collection-post-menu__btn btn-transparent"
