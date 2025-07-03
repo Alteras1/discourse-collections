@@ -1,6 +1,6 @@
 # Discourse Collections
 
-For more information, please see: **url to meta topic**
+For more information, please see: [Discourse Meta - Collections](https://meta.discourse.org/t/collections/372817)
 
 This plugin allows users to create collections out of topics, by creating a list of links. If the link is a topic, the topic is attached to the collection and automatically views all of the list.
 
