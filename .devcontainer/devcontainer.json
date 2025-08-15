@@ -1,8 +1,10 @@
 {
-  "name": "Discourse",
-  "image": "docker.io/discourse/discourse_dev:20250307-0016",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/discourse,type=bind",
-  "workspaceFolder": "/workspace/discourse",
+  "name": "Discourse Plugin",
+  "build": {
+    "dockerfile": "./Dockerfile"
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/${localWorkspaceFolderBasename},type=bind",
+  "workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
   "postStartCommand": "./.devcontainer/scripts/start.rb",
   "forwardPorts": [
     9292, // bin/unicorn
@@ -18,9 +20,9 @@
     "SELENIUM_FORWARD_DEVTOOLS_TO_PORT": "9229",
   },
   "mounts": [
-    "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
-    "source=${localWorkspaceFolderBasename}-pg,target=/shared/postgres_data,type=volume",
-    "source=${localWorkspaceFolderBasename}-redis,target=/shared/redis,type=volume"
+    "source=discourse-node_modules,target=/workspace/discourse/node_modules,type=volume",
+    "source=discourse-pg,target=/shared/postgres_data,type=volume",
+    "source=discourse-redis,target=/shared/redis,type=volume"
   ],
   "customizations": {
     "codespaces": {
