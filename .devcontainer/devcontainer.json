@@ -3,8 +3,8 @@
   "build": {
     "dockerfile": "./Dockerfile"
   },
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/${localWorkspaceFolderBasename},type=bind",
-  "workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/discourse/plugins/${localWorkspaceFolderBasename},type=bind",
+  "workspaceFolder": "/workspace/discourse/plugins/${localWorkspaceFolderBasename}",
   "postStartCommand": "./.devcontainer/scripts/start.rb",
   "forwardPorts": [
     9292, // bin/unicorn
