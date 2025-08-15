@@ -4,7 +4,7 @@
     "dockerfile": "./Dockerfile"
   },
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/discourse/plugins/${localWorkspaceFolderBasename},type=bind",
-  "workspaceFolder": "/workspace/discourse/plugins/${localWorkspaceFolderBasename}",
+  "workspaceFolder": "/workspace/discourse",
   "postStartCommand": "./.devcontainer/scripts/start.rb",
   "forwardPorts": [
     9292, // bin/unicorn
@@ -25,13 +25,6 @@
     "source=discourse-redis,target=/shared/redis,type=volume"
   ],
   "customizations": {
-    "codespaces": {
-      "repositories": {
-        "discourse/discourse": {
-          "permissions": "read-all"
-        }
-      }
-    },
     "vscode": {
       "extensions": [
         "Shopify.ruby-lsp",
