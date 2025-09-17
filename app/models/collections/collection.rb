@@ -37,14 +37,18 @@ module ::Collections
     end
 
     def items_uniquely_belongs_to_topic
-      topic_ids = collection_items.filter_map {|item| item.topic_id if item.topic_id.present?}
-      if topic_ids.detect{ |i| topic_ids.count(i) > 1 }
+      topic_ids = collection_items.filter_map { |item| item.topic_id if item.topic_id.present? }
+      if topic_ids.detect { |i| topic_ids.count(i) > 1 }
         errors.add(:url, "This topic is already in the collection")
       end
 
-      values = TopicCustomField.where(name: Collections::COLLECTION_ID, topic_id: topic_ids).pluck(:value).map(&:to_i)
+      values =
+        TopicCustomField
+          .where(name: Collections::COLLECTION_ID, topic_id: topic_ids)
+          .pluck(:value)
+          .map(&:to_i)
 
-      if values.any? {|v| v != id && v != nil}
+      if values.any? { |v| v != id && v != nil }
         errors.add(:url, I18n.t("collections.errors.topic_in_another_collection"))
       end
     end
