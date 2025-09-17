@@ -21,3 +21,6 @@ discourse_collections:
     refresh: true
     area: "group_permissions"
     client: true
+  sections_in_subcollection:
+    default: true
+    client: true

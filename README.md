@@ -6,7 +6,7 @@ This plugin allows users to create collections out of topics, by creating a list
 
 Users can only add their own topics to the collection, and must add maintainers to allow others to add theirs to the same collection. Users can organize the collection via section headers (optional). A Collection **must** contain at least one topic.
 
-Users can also create subcollections, collections that are tied to only a single topic. This does not create any additional associations, and can coexist with a collection. Section headers are not possible.
+Users can also create subcollections, collections that are tied to only a single topic. This does not create any additional associations, and can coexist with a collection. Sections can be disabled via the site setting `sections_in_subcollection`
 
 <details>
 <summary>Example Collection</summary>

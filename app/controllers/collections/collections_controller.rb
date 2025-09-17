@@ -140,11 +140,13 @@ module ::Collections
 
       topic_ids_deleted = []
       if @collection.is_single_topic
-        topic_ids_deleted << TopicCustomField.where(name: Collections::SUBCOLLECTION_ID, value: collection.id).pick(
-            :topic_id,
-          )
+        topic_ids_deleted << TopicCustomField.where(
+          name: Collections::SUBCOLLECTION_ID,
+          value: collection.id,
+        ).pick(:topic_id)
       else
-        topic_ids_deleted = @collection.collection_items.filter_map { |item| item.topic_id if item.topic_id.present? }
+        topic_ids_deleted =
+          @collection.collection_items.filter_map { |item| item.topic_id if item.topic_id.present? }
       end
 
       @collection.destroy!

@@ -170,14 +170,29 @@ export default class CollectionSidebar extends Service {
     this._subcollection = subcollection;
 
     /** @type {ProcessedSection[]} */
-    const sections = [];
+    let sections = [];
 
     if (subcollection?.id) {
-      sections.push({
-        name: subcollection.name,
+      let subcollectionSection = {
+        name: null,
         isSub: true,
-        links: subcollection.collection_items,
-      });
+        links: [],
+      };
+      for (const item of subcollection.collection_items) {
+        if (item.is_section_header) {
+          sections.push(subcollectionSection);
+          subcollectionSection = {
+            name: item.name,
+            isSub: true,
+            links: [],
+          };
+          continue;
+        }
+        subcollectionSection.links.push(item);
+      }
+      if (subcollectionSection.name || subcollectionSection.links.length) {
+        sections.push(subcollectionSection);
+      }
     }
 
     let section = {
@@ -200,6 +215,8 @@ export default class CollectionSidebar extends Service {
     if (section.name || section.links.length) {
       sections.push(section);
     }
+
+    sections = sections.filter((s) => s.links.length > 0 || s.name);
 
     this._sections = sections;
     if (!this.site.mobileView) {
