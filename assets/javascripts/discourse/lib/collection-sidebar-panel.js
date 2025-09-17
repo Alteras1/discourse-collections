@@ -58,7 +58,7 @@ function prepareCollectionSection({ config, router }) {
 
     get name() {
       if (this.text) {
-        return `${SIDEBAR_COLLECTIONS_PANEL}__${unicodeSlugify(this.text)}`;
+        return `${SIDEBAR_COLLECTIONS_PANEL}__${this.isSub && "subcollection__"}${unicodeSlugify(this.text)}`;
       } else if (this.isSub) {
         return `${SIDEBAR_COLLECTIONS_PANEL}__subcollection`;
       } else {

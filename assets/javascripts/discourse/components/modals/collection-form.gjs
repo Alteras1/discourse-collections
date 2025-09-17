@@ -6,7 +6,7 @@ import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import { not } from "truth-helpers";
+import { not, or } from "truth-helpers";
 import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
 import withEventValue from "discourse/helpers/with-event-value";
@@ -432,7 +432,12 @@ export default class CollectionForm extends Component {
 
           </div>
 
-          {{#unless this.isSubcollection}}
+          {{#if
+            (or
+              (not this.isSubcollection)
+              this.siteSettings.sections_in_subcollection
+            )
+          }}
             <DButton
               @action={{this.addSectionHeader}}
               @title="collections.form.add_section_header"
@@ -441,7 +446,7 @@ export default class CollectionForm extends Component {
               @ariaLabel="collections.form.add_section_header"
               class="btn-flat btn-text add-link"
             />
-          {{/unless}}
+          {{/if}}
 
           <DButton
             @action={{this.addLink}}
