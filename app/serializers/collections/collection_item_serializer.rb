@@ -7,6 +7,7 @@ module ::Collections
                :name,
                :url,
                :icon,
+               :icon_type,
                :position,
                :is_section_header,
                :topic_id,

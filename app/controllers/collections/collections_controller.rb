@@ -8,7 +8,9 @@ module ::Collections
     before_action :ensure_collection_exists, only: %i[show destroy update]
 
     def items_params
-      params.permit(items: %i[id name icon url position is_section_header _destroy])["items"]
+      params.permit(items: %i[id name icon icon_type url position is_section_header _destroy])[
+        "items"
+      ]
     end
 
     def collection_params

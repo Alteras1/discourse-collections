@@ -164,7 +164,7 @@ class CollectionSidebarSectionLink extends BaseCustomSidebarSectionLink {
   }
 
   get prefixType() {
-    return "icon";
+    return this.#data.icon_type || "icon";
   }
 
   get prefixValue() {

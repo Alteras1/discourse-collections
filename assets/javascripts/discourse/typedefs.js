@@ -19,6 +19,7 @@
  * @property {string} name - The name of the collection link.
  * @property {string} url - The URL of the collection link.
  * @property {string} icon - The icon associated with the collection link.
+ * @property {string} icon_type - The type of the icon (e.g., 'icon', 'emoji', 'square').
  * @property {number} position - The position of the link in the collection.
  * @property {boolean} is_section_header - Indicates if the link is a section header.
  * @property {number|null} topic_id - The ID of the topic associated with the link, or null if not applicable.
