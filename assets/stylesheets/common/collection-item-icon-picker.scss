@@ -26,6 +26,7 @@
   }
 
   .emoji-picker {
+    max-width: 100%;
     @include viewport.from(lg) {
       width: 300px;
     }
@@ -48,6 +49,13 @@
 
     .color-picker:last-child {
       margin-bottom: 0.5em;
+    }
+  }
+
+  @include viewport.until(md) {
+    .combobox.collection-item-icon-picker__icon-types .select-kit-body {
+      width: 100% !important;
+      transform: translateY(40.5px) !important;
     }
   }
 }
