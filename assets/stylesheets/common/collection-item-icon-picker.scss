@@ -1,0 +1,53 @@
+@use "lib/viewport";
+
+.collection-item-icon-picker-trigger {
+  width: 100%;
+
+  .prefix-square {
+    width: 1em;
+    height: 1em;
+  }
+}
+
+.collection-item-icon-picker {
+  .fk-d-menu__inner-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    min-width: 250px;
+  }
+
+  .collections-detached-icon-picker {
+    z-index: unset;
+    .select-kit-body {
+      box-shadow: none;
+      border-radius: unset;
+    }
+  }
+
+  .emoji-picker {
+    @include viewport.from(lg) {
+      width: 300px;
+    }
+  }
+
+  .collection-item-icon-picker__color {
+    display: flex;
+    flex-flow: column;
+    gap: 0.5em;
+    align-items: center;
+
+    .d-toggle-switch {
+      width: 12em;
+      flex-flow: row-reverse nowrap;
+      justify-content: space-between;
+      &:last-child {
+        margin-bottom: 0.5em;
+      }
+    }
+
+    .color-picker:last-child {
+      margin-bottom: 0.5em;
+    }
+  }
+}

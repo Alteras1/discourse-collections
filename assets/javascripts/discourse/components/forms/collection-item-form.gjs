@@ -13,6 +13,7 @@ import discourseLater from "discourse/lib/later";
 import { i18n } from "discourse-i18n";
 import IconPicker from "select-kit/components/icon-picker";
 import UrlTopicChooser from "./url-topic-chooser";
+import CollectionItemIconPicker from "./collection-item-icon-picker";
 
 export default class CollectionItemForm extends Component {
   /** @type {string} */
@@ -42,6 +43,12 @@ export default class CollectionItemForm extends Component {
     }
     urlName = selected.fancy_title;
     this.link.urlName = urlName;
+  }
+
+  @action
+  onChangeIcon(icon, iconType) {
+    this.link.icon = icon;
+    this.link.icon_type = iconType;
   }
 
   isAboveElement(event) {
@@ -176,19 +183,10 @@ export default class CollectionItemForm extends Component {
         </div>
       {{else}}
         <div class="input-group field__icon" role="cell">
-          <IconPicker
-            @name="icon"
-            @value={{@link.icon}}
-            @options={{hash
-              maximum=1
-              caretDownIcon="caret-down"
-              caretUpIcon="caret-up"
-              icons=@link.icon
-            }}
-            @onlyAvailable={{true}}
-            @onChange={{fn (mut @link.icon)}}
-            aria-label={{i18n "collections.form.icon"}}
-            class={{@link.iconCssClass}}
+          <CollectionItemIconPicker
+            @iconType={{@link.icon_type}}
+            @icon={{@link.icon}}
+            @onChange={{this.onChangeIcon}}
           />
 
           {{#if @link.invalidIconMessage}}

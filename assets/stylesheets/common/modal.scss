@@ -131,7 +131,7 @@
 
   .row-wrapper {
     display: grid;
-    grid-template-columns: 2em 4.5em repeat(2, minmax(0, 1fr)) 2em;
+    grid-template-columns: 2em 3.5em repeat(2, minmax(0, 1fr)) 2em;
     padding: 0.55em 0 0.7em;
     -webkit-user-drag: none;
     cursor: default;
@@ -203,6 +203,10 @@
         visibility: collapse;
         position: absolute;
       }
+    }
+
+    .field__icon {
+      display: flex;
     }
 
     &.collection-item__section-header {
