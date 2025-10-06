@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { Input } from "@ember/component";
-import { fn, hash } from "@ember/helper";
+import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { not } from "truth-helpers";
@@ -11,9 +11,8 @@ import icon from "discourse/helpers/d-icon";
 import withEventValue from "discourse/helpers/with-event-value";
 import discourseLater from "discourse/lib/later";
 import { i18n } from "discourse-i18n";
-import IconPicker from "select-kit/components/icon-picker";
-import UrlTopicChooser from "./url-topic-chooser";
 import CollectionItemIconPicker from "./collection-item-icon-picker";
+import UrlTopicChooser from "./url-topic-chooser";
 
 export default class CollectionItemForm extends Component {
   /** @type {string} */
@@ -46,8 +45,8 @@ export default class CollectionItemForm extends Component {
   }
 
   @action
-  onChangeIcon(icon, iconType) {
-    this.link.icon = icon;
+  onChangeIcon(icon_value, iconType) {
+    this.link.icon = icon_value;
     this.link.icon_type = iconType;
   }
 

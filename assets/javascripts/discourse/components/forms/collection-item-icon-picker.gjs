@@ -1,23 +1,22 @@
 import Component from "@glimmer/component";
-import { classNames } from "@ember-decorators/component";
 import { tracked } from "@glimmer/tracking";
-import { concat } from "@ember/helper";
+import { concat, fn, hash } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { htmlSafe } from "@ember/template";
+import { classNames } from "@ember-decorators/component";
+import { eq } from "truth-helpers";
+import DToggleSwitch from "discourse/components/d-toggle-switch";
+import EmojiPickerDetached from "discourse/components/emoji-picker/detached";
+import { isHex } from "discourse/components/sidebar/section-link";
 import icon from "discourse/helpers/d-icon";
 import replaceEmoji from "discourse/helpers/replace-emoji";
 import { i18n } from "discourse-i18n";
-import DMenu from "float-kit/components/d-menu";
-import { eq } from "truth-helpers";
-import { fn, hash } from "@ember/helper";
-import IconPicker from "select-kit/components/icon-picker";
-import EmojiPickerDetached from "discourse/components/emoji-picker/detached";
-import ComboBox from "select-kit/components/combo-box";
-import { selectKitOptions } from "select-kit/components/select-kit";
-import { isHex } from "discourse/components/sidebar/section-link";
 import ColorInput from "admin/components/color-input";
-import DToggleSwitch from "discourse/components/d-toggle-switch";
+import ComboBox from "select-kit/components/combo-box";
+import IconPicker from "select-kit/components/icon-picker";
+import { selectKitOptions } from "select-kit/components/select-kit";
+import DMenu from "float-kit/components/d-menu";
 
 @classNames("collections-detached-icon-picker")
 @selectKitOptions({
@@ -42,21 +41,21 @@ class DetachedIconPicker extends IconPicker {
     });
   }
 
-  _close(event) {
+  _close() {
     // noop
   }
 }
 
 export default class CollectionItemIconPicker extends Component {
   static iconTypes = [
-    { id: "icon", name: I18n.t("collections.form.icon_picker.icon") },
+    { id: "icon", name: i18n("collections.form.icon_picker.icon") },
     {
       id: "emoji",
-      name: I18n.t("collections.form.icon_picker.emoji"),
+      name: i18n("collections.form.icon_picker.emoji"),
     },
     {
       id: "square",
-      name: I18n.t("collections.form.icon_picker.square"),
+      name: i18n("collections.form.icon_picker.square"),
     },
   ];
   @tracked iconType = this.args.iconType;
@@ -123,11 +122,11 @@ export default class CollectionItemIconPicker extends Component {
   }
 
   @action
-  updateIconIconStyle(icon) {
-    if (!icon || !icon.length) {
+  updateIconIconStyle(icon_value) {
+    if (!icon_value || !icon_value.length) {
       this.icon = null;
     } else {
-      this.icon = icon[icon.length - 1];
+      this.icon = icon_value[icon_value.length - 1];
     }
     this.iconType = "icon";
     this.args.onChange?.(this.icon, this.iconType);
