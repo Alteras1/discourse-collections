@@ -67,15 +67,15 @@ end
 # Table name: collection_items
 #
 #  id                :bigint           not null, primary key
-#  collection_id     :bigint           not null
-#  name              :string           not null
 #  icon              :string
-#  icon_type         :integer          default(0), not null
-#  url               :string
+#  icon_type         :integer          default("icon"), not null
 #  is_section_header :boolean          default(FALSE), not null
+#  name              :string           not null
 #  position          :integer          default(0), not null
+#  url               :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#  collection_id     :bigint           not null
 #
 # Indexes
 #
