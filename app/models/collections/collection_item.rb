@@ -11,6 +11,8 @@ module ::Collections
     validates :is_section_header, inclusion: [true, false]
     validate :has_url_if_not_section_header, unless: :is_section_header
 
+    enum :icon_type, %i[icon emoji square].freeze
+
     after_commit :clean_up_connected_topic, on: :destroy
     after_commit :attach_topic_to_collection, on: %i[create update]
     before_update :clean_up_old_topic, if: :url_changed?
@@ -65,14 +67,15 @@ end
 # Table name: collection_items
 #
 #  id                :bigint           not null, primary key
-#  collection_id     :bigint           not null
-#  name              :string           not null
 #  icon              :string
-#  url               :string
+#  icon_type         :integer          default("icon"), not null
 #  is_section_header :boolean          default(FALSE), not null
+#  name              :string           not null
 #  position          :integer          default(0), not null
+#  url               :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#  collection_id     :bigint           not null
 #
 # Indexes
 #

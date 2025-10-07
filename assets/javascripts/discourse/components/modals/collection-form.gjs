@@ -41,7 +41,7 @@ class CollectionFormData {
   }
 
   get maintainer_usernames() {
-    return this.maintainers.mapBy("username");
+    return this.maintainers.map((user) => user.username);
   }
 
   get valid() {
@@ -126,6 +126,7 @@ export default class CollectionForm extends Component {
             router: this.router,
             id: item.id,
             icon: item.icon,
+            icon_type: item.icon_type,
             name: item.name,
             url: item.url,
             position: item.position,
@@ -226,11 +227,12 @@ export default class CollectionForm extends Component {
       desc: this.transformedModel.desc,
       user_id: this.transformedModel.owner.id,
       is_single_topic: this.isSubcollection,
-      maintainer_ids: this.transformedModel.maintainers.mapBy("id"),
+      maintainer_ids: this.transformedModel.maintainers.map((user) => user.id),
       items: this.transformedModel.list.map((item) => {
         return {
           name: item.name,
           icon: item.icon,
+          icon_type: item.icon_type,
           url: item.url,
           position: item.position,
           is_section_header: item.isSectionHeader,
@@ -265,12 +267,13 @@ export default class CollectionForm extends Component {
       desc: this.transformedModel.desc,
       user_id: this.transformedModel.owner.id,
       is_single_topic: this.isSubcollection,
-      maintainer_ids: this.transformedModel.maintainers.mapBy("id"),
+      maintainer_ids: this.transformedModel.maintainers.map((user) => user.id),
       items: this.transformedModel.list.map((item) => {
         return {
           id: item.id,
           name: item.name,
           icon: item.icon,
+          icon_type: item.icon_type,
           url: item.url,
           position: item.position,
           is_section_header: item.isSectionHeader,

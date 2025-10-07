@@ -49,7 +49,7 @@ export default class UrlTopicChooser extends ComboBoxComponent {
       searchParams
     ).then((results) => {
       if (results?.posts?.length > 0) {
-        const res = results.posts.mapBy("topic");
+        const res = results.posts.map((post) => post.topic);
         res.push(literalResult);
         return res;
       } else {

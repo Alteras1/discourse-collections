@@ -26,6 +26,12 @@ en:
         change_owner: "Change owner"
         section_header: "Section header"
         icon: "Icon"
+        icon_picker:
+          title: "Icon Style"
+          icon: "Icon"
+          emoji: "Emoji"
+          square: "Color"
+          dual_color: "Dual Color"
         name: "Name"
         link: "Link"
         create: "Create"

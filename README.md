@@ -66,6 +66,7 @@ Plugin created a `collections` table and uses custom fields on Topics to manuall
 | collection_id     | integer fk      | id of the collection                               |
 | name              | string          | custom name of the item                            |
 | icon              | string          | custom icon of the item. can be empty              |
+| icon_type         | integer enum    | `icon` `emoji` `square`                            |
 | url               | string          | URL of the item                                    |
 | is_section_header | boolean         | true if item is actually a header (no url allowed) |
 | position          | integer         | position of item in collection                     |

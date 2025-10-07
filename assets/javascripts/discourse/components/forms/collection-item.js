@@ -5,6 +5,7 @@ import { COLLECTION_URL } from "../../constants";
 
 export class CollectionItem {
   @tracked icon;
+  @tracked icon_type;
   @tracked name;
   /** @type {string} */
   @tracked url;
@@ -18,6 +19,7 @@ export class CollectionItem {
     router,
     id,
     icon,
+    icon_type,
     name,
     url,
     position,
@@ -30,6 +32,7 @@ export class CollectionItem {
     this.router = router;
     this.id = id;
     this.icon = icon || (isSectionHeader ? undefined : "collection-pip");
+    this.icon_type = icon_type || (isSectionHeader ? undefined : "icon");
     this.name = name;
     this.url = url;
     this.position = position;

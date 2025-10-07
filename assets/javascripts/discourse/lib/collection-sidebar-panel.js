@@ -164,10 +164,13 @@ class CollectionSidebarSectionLink extends BaseCustomSidebarSectionLink {
   }
 
   get prefixType() {
-    return "icon";
+    return this.#data.icon_type || "icon";
   }
 
   get prefixValue() {
+    if (this.prefixType === "square") {
+      return this.#data.icon.split(",");
+    }
     return this.#data.icon || "collection-pip";
   }
 }
