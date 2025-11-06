@@ -12,11 +12,11 @@ import { isHex } from "discourse/components/sidebar/section-link";
 import icon from "discourse/helpers/d-icon";
 import replaceEmoji from "discourse/helpers/replace-emoji";
 import { i18n } from "discourse-i18n";
-import ColorInput from "admin/components/color-input";
 import ComboBox from "select-kit/components/combo-box";
 import IconPicker from "select-kit/components/icon-picker";
 import { selectKitOptions } from "select-kit/components/select-kit";
 import DMenu from "float-kit/components/d-menu";
+import ColorInput from "./color-input";
 
 @classNames("collections-detached-icon-picker")
 @selectKitOptions({
