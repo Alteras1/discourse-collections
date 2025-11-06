@@ -52,6 +52,12 @@
     }
   }
 
+  .combobox.collection-item-icon-picker__icon-types
+    .select-kit-body[data-popper-reference-hidden] {
+    visibility: unset;
+    pointer-events: unset;
+  }
+
   @include viewport.until(md) {
     .combobox.collection-item-icon-picker__icon-types .select-kit-body {
       width: 100% !important;
