@@ -20,9 +20,6 @@ import ColorInput from "./color-input";
 
 @classNames("collections-detached-icon-picker")
 @selectKitOptions({
-  headerComponent: <template>
-    <summary class="hidden"></summary>
-  </template>,
   expandedOnInsert: true,
 })
 class DetachedIconPicker extends IconPicker {

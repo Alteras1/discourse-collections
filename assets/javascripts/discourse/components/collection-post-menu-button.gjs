@@ -23,7 +23,6 @@ export default class CollectionPostMenuButton extends Component {
     return true;
   }
 
-  @service router;
   @service appEvents;
   @service editCollection;
 

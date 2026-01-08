@@ -1,6 +1,5 @@
 import Component from "@glimmer/component";
 import { cached, tracked } from "@glimmer/tracking";
-import { A } from "@ember/array";
 import { Input, Textarea } from "@ember/component";
 import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
@@ -12,8 +11,10 @@ import DModal from "discourse/components/d-modal";
 import withEventValue from "discourse/helpers/with-event-value";
 import { ajax } from "discourse/lib/ajax";
 import { extractError } from "discourse/lib/ajax-error";
+import { removeValueFromArray } from "discourse/lib/array-tools";
 import { afterRender, bind } from "discourse/lib/decorators";
 import { sanitize } from "discourse/lib/text";
+import { trackedArray } from "discourse/lib/tracked-tools";
 import { userPath } from "discourse/lib/url";
 import { i18n } from "discourse-i18n";
 import { CollectionItem } from "../forms/collection-item";
@@ -22,11 +23,11 @@ import OwnerMaintainerForm from "../forms/owner-maintainer-form";
 
 class CollectionFormData {
   /** @type {CollectionItem[]} */
-  @tracked list;
   @tracked title;
   @tracked desc;
   @tracked owner;
   @tracked maintainers;
+  @trackedArray list = [];
 
   constructor({ list, title, desc, owner, maintainers }) {
     this.list = list;
@@ -54,7 +55,6 @@ class CollectionFormData {
 
 export default class CollectionForm extends Component {
   @service dialog;
-  @service currentUser;
   @service router;
   @service siteSettings;
 
@@ -94,7 +94,7 @@ export default class CollectionForm extends Component {
       return new CollectionFormData({
         owner: this.topic.details.created_by,
         maintainers: [],
-        list: A([
+        list: [
           new CollectionItem(
             this.isSubcollection
               ? {
@@ -111,7 +111,7 @@ export default class CollectionForm extends Component {
                   disabled: true,
                 }
           ),
-        ]),
+        ],
       });
     }
 
@@ -120,23 +120,21 @@ export default class CollectionForm extends Component {
       desc: collection.desc,
       owner: collection.owner,
       maintainers: collection.maintainers,
-      list: A(
-        collection.collection_items.map((item) => {
-          return new CollectionItem({
-            router: this.router,
-            id: item.id,
-            icon: item.icon,
-            icon_type: item.icon_type,
-            name: item.name,
-            url: item.url,
-            position: item.position,
-            isSectionHeader: item.is_section_header,
-            objectId: this.nextObjectId++,
-            urlName: item.topic_name || item.url,
-            canDelete: item.can_delete_collection_item,
-          });
-        })
-      ),
+      list: collection.collection_items.map((item) => {
+        return new CollectionItem({
+          router: this.router,
+          id: item.id,
+          icon: item.icon,
+          icon_type: item.icon_type,
+          name: item.name,
+          url: item.url,
+          position: item.position,
+          isSectionHeader: item.is_section_header,
+          objectId: this.nextObjectId++,
+          urlName: item.topic_name || item.url,
+          canDelete: item.can_delete_collection_item,
+        });
+      }),
     });
   }
 
@@ -151,7 +149,7 @@ export default class CollectionForm extends Component {
 
   @action
   addLink() {
-    this.transformedModel.list.pushObject(
+    this.transformedModel.list.push(
       new CollectionItem({
         router: this.router,
         objectId: this.nextObjectId++,
@@ -163,7 +161,7 @@ export default class CollectionForm extends Component {
 
   @action
   addSectionHeader() {
-    this.transformedModel.list.pushObject(
+    this.transformedModel.list.push(
       new CollectionItem({
         router: this.router,
         objectId: this.nextObjectId++,
@@ -188,7 +186,7 @@ export default class CollectionForm extends Component {
     if (link.id) {
       link._destroy = "1";
     } else {
-      this.transformedModel.list.removeObject(link);
+      removeValueFromArray(this.transformedModel.list, link);
     }
   }
 
@@ -203,11 +201,12 @@ export default class CollectionForm extends Component {
       return;
     }
 
-    this.transformedModel.list.removeObject(this.draggedLink);
+    removeValueFromArray(this.transformedModel.list, this.draggedLink);
 
     const toPosition = this.transformedModel.list.indexOf(targetLink);
-    this.transformedModel.list.insertAt(
+    this.transformedModel.list.splice(
       above ? toPosition : toPosition + 1,
+      0,
       this.draggedLink
     );
   }
