@@ -12,14 +12,14 @@ import UserChooser from "select-kit/components/user-chooser";
 
 export default class OwnerMaintainerForm extends Component {
   @service siteSettings;
-  @service site;
+  @service currentUser;
 
   @tracked changeOwner = false;
   @tracked tempOwner;
   @tracked tempOwnerUsername;
 
   get canEditOwner() {
-    const groups = this.site.currentUser.groups.map((i) => i.id);
+    const groups = this.currentUser.groups.map((i) => i.id);
     return this.siteSettings.collection_modification_by_allowed_groups
       .split("|")
       .map((i) => parseInt(i, 10))

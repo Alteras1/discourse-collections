@@ -10,7 +10,6 @@ import { bind } from "discourse/lib/decorators";
 import DMenu from "float-kit/components/d-menu";
 
 export default class CollectionSidebarFooter extends Component {
-  @service site;
   @service router;
   @service editCollection;
 

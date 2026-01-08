@@ -4,6 +4,7 @@ import { classNames } from "@ember-decorators/component";
 import { searchForTerm } from "discourse/lib/search";
 import ComboBoxComponent from "select-kit/components/combo-box";
 import { selectKitOptions } from "select-kit/components/select-kit";
+import UrlTopicRow from "./url-topic-row";
 
 @classNames("topic-chooser", "url-topic-chooser")
 @selectKitOptions({
@@ -22,7 +23,7 @@ export default class UrlTopicChooser extends ComboBoxComponent {
   }
 
   modifyComponentForRow() {
-    return "forms/url-topic-row";
+    return UrlTopicRow;
   }
 
   search(filter) {

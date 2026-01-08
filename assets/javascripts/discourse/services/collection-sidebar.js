@@ -9,7 +9,6 @@ export const SIDEBAR_COLLECTIONS_PANEL = "discourse-collections-sidebar";
 
 export default class CollectionSidebar extends Service {
   @service site;
-  @service appEvents;
   @service router;
   @service sidebarState;
 

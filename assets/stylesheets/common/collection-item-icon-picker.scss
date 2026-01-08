@@ -19,6 +19,13 @@
 
   .collections-detached-icon-picker {
     z-index: unset;
+    .select-kit-header {
+      visibility: hidden;
+      height: 0;
+      margin: 0;
+      border: none;
+      padding: 0;
+    }
     .select-kit-body {
       box-shadow: none;
       border-radius: unset;

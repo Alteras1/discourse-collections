@@ -14,7 +14,7 @@ export default {
     const collectionSidebar = container.lookup("service:collection-sidebar");
     const appEvents = container.lookup("service:app-events");
 
-    withPluginApi("2.0.0", (api) => {
+    withPluginApi((api) => {
       api.addSidebarPanel(sidebarPanelClassBuilder);
       api.renderInOutlet("before-sidebar-sections", CollectionSidebarHeader);
       api.renderInOutlet("sidebar-footer-actions", CollectionSidebarFooter);

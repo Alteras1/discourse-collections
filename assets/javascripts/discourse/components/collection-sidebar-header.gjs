@@ -22,7 +22,6 @@ const COLLECTION_SIDEBAR_HEADER_SELECTOR =
   ".discourse-collections-sidebar-panel .sidebar-panel-header";
 
 export default class CollectionSidebarHeader extends Component {
-  @service router;
   @service sidebarState;
   /** @type {CollectionSidebar} */
   @service collectionSidebar;
