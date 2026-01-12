@@ -74,9 +74,9 @@ module ::Collections
         { scope: guardian, root: false },
       )
     rescue Discourse::InvalidAccess
-      render json: failed_json, status: 403
+      render json: failed_json, status: :forbidden
     rescue ActiveRecord::RecordInvalid
-      render json: { errors: collection.errors }, status: 422
+      render json: { errors: collection.errors }, status: :unprocessable_entity
     end
 
     def show
@@ -132,9 +132,9 @@ module ::Collections
         { scope: guardian, root: false },
       )
     rescue Discourse::InvalidAccess
-      render json: failed_json, status: 403
+      render json: failed_json, status: :forbidden
     rescue ActiveRecord::RecordInvalid
-      render json: { errors: collection.errors }, status: 422
+      render json: { errors: collection.errors }, status: :unprocessable_entity
     end
 
     def destroy
@@ -144,11 +144,11 @@ module ::Collections
       if @collection.is_single_topic
         topic_ids_deleted << TopicCustomField.where(
           name: Collections::SUBCOLLECTION_ID,
-          value: collection.id,
+          value: @collection.id,
         ).pick(:topic_id)
       else
         topic_ids_deleted =
-          @collection.collection_items.filter_map { |item| item.topic_id if item.topic_id.present? }
+          @collection.collection_items.filter_map { |item| (item.topic_id.presence) }
       end
 
       @collection.destroy!
@@ -157,9 +157,9 @@ module ::Collections
 
       render json: success_json
     rescue Discourse::InvalidAccess
-      render json: failed_json, status: 403
+      render json: failed_json, status: :forbidden
     rescue ActiveRecord::RecordNotDestroyed
-      render json: { errors: @collection.errors }, status: 500
+      render json: { errors: @collection.errors }, status: :internal_server_error
     end
 
     private
