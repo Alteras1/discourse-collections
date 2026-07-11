@@ -36,16 +36,19 @@ module ::Collections
       if current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
         return true
       end
+
+      collection = collection_item.collection
+      return false if collection.blank?
+
       topic_id = collection_item.topic_id
       if topic_id.present?
         topic = Topic.find_by(id: topic_id)
         return(
-          topic.present? && can_edit_topic?(topic) &&
-            can_edit_collection(collection_item.collection)
+          topic.present? && topic.user_id == current_user.id && can_edit_collection?(collection)
         )
       end
-      return true if can_create_collection?
-      collection.maintainer_ids.include?(current_user.id)
+
+      can_edit_collection?(collection)
     end
 
     def can_edit_collection_item?(collection_item)

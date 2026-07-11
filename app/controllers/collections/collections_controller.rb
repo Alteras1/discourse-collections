@@ -51,18 +51,20 @@ module ::Collections
         end
       else
         items = collection.collection_items
-        items
-          .filter_map { |item| Topic.find_by(id: item.topic_id) if item.topic_id }
-          .each do |t|
-            raise Discourse::InvalidAccess unless guardian.can_create_collection_item?(t)
-          end
+
         if user_id && User.exists?(user_id)
           collection.user_id = user_id
         else
-          firstTopicItem = items.detect { |item| item.topic_id.present? }
-          user_id = Topic.where(id: firstTopicItem.topic_id).pick(:user_id)
+          first_topic_item = items.detect { |item| item.topic_id.present? }
+          user_id = Topic.where(id: first_topic_item&.topic_id).pick(:user_id)
         end
+
         collection.user_id = user_id || current_user.id
+
+        items.each do |item|
+          raise Discourse::InvalidAccess unless guardian.can_create_collection_item?(item)
+        end
+
         collection.transaction { collection.save! }
       end
 
@@ -76,7 +78,7 @@ module ::Collections
     rescue Discourse::InvalidAccess
       render json: failed_json, status: :forbidden
     rescue ActiveRecord::RecordInvalid
-      render json: { errors: collection.errors }, status: :unprocessable_entity
+      render json: { errors: @collection.errors }, status: :unprocessable_entity
     end
 
     def show
