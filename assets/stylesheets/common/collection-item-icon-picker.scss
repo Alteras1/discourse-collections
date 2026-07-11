@@ -19,6 +19,7 @@
 
   .collections-detached-icon-picker {
     z-index: unset;
+
     .select-kit-header {
       visibility: hidden;
       height: 0;
@@ -26,6 +27,7 @@
       border: none;
       padding: 0;
     }
+
     .select-kit-body {
       box-shadow: none;
       border-radius: unset;
@@ -34,6 +36,7 @@
 
   .emoji-picker {
     max-width: 100%;
+
     @include viewport.from(lg) {
       width: 300px;
     }
@@ -49,6 +52,7 @@
       width: 12em;
       flex-flow: row-reverse nowrap;
       justify-content: space-between;
+
       &:last-child {
         margin-bottom: 0.5em;
       }
