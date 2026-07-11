@@ -78,7 +78,7 @@ module ::Collections
     rescue Discourse::InvalidAccess
       render json: failed_json, status: :forbidden
     rescue ActiveRecord::RecordInvalid
-      render json: { errors: @collection.errors }, status: :unprocessable_entity
+      render json: { errors: collection.errors }, status: :unprocessable_entity
     end
 
     def show
@@ -136,7 +136,7 @@ module ::Collections
     rescue Discourse::InvalidAccess
       render json: failed_json, status: :forbidden
     rescue ActiveRecord::RecordInvalid
-      render json: { errors: collection.errors }, status: :unprocessable_entity
+      render json: { errors: @collection.errors }, status: :unprocessable_entity
     end
 
     def destroy

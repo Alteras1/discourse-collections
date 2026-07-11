@@ -78,6 +78,19 @@ RSpec.describe Collections::CollectionsController do
 
       expect(response.status).to eq(403)
     end
+
+    it "returns validation errors for an invalid payload" do
+      post "/collections.json",
+           params: {
+             is_single_topic: false,
+             maintainer_ids: [],
+             items: [{ name: "", url: "", position: 0, is_section_header: false }],
+           },
+           as: :json
+
+      expect(response.status).to eq(422)
+      expect(response.parsed_body["errors"]).to be_present
+    end
   end
 
   describe "#update" do

@@ -21,7 +21,7 @@ module ::Collections
 
     def includes_one_topic
       unless collection_items.any? { |item| item.topic_id != nil }
-        errors.add_to_base(I18n.t("collections.errors.topic_required"))
+        errors.add(:base, I18n.t("collections.errors.topic_required"))
       end
     end
 
