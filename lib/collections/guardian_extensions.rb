@@ -4,12 +4,17 @@ module ::Collections
   module GuardianExtensions
     def can_create_collection_for_topic?(topic)
       return false if current_user.nil?
-      if SiteSetting.collection_by_topic_owner &&
-           current_user.in_any_groups?(SiteSetting.collection_by_topic_owner_allow_groups_map) &&
-           can_edit_topic?(topic)
+      if current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
         return true
       end
-      current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
+
+      return false unless SiteSetting.collection_by_topic_owner
+      unless current_user.in_any_groups?(SiteSetting.collection_by_topic_owner_allow_groups_map)
+        return false
+      end
+      return false if topic.blank?
+
+      topic.user_id == current_user.id
     end
 
     def can_edit_collection?(collection)
