@@ -25,7 +25,15 @@ export default {
 
       api.addTopicAdminMenuButton((topic) => {
         const collection = topic.get("collection");
+        const canManageCollection =
+          topic.get("can_create_collection") || collection?.can_edit_collection;
+
+        if (!canManageCollection) {
+          return null;
+        }
+
         return {
+          className: "topic-admin-collections",
           icon: collection ? "layer-group" : "collections-add",
           label: collection
             ? "collections.post_menu.manage_collection"
@@ -45,7 +53,16 @@ export default {
 
       api.addTopicAdminMenuButton((topic) => {
         const subcollection = topic.get("subcollection");
+        const canManageSubcollection =
+          topic.get("can_create_collection") ||
+          subcollection?.can_edit_collection;
+
+        if (!canManageSubcollection) {
+          return null;
+        }
+
         return {
+          className: "topic-admin-subcollections",
           icon: subcollection ? "layer-group" : "collections-add",
           label: subcollection
             ? "collections.post_menu.manage_subcollection"
