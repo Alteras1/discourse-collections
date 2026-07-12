@@ -8,6 +8,7 @@
  * @property {CollectionUser} owner - The owner of the collection.
  * @property {Array<CollectionLink | CollectionHeader>} collection_items - Items in the collection, which can be links or headers.
  * @property {boolean} can_edit_collection - Indicates if the user can edit the collection.
+ * @property {boolean} can_edit_maintainers - Indicates if the user can edit collection maintainers.
  * @property {boolean} can_delete_collection - Indicates if the user can delete the collection.
  * @property {number | undefined} subcollection_topic_id - topic id of the associated topic if is_single_topic true
  */

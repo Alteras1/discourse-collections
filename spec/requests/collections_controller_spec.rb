@@ -91,6 +91,33 @@ RSpec.describe Collections::CollectionsController do
       expect(response.status).to eq(422)
       expect(response.parsed_body["errors"]).to be_present
     end
+
+    it "stores all selected maintainers when creating a collection", :aggregate_failures do
+      expect do
+        post "/collections.json",
+             params: {
+               is_single_topic: false,
+               maintainer_ids: [maintainer.id, other_maintainer.id],
+               items: [
+                 {
+                   name: create_topic.title,
+                   url: create_topic.url,
+                   position: 0,
+                   is_section_header: false,
+                 },
+               ],
+             },
+             as: :json
+      end.to change(Collections::Collection, :count).by(1)
+
+      created_collection = Collections::Collection.order(:id).last
+
+      expect(response.status).to eq(200)
+      expect(created_collection.maintainer_ids).to contain_exactly(
+        maintainer.id,
+        other_maintainer.id,
+      )
+    end
   end
 
   describe "#update" do
@@ -159,6 +186,54 @@ RSpec.describe Collections::CollectionsController do
       )
     end
 
+    it "allows each maintainer to manage the collection", :aggregate_failures do
+      sign_in(maintainer)
+
+      put "/collections/#{collection.id}.json",
+          params: {
+            user_id: user.id,
+            title: "Maintainer A update",
+            is_single_topic: false,
+            maintainer_ids: [maintainer.id, other_maintainer.id],
+            items: [
+              {
+                id: collection.collection_items.first.id,
+                name: collection.collection_items.first.name,
+                url: collection.collection_items.first.url,
+                position: 0,
+                is_section_header: false,
+              },
+            ],
+          },
+          as: :json
+
+      expect(response.status).to eq(200)
+      expect(collection.reload.title).to eq("Maintainer A update")
+
+      sign_in(other_maintainer)
+
+      put "/collections/#{collection.id}.json",
+          params: {
+            user_id: user.id,
+            title: "Maintainer B update",
+            is_single_topic: false,
+            maintainer_ids: [maintainer.id, other_maintainer.id],
+            items: [
+              {
+                id: collection.collection_items.first.id,
+                name: collection.collection_items.first.name,
+                url: collection.collection_items.first.url,
+                position: 0,
+                is_section_header: false,
+              },
+            ],
+          },
+          as: :json
+
+      expect(response.status).to eq(200)
+      expect(collection.reload.title).to eq("Maintainer B update")
+    end
+
     it "returns validation errors for an invalid payload" do
       sign_in(user)
 
@@ -182,6 +257,59 @@ RSpec.describe Collections::CollectionsController do
 
       expect(response.status).to eq(422)
       expect(response.parsed_body["errors"]).to be_present
+    end
+
+    it "rejects maintainer list updates by maintainers", :aggregate_failures do
+      sign_in(maintainer)
+
+      put "/collections/#{collection.id}.json",
+          params: {
+            user_id: user.id,
+            title: "Maintainer update",
+            is_single_topic: false,
+            maintainer_ids: [maintainer.id],
+            items: [
+              {
+                id: collection.collection_items.first.id,
+                name: collection.collection_items.first.name,
+                url: collection.collection_items.first.url,
+                position: 0,
+                is_section_header: false,
+              },
+            ],
+          },
+          as: :json
+
+      expect(response.status).to eq(403)
+      expect(collection.reload.maintainer_ids).to contain_exactly(
+        maintainer.id,
+        other_maintainer.id,
+      )
+    end
+
+    it "allows the owner to update the maintainer list", :aggregate_failures do
+      sign_in(user)
+
+      put "/collections/#{collection.id}.json",
+          params: {
+            user_id: user.id,
+            title: "Owner update",
+            is_single_topic: false,
+            maintainer_ids: [maintainer.id],
+            items: [
+              {
+                id: collection.collection_items.first.id,
+                name: collection.collection_items.first.name,
+                url: collection.collection_items.first.url,
+                position: 0,
+                is_section_header: false,
+              },
+            ],
+          },
+          as: :json
+
+      expect(response.status).to eq(200)
+      expect(collection.reload.maintainer_ids).to contain_exactly(maintainer.id)
     end
   end
 end

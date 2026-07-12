@@ -3,11 +3,11 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import DButton from "discourse/components/d-button";
-import DropdownMenu from "discourse/components/dropdown-menu";
-import icon from "discourse/helpers/d-icon";
+import DMenu from "discourse/float-kit/components/d-menu";
 import { bind } from "discourse/lib/decorators";
-import DMenu from "float-kit/components/d-menu";
+import DButton from "discourse/ui-kit/d-button";
+import DDropdownMenu from "discourse/ui-kit/d-dropdown-menu";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 
 export default class CollectionSidebarFooter extends Component {
   @service router;
@@ -39,6 +39,10 @@ export default class CollectionSidebarFooter extends Component {
 
   get canManageSubcollection() {
     return this.canCreate || this.subcollection?.can_edit_collection;
+  }
+
+  get canManageAnyCollection() {
+    return this.canManageCollection || this.canManageSubcollection;
   }
 
   @bind
@@ -74,17 +78,17 @@ export default class CollectionSidebarFooter extends Component {
   }
 
   <template>
-    {{#if this.canCreate}}
+    {{#if this.canManageAnyCollection}}
       <DMenu
         @modalForMobile={{true}}
         @contentClass="collection-edit-menu"
         class="btn no-text btn-icon btn-flat sidebar-footer-actions-button collection-sidebar-footer-menu"
       >
         <:trigger>
-          {{icon "layer-group"}}
+          {{dIcon "layer-group"}}
         </:trigger>
         <:content>
-          <DropdownMenu as |dropdown|>
+          <DDropdownMenu as |dropdown|>
             {{#if this.canManageCollection}}
               <dropdown.item class="collection-post-menu__collection">
                 <DButton
@@ -118,7 +122,7 @@ export default class CollectionSidebarFooter extends Component {
                 />
               </dropdown.item>
             {{/if}}
-          </DropdownMenu>
+          </DDropdownMenu>
         </:content>
       </DMenu>
     {{/if}}

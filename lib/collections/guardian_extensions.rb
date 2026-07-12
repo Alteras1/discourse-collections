@@ -24,6 +24,12 @@ module ::Collections
       current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
     end
 
+    def can_edit_collection_maintainers?(collection)
+      return false if current_user.nil?
+      return true if collection.user_id == current_user.id
+      current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
+    end
+
     def can_delete_collection?(collection)
       return false if current_user.nil?
       if SiteSetting.collection_by_topic_owner &&

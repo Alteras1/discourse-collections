@@ -5,17 +5,17 @@ import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import { not, or } from "truth-helpers";
-import DButton from "discourse/components/d-button";
-import DModal from "discourse/components/d-modal";
 import withEventValue from "discourse/helpers/with-event-value";
 import { ajax } from "discourse/lib/ajax";
 import { extractError } from "discourse/lib/ajax-error";
 import { removeValueFromArray } from "discourse/lib/array-tools";
 import { afterRender, bind } from "discourse/lib/decorators";
 import { sanitize } from "discourse/lib/text";
-import { trackedArray } from "discourse/lib/tracked-tools";
+import { autoTrackedArray } from "discourse/lib/tracked-tools";
 import { userPath } from "discourse/lib/url";
+import { not, or } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
+import DModal from "discourse/ui-kit/d-modal";
 import { i18n } from "discourse-i18n";
 import { CollectionItem } from "../forms/collection-item";
 import CollectionItemForm from "../forms/collection-item-form";
@@ -27,14 +27,16 @@ class CollectionFormData {
   @tracked desc;
   @tracked owner;
   @tracked maintainers;
-  @trackedArray list = [];
+  @tracked canEditMaintainers = true;
+  @autoTrackedArray list = [];
 
-  constructor({ list, title, desc, owner, maintainers }) {
+  constructor({ list, title, desc, owner, maintainers, canEditMaintainers }) {
     this.list = list;
     this.title = title;
     this.desc = desc;
     this.owner = owner;
     this.maintainers = maintainers;
+    this.canEditMaintainers = canEditMaintainers ?? true;
   }
 
   get ownerPath() {
@@ -62,13 +64,21 @@ export default class CollectionForm extends Component {
   @tracked flashType;
   @tracked isLoading = false;
 
-  /** @type {boolean} */
-  @tracked isSubcollection = this.args.model.isSubcollection;
-  @tracked topic = this.args.model.topic;
-  /** @type {boolean} */
-  @tracked edit = !!this.args.model.collection;
-
   nextObjectId = 0;
+
+  /** @type {boolean} */
+  get isSubcollection() {
+    return this.args.model.isSubcollection;
+  }
+
+  get topic() {
+    return this.args.model.topic;
+  }
+
+  /** @type {boolean} */
+  get edit() {
+    return !!this.args.model.collection;
+  }
 
   get modalTitle() {
     if (this.isSubcollection) {
@@ -94,6 +104,7 @@ export default class CollectionForm extends Component {
       return new CollectionFormData({
         owner: this.topic.details.created_by,
         maintainers: [],
+        canEditMaintainers: true,
         list: [
           new CollectionItem(
             this.isSubcollection
@@ -120,6 +131,7 @@ export default class CollectionForm extends Component {
       desc: collection.desc,
       owner: collection.owner,
       maintainers: collection.maintainers,
+      canEditMaintainers: collection.can_edit_maintainers,
       list: collection.collection_items.map((item) => {
         return new CollectionItem({
           router: this.router,
@@ -144,7 +156,41 @@ export default class CollectionForm extends Component {
 
   @action
   setMaintainers(usernames, users) {
-    this.transformedModel.maintainers = users;
+    const previousMaintainers = this.transformedModel.maintainers;
+    const normalizedUsers = users.map((user) => {
+      if (typeof user === "string") {
+        return { username: user };
+      }
+
+      if (user.username || !user.name) {
+        return user;
+      }
+
+      return { ...user, username: user.name };
+    });
+    const previousUsernames = previousMaintainers.map((user) => user.username);
+    let nextUsernames = usernames;
+
+    if (
+      usernames.length === 1 &&
+      previousUsernames.length > 0 &&
+      !previousUsernames.includes(usernames[0])
+    ) {
+      nextUsernames = [...previousUsernames, ...usernames];
+    }
+
+    this.transformedModel.maintainers = [...new Set(nextUsernames)]
+      .map((username) => {
+        const selectedUser = normalizedUsers.find(
+          (user) => user.username === username
+        );
+        const previousUser = previousMaintainers.find(
+          (user) => user.username === username
+        );
+
+        return selectedUser?.id ? selectedUser : previousUser || selectedUser;
+      })
+      .filter((user) => user?.id);
   }
 
   @action
@@ -368,7 +414,7 @@ export default class CollectionForm extends Component {
               </summary>
 
               <div class="collection-modal-form__input-wrapper">
-                {{! template-lint-disable no-nested-interactive}}
+                {{! eslint-disable ember/template-no-nested-interactive }}
                 <label for="collection-desc">
                   {{i18n "collections.form.custom_desc"}}
                 </label>

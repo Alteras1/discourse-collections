@@ -62,7 +62,11 @@ module ::Collections
         collection.user_id = user_id || current_user.id
 
         items.each do |item|
-          raise Discourse::InvalidAccess unless guardian.can_create_collection_item?(item)
+          unless guardian.can_create_collection_item?(item)
+            return(
+              render_json_error I18n.t("collections.errors.own_topic_only"), status: :forbidden
+            )
+          end
         end
 
         collection.transaction { collection.save! }
@@ -91,6 +95,15 @@ module ::Collections
 
     def update
       raise Discourse::InvalidAccess unless guardian.can_edit?(@collection)
+      if maintainer_list_changed_by_maintainer?
+        return(
+          render_json_error(
+            I18n.t("collections.errors.maintainer_cannot_edit_maintainers"),
+            status: :forbidden,
+          )
+        )
+      end
+
       user_id = params.permit(:user_id)[:user_id]
 
       @collection.assign_attributes(
@@ -111,13 +124,21 @@ module ::Collections
         items
           .filter { |item| item.url_changed? }
           .each do |item|
-            raise Discourse::InvalidAccess unless guardian.can_edit_collection_item?(item)
+            unless guardian.can_edit_collection_item?(item)
+              return(
+                render_json_error I18n.t("collections.errors.own_topic_only"), status: :forbidden
+              )
+            end
           end
 
         items
           .filter { |item| item.topic_id.present? && item.new_record? }
           .each do |item|
-            raise Discourse::InvalidAccess unless guardian.can_create_collection_item?(item)
+            unless guardian.can_create_collection_item?(item)
+              return(
+                render_json_error I18n.t("collections.errors.own_topic_only"), status: :forbidden
+              )
+            end
           end
       end
 
@@ -165,6 +186,17 @@ module ::Collections
     end
 
     private
+
+    def maintainer_list_changed_by_maintainer?
+      return false unless current_user
+      return false unless collection_params.to_h.key?("maintainer_ids")
+      return false if guardian.can_edit_collection_maintainers?(@collection)
+
+      incoming_maintainer_ids = Array(collection_params[:maintainer_ids]).map(&:to_i).sort
+      existing_maintainer_ids = @collection.maintainer_ids.sort
+
+      incoming_maintainer_ids != existing_maintainer_ids
+    end
 
     def push_messagebus_event(collection)
       items = collection.collection_items
