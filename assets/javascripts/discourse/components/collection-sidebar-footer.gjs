@@ -12,6 +12,7 @@ import dIcon from "discourse/ui-kit/helpers/d-icon";
 export default class CollectionSidebarFooter extends Component {
   @service router;
   @service editCollection;
+  @service appEvents;
 
   @tracked topic;
 
@@ -25,12 +26,14 @@ export default class CollectionSidebarFooter extends Component {
   constructor() {
     super(...arguments);
     this.router.on("routeDidChange", this, this.currentRouteChanged);
+    this.appEvents.on("collection:updated", this, this.collectionUpdated);
     this.setValues();
   }
 
   willDestroy() {
     super.willDestroy(...arguments);
     this.router.off("routeDidChange", this, this.currentRouteChanged);
+    this.appEvents.off("collection:updated", this, this.collectionUpdated);
   }
 
   get canManageCollection() {
@@ -51,6 +54,22 @@ export default class CollectionSidebarFooter extends Component {
       return;
     }
     this.setValues();
+  }
+
+  @bind
+  collectionUpdated({ topic, collection, subcollection }) {
+    if (this.router.currentRoute?.parent?.name !== "topic") {
+      return;
+    }
+
+    if (this.topic?.id && topic?.id && this.topic.id !== topic.id) {
+      return;
+    }
+
+    this.topic = topic;
+    this.collection = collection;
+    this.subcollection = subcollection;
+    this.canCreate = topic?.can_create_collection;
   }
 
   setValues() {

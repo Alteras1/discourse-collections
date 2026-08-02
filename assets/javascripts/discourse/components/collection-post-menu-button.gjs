@@ -3,11 +3,11 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import DButton from "discourse/components/d-button";
-import DropdownMenu from "discourse/components/dropdown-menu";
+import DMenu from "discourse/float-kit/components/d-menu";
 import { bind } from "discourse/lib/decorators";
+import DButton from "discourse/ui-kit/d-button";
+import DDropdownMenu from "discourse/ui-kit/d-dropdown-menu";
 import { i18n } from "discourse-i18n";
-import DMenu from "float-kit/components/d-menu";
 
 export default class CollectionPostMenuButton extends Component {
   static hidden(args) {
@@ -27,15 +27,24 @@ export default class CollectionPostMenuButton extends Component {
   @service editCollection;
 
   /** @type {Collection} */
-  @tracked collection = this.args.post.topic.collection;
+  @tracked collection = null;
   /** @type {Collection} */
-  @tracked subcollection = this.args.post.topic.subcollection;
-  /** @type {boolean} */
-  @tracked canCreate = this.args.post.topic.can_create_collection;
+  @tracked subcollection = null;
 
   constructor() {
     super(...arguments);
+    this.collection = this.args.post.topic.collection;
+    this.subcollection = this.args.post.topic.subcollection;
     this.appEvents.on("collection:updated", this, this.onCollectionUpdate);
+  }
+
+  willDestroy() {
+    super.willDestroy(...arguments);
+    this.appEvents.off("collection:updated", this, this.onCollectionUpdate);
+  }
+
+  get canCreate() {
+    return this.args.post.topic.can_create_collection;
   }
 
   get canManageCollection() {
@@ -80,7 +89,7 @@ export default class CollectionPostMenuButton extends Component {
       @title={{i18n "collections.post_menu.title"}}
     >
       <:content>
-        <DropdownMenu as |dropdown|>
+        <DDropdownMenu as |dropdown|>
           {{#if this.canManageCollection}}
             <dropdown.item class="collection-post-menu__collection">
               <DButton
@@ -110,7 +119,7 @@ export default class CollectionPostMenuButton extends Component {
               />
             </dropdown.item>
           {{/if}}
-        </DropdownMenu>
+        </DDropdownMenu>
       </:content>
     </DMenu>
   </template>
