@@ -1,8 +1,8 @@
 import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import { or } from "truth-helpers";
-import DButton from "discourse/components/d-button";
+import { or } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
 import { CollectionMobile } from "./modals/collection-mobile";
 
 export class CollectionTopicProgressButton extends Component {

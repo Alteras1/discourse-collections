@@ -3,19 +3,19 @@ import { tracked } from "@glimmer/tracking";
 import { concat, fn, hash } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
-import { htmlSafe } from "@ember/template";
+import { trustHTML } from "@ember/template";
 import { classNames } from "@ember-decorators/component";
-import { eq } from "truth-helpers";
-import DToggleSwitch from "discourse/components/d-toggle-switch";
 import EmojiPickerDetached from "discourse/components/emoji-picker/detached";
 import { isHex } from "discourse/components/sidebar/section-link";
-import icon from "discourse/helpers/d-icon";
-import replaceEmoji from "discourse/helpers/replace-emoji";
+import DMenu from "discourse/float-kit/components/d-menu";
+import ComboBox from "discourse/select-kit/components/combo-box";
+import IconPicker from "discourse/select-kit/components/icon-picker";
+import { selectKitOptions } from "discourse/select-kit/components/select-kit";
+import { eq } from "discourse/truth-helpers";
+import DToggleSwitch from "discourse/ui-kit/d-toggle-switch";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
+import dReplaceEmoji from "discourse/ui-kit/helpers/d-replace-emoji";
 import { i18n } from "discourse-i18n";
-import ComboBox from "select-kit/components/combo-box";
-import IconPicker from "select-kit/components/icon-picker";
-import { selectKitOptions } from "select-kit/components/select-kit";
-import DMenu from "float-kit/components/d-menu";
 import ColorInput from "./color-input";
 
 @classNames("collections-detached-icon-picker")
@@ -55,9 +55,16 @@ export default class CollectionItemIconPicker extends Component {
       name: i18n("collections.form.icon_picker.square"),
     },
   ];
-  @tracked iconType = this.args.iconType;
-  @tracked icon = this.args.icon;
-  @tracked selectedMenuType = this.args.iconType || "icon";
+  @tracked iconType = null;
+  @tracked icon = null;
+  @tracked selectedMenuType = null;
+
+  constructor() {
+    super(...arguments);
+    this.iconType = this.args.iconType;
+    this.icon = this.args.icon;
+    this.selectedMenuType = this.args.iconType || "icon";
+  }
 
   get previewValue() {
     if (!this.iconType && !this.icon) {
@@ -187,12 +194,12 @@ export default class CollectionItemIconPicker extends Component {
     >
       <:trigger>
         {{#if (eq this.iconType "icon")}}
-          {{icon this.previewValue class="prefix-icon"}}
+          {{dIcon this.previewValue class="prefix-icon"}}
         {{else if (eq this.iconType "emoji")}}
-          {{replaceEmoji this.previewValue class="prefix-emoji"}}
+          {{dReplaceEmoji this.previewValue class="prefix-emoji"}}
         {{else if (eq this.iconType "square")}}
           <span
-            style={{htmlSafe
+            style={{trustHTML
               (concat
                 "background: linear-gradient(90deg, " this.previewValue ")"
               )

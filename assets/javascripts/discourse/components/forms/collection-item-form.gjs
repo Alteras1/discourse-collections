@@ -4,12 +4,12 @@ import { Input } from "@ember/component";
 import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
-import { not } from "truth-helpers";
-import DButton from "discourse/components/d-button";
-import concatClass from "discourse/helpers/concat-class";
-import icon from "discourse/helpers/d-icon";
 import withEventValue from "discourse/helpers/with-event-value";
 import discourseLater from "discourse/lib/later";
+import { not } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
+import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import CollectionItemIconPicker from "./collection-item-icon-picker";
 import UrlTopicChooser from "./url-topic-chooser";
@@ -34,14 +34,12 @@ export default class CollectionItemForm extends Component {
       this.link.url = null;
       return;
     }
-    let urlName = "";
     if (selected.isLiteral) {
       this.link.url = selected.name;
     } else {
       this.link.url = selected.url;
     }
-    urlName = selected.fancy_title;
-    this.link.urlName = urlName;
+    this.link.urlName = selected.fancy_title;
   }
 
   @action
@@ -130,7 +128,7 @@ export default class CollectionItemForm extends Component {
       role="row"
       data-row-id={{@link.objectId}}
       draggable={{this.draggable}}
-      class={{concatClass
+      class={{dConcatClass
         "sidebar-section-form-link"
         "row-wrapper"
         (if
@@ -147,17 +145,17 @@ export default class CollectionItemForm extends Component {
         </div>
       {{/if}}
 
+      {{! eslint-disable ember/template-no-pointer-down-event-binding }}
+      {{! eslint-disable ember/template-no-invalid-interactive }}
       <div
-        {{! template-lint-disable no-pointer-down-event-binding no-invalid-interactive}}
         {{on "mousedown" this.enableDrag}}
         {{on "touchstart" this.enableDrag}}
-        {{! template-lint-disable no-invalid-interactive}}
         {{on "mouseup" this.disableDrag}}
         {{on "touchend" this.disableDrag}}
         class="draggable"
         data-link-name={{@link.name}}
       >
-        {{icon "grip-lines"}}
+        {{dIcon "grip-lines"}}
       </div>
 
       {{#if @link.isSectionHeader}}
@@ -230,7 +228,7 @@ export default class CollectionItemForm extends Component {
             <span
               data-value={{@link.urlName}}
               data-placeholder={{i18n "collections.form.link"}}
-              class={{concatClass
+              class={{dConcatClass
                 @link.valueCssClass
                 (if @link.disabled "disabled" "")
               }}

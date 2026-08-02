@@ -5,11 +5,11 @@ import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import didUpdate from "@ember/render-modifiers/modifiers/did-update";
 import { schedule } from "@ember/runloop";
 import { service } from "@ember/service";
-import { htmlSafe } from "@ember/template";
-import ConditionalInElement from "discourse/components/conditional-in-element";
-import DButton from "discourse/components/d-button";
-import icon from "discourse/helpers/d-icon";
+import { trustHTML } from "@ember/template";
 import { MAIN_PANEL } from "discourse/lib/sidebar/panels";
+import DButton from "discourse/ui-kit/d-button";
+import DConditionalInElement from "discourse/ui-kit/d-conditional-in-element";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { SIDEBAR_COLLECTIONS_PANEL } from "../services/collection-sidebar";
 /** @import CollectionSidebar from '../services/collection-sidebar' */
@@ -38,17 +38,17 @@ export default class CollectionSidebarHeader extends Component {
   }
 
   get title() {
-    return htmlSafe(this.collectionSidebar._collectionData?.title || "");
+    return trustHTML(this.collectionSidebar._collectionData?.title || "");
   }
 
   get desc() {
-    return htmlSafe(this.collectionSidebar._collectionData?.desc || "");
+    return trustHTML(this.collectionSidebar._collectionData?.desc || "");
   }
 
   get header() {
     const title = this.collectionSidebar._collectionData?.title || "";
     if (title) {
-      return htmlSafe(title);
+      return trustHTML(title);
     }
     return i18n("collections.sidebar.buttons.collection");
   }
@@ -91,7 +91,7 @@ export default class CollectionSidebarHeader extends Component {
         {{didUpdate this.getContainerElement this.sidebarState.currentPanelKey}}
       >
       </div>
-      <ConditionalInElement
+      <DConditionalInElement
         @element={{this.mainButtonContainerElement}}
         @inline={{false}}
         @append={{true}}
@@ -114,14 +114,14 @@ export default class CollectionSidebarHeader extends Component {
                 @translatedLabel={{this.header}}
                 @title="collections.sidebar.buttons.collection_desc"
               >
-                {{icon "arrow-right"}}
+                {{dIcon "arrow-right"}}
               </DButton>
             </div>
           </div>
         {{/if}}
-      </ConditionalInElement>
+      </DConditionalInElement>
       {{#if this.title}}
-        <ConditionalInElement
+        <DConditionalInElement
           @element={{this.mainHeaderContainerElement}}
           @inline={{false}}
           @append={{true}}
@@ -136,7 +136,7 @@ export default class CollectionSidebarHeader extends Component {
               </span>
             {{/if}}
           </div>
-        </ConditionalInElement>
+        </DConditionalInElement>
       {{/if}}
     {{/if}}
   </template>
