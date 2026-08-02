@@ -7,6 +7,8 @@ en:
     sections_in_subcollection: "Allow section headers in subcollections"
   collections:
     errors:
+      own_topic_only: "cannot add someone else's topic to this collection"
+      maintainer_cannot_edit_maintainers: "maintainers cannot edit the maintainer list"
       topic_in_another_collection: "Topic is already part of another collection."
       subcollection_already_exists: "This Topic already has a subcollection."
       topic_required: "At least one topic must be part of this collection"

@@ -2,8 +2,8 @@ import { set } from "@ember/object";
 import { isEmpty } from "@ember/utils";
 import { classNames } from "@ember-decorators/component";
 import { searchForTerm } from "discourse/lib/search";
-import ComboBoxComponent from "select-kit/components/combo-box";
-import { selectKitOptions } from "select-kit/components/select-kit";
+import ComboBoxComponent from "discourse/select-kit/components/combo-box";
+import { selectKitOptions } from "discourse/select-kit/components/select-kit";
 import UrlTopicRow from "./url-topic-row";
 
 @classNames("topic-chooser", "url-topic-chooser")

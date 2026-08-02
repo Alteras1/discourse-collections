@@ -4,18 +4,29 @@ module ::Collections
   module GuardianExtensions
     def can_create_collection_for_topic?(topic)
       return false if current_user.nil?
-      if SiteSetting.collection_by_topic_owner &&
-           current_user.in_any_groups?(SiteSetting.collection_by_topic_owner_allow_groups_map) &&
-           can_edit_topic?(topic)
+      if current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
         return true
       end
-      current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
+
+      return false unless SiteSetting.collection_by_topic_owner
+      unless current_user.in_any_groups?(SiteSetting.collection_by_topic_owner_allow_groups_map)
+        return false
+      end
+      return false if topic.blank?
+
+      topic.user_id == current_user.id
     end
 
     def can_edit_collection?(collection)
       return false if current_user.nil?
       return true if collection.user_id == current_user.id
       return true if collection.maintainer_ids.include?(current_user.id)
+      current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
+    end
+
+    def can_edit_collection_maintainers?(collection)
+      return false if current_user.nil?
+      return true if collection.user_id == current_user.id
       current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
     end
 
@@ -36,16 +47,19 @@ module ::Collections
       if current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
         return true
       end
+
+      collection = collection_item.collection
+      return false if collection.blank?
+
       topic_id = collection_item.topic_id
       if topic_id.present?
         topic = Topic.find_by(id: topic_id)
         return(
-          topic.present? && can_edit_topic?(topic) &&
-            can_edit_collection(collection_item.collection)
+          topic.present? && topic.user_id == current_user.id && can_edit_collection?(collection)
         )
       end
-      return true if can_create_collection?
-      collection.maintainer_ids.include?(current_user.id)
+
+      can_edit_collection?(collection)
     end
 
     def can_edit_collection_item?(collection_item)

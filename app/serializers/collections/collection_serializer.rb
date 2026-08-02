@@ -8,6 +8,7 @@ module ::Collections
                :is_single_topic,
                :maintainers,
                :can_edit_collection,
+               :can_edit_maintainers,
                :can_delete_collection
     has_many :collection_items,
              serializer: ::Collections::CollectionItemSerializer,
@@ -28,6 +29,10 @@ module ::Collections
 
     def can_delete_collection
       scope.can_delete_collection?(object)
+    end
+
+    def can_edit_maintainers
+      scope.can_edit_collection_maintainers?(object)
     end
 
     def subcollection_topic_id

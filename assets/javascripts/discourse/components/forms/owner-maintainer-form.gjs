@@ -3,12 +3,12 @@ import { tracked } from "@glimmer/tracking";
 import { hash } from "@ember/helper";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import { not } from "truth-helpers";
-import DButton from "discourse/components/d-button";
-import avatar from "discourse/helpers/avatar";
 import { bind } from "discourse/lib/decorators";
+import UserChooser from "discourse/select-kit/components/user-chooser";
+import { not } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
+import dAvatar from "discourse/ui-kit/helpers/d-avatar";
 import { i18n } from "discourse-i18n";
-import UserChooser from "select-kit/components/user-chooser";
 
 export default class OwnerMaintainerForm extends Component {
   @service siteSettings;
@@ -28,6 +28,10 @@ export default class OwnerMaintainerForm extends Component {
 
   get ownerUsername() {
     return [this.args.transformedModel.owner.username];
+  }
+
+  get canEditMaintainers() {
+    return this.args.transformedModel.canEditMaintainers;
   }
 
   @bind
@@ -60,7 +64,23 @@ export default class OwnerMaintainerForm extends Component {
 
   @action
   setMaintainers(usernames, users) {
-    this.args.transformedModel.maintainers = users;
+    if (!this.canEditMaintainers) {
+      return;
+    }
+
+    const normalizedUsers = users.map((user) => {
+      if (typeof user === "string") {
+        return { username: user };
+      }
+
+      if (user.username || !user.name) {
+        return user;
+      }
+
+      return { ...user, username: user.name };
+    });
+
+    this.args.setMaintainersCallback(usernames, normalizedUsers);
   }
 
   <template>
@@ -98,7 +118,7 @@ export default class OwnerMaintainerForm extends Component {
             href={{this.ownerPath}}
             data-user-card={{@transformedModel.owner.username}}
           >
-            {{avatar @transformedModel.owner imageSize="small"}}
+            {{dAvatar @transformedModel.owner imageSize="small"}}
             {{@transformedModel.owner.username}}
           </a>
           {{#if this.canEditOwner}}
@@ -116,11 +136,20 @@ export default class OwnerMaintainerForm extends Component {
         <label for="collection-maintainers">
           {{i18n "collections.form.maintainers"}}
         </label>
-        <UserChooser
-          @value={{@transformedModel.maintainer_usernames}}
-          @onChange={{@setMaintainersCallback}}
-          @options={{hash excludeCurrentUser=false}}
-        />
+        {{#if this.canEditMaintainers}}
+          <UserChooser
+            @value={{@transformedModel.maintainer_usernames}}
+            @onChange={{this.setMaintainers}}
+            @options={{hash excludeCurrentUser=false}}
+          />
+        {{else}}
+          <div
+            class="collection-modal-form__maintainers-readonly"
+            data-readonly-maintainers
+          >
+            {{@transformedModel.maintainer_usernames}}
+          </div>
+        {{/if}}
       </div>
     </div>
   </template>

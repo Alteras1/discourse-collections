@@ -51,18 +51,24 @@ module ::Collections
         end
       else
         items = collection.collection_items
-        items
-          .filter_map { |item| Topic.find_by(id: item.topic_id) if item.topic_id }
-          .each do |t|
-            raise Discourse::InvalidAccess unless guardian.can_create_collection_item?(t)
-          end
+
         if user_id && User.exists?(user_id)
           collection.user_id = user_id
         else
-          firstTopicItem = items.detect { |item| item.topic_id.present? }
-          user_id = Topic.where(id: firstTopicItem.topic_id).pick(:user_id)
+          first_topic_item = items.detect { |item| item.topic_id.present? }
+          user_id = Topic.where(id: first_topic_item&.topic_id).pick(:user_id)
         end
+
         collection.user_id = user_id || current_user.id
+
+        items.each do |item|
+          unless guardian.can_create_collection_item?(item)
+            return(
+              render_json_error I18n.t("collections.errors.own_topic_only"), status: :forbidden
+            )
+          end
+        end
+
         collection.transaction { collection.save! }
       end
 
@@ -89,6 +95,15 @@ module ::Collections
 
     def update
       raise Discourse::InvalidAccess unless guardian.can_edit?(@collection)
+      if maintainer_list_changed_by_maintainer?
+        return(
+          render_json_error(
+            I18n.t("collections.errors.maintainer_cannot_edit_maintainers"),
+            status: :forbidden,
+          )
+        )
+      end
+
       user_id = params.permit(:user_id)[:user_id]
 
       @collection.assign_attributes(
@@ -109,13 +124,21 @@ module ::Collections
         items
           .filter { |item| item.url_changed? }
           .each do |item|
-            raise Discourse::InvalidAccess unless guardian.can_edit_collection_item?(item)
+            unless guardian.can_edit_collection_item?(item)
+              return(
+                render_json_error I18n.t("collections.errors.own_topic_only"), status: :forbidden
+              )
+            end
           end
 
         items
           .filter { |item| item.topic_id.present? && item.new_record? }
           .each do |item|
-            raise Discourse::InvalidAccess unless guardian.can_create_collection_item?(item)
+            unless guardian.can_create_collection_item?(item)
+              return(
+                render_json_error I18n.t("collections.errors.own_topic_only"), status: :forbidden
+              )
+            end
           end
       end
 
@@ -134,7 +157,7 @@ module ::Collections
     rescue Discourse::InvalidAccess
       render json: failed_json, status: :forbidden
     rescue ActiveRecord::RecordInvalid
-      render json: { errors: collection.errors }, status: :unprocessable_entity
+      render json: { errors: @collection.errors }, status: :unprocessable_entity
     end
 
     def destroy
@@ -163,6 +186,17 @@ module ::Collections
     end
 
     private
+
+    def maintainer_list_changed_by_maintainer?
+      return false unless current_user
+      return false unless collection_params.to_h.key?("maintainer_ids")
+      return false if guardian.can_edit_collection_maintainers?(@collection)
+
+      incoming_maintainer_ids = Array(collection_params[:maintainer_ids]).map(&:to_i).sort
+      existing_maintainer_ids = @collection.maintainer_ids.sort
+
+      incoming_maintainer_ids != existing_maintainer_ids
+    end
 
     def push_messagebus_event(collection)
       items = collection.collection_items

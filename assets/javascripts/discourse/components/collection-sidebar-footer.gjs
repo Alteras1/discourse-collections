@@ -3,15 +3,16 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import DButton from "discourse/components/d-button";
-import DropdownMenu from "discourse/components/dropdown-menu";
-import icon from "discourse/helpers/d-icon";
+import DMenu from "discourse/float-kit/components/d-menu";
 import { bind } from "discourse/lib/decorators";
-import DMenu from "float-kit/components/d-menu";
+import DButton from "discourse/ui-kit/d-button";
+import DDropdownMenu from "discourse/ui-kit/d-dropdown-menu";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 
 export default class CollectionSidebarFooter extends Component {
   @service router;
   @service editCollection;
+  @service appEvents;
 
   @tracked topic;
 
@@ -25,12 +26,14 @@ export default class CollectionSidebarFooter extends Component {
   constructor() {
     super(...arguments);
     this.router.on("routeDidChange", this, this.currentRouteChanged);
+    this.appEvents.on("collection:updated", this, this.collectionUpdated);
     this.setValues();
   }
 
   willDestroy() {
     super.willDestroy(...arguments);
     this.router.off("routeDidChange", this, this.currentRouteChanged);
+    this.appEvents.off("collection:updated", this, this.collectionUpdated);
   }
 
   get canManageCollection() {
@@ -41,12 +44,32 @@ export default class CollectionSidebarFooter extends Component {
     return this.canCreate || this.subcollection?.can_edit_collection;
   }
 
+  get canManageAnyCollection() {
+    return this.canManageCollection || this.canManageSubcollection;
+  }
+
   @bind
   currentRouteChanged(transition) {
     if (transition.isAborted) {
       return;
     }
     this.setValues();
+  }
+
+  @bind
+  collectionUpdated({ topic, collection, subcollection }) {
+    if (this.router.currentRoute?.parent?.name !== "topic") {
+      return;
+    }
+
+    if (this.topic?.id && topic?.id && this.topic.id !== topic.id) {
+      return;
+    }
+
+    this.topic = topic;
+    this.collection = collection;
+    this.subcollection = subcollection;
+    this.canCreate = topic?.can_create_collection;
   }
 
   setValues() {
@@ -74,17 +97,17 @@ export default class CollectionSidebarFooter extends Component {
   }
 
   <template>
-    {{#if this.canCreate}}
+    {{#if this.canManageAnyCollection}}
       <DMenu
         @modalForMobile={{true}}
         @contentClass="collection-edit-menu"
         class="btn no-text btn-icon btn-flat sidebar-footer-actions-button collection-sidebar-footer-menu"
       >
         <:trigger>
-          {{icon "layer-group"}}
+          {{dIcon "layer-group"}}
         </:trigger>
         <:content>
-          <DropdownMenu as |dropdown|>
+          <DDropdownMenu as |dropdown|>
             {{#if this.canManageCollection}}
               <dropdown.item class="collection-post-menu__collection">
                 <DButton
@@ -118,7 +141,7 @@ export default class CollectionSidebarFooter extends Component {
                 />
               </dropdown.item>
             {{/if}}
-          </DropdownMenu>
+          </DDropdownMenu>
         </:content>
       </DMenu>
     {{/if}}
