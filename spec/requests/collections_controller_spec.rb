@@ -33,6 +33,7 @@ RSpec.describe Collections::CollectionsController do
 
     it "allows an eligible topic owner to create a subcollection" do
       SiteSetting.subcollection_by_topic_owner_allow_groups = Group::AUTO_GROUPS[:trust_level_1]
+      user.change_trust_level!(TrustLevel[1])
 
       expect do
         post "/collections.json",
