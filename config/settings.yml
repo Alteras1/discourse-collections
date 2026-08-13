@@ -12,6 +12,13 @@ discourse_collections:
     refresh: true
     area: "group_permissions"
     client: true
+  subcollection_by_topic_owner_allow_groups:
+    default: "11"
+    type: group_list
+    allow_any: false
+    refresh: true
+    area: "group_permissions"
+    client: true
   collection_modification_by_allowed_groups:
     type: group_list
     list_type: compact

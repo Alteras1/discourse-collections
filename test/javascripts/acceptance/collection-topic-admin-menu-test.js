@@ -120,6 +120,21 @@ acceptance("Collections | Topic admin menu", function (needs) {
       );
   });
 
+  test("shows only the subcollection button when the user can create subcollections", async function (assert) {
+    updateCurrentUser({ moderator: false, admin: false, trust_level: 1 });
+
+    await visit("/t/topic-for-group-moderators/2480");
+
+    const topic = this.owner.lookup("controller:topic").model;
+    topic.set("can_create_collection", false);
+    topic.set("can_create_subcollection", true);
+
+    await click(".toggle-admin-menu");
+
+    assert.dom(".topic-admin-collections").doesNotExist();
+    assert.dom(".topic-admin-subcollections").exists();
+  });
+
   test("shows collection admin controls for maintainers", async function (assert) {
     updateCurrentUser({
       id: 101,

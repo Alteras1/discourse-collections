@@ -17,6 +17,21 @@ module ::Collections
       topic.user_id == current_user.id
     end
 
+    def can_create_subcollection_for_topic?(topic)
+      return false if current_user.nil?
+      if current_user.in_any_groups?(SiteSetting.collection_modification_by_allowed_groups_map)
+        return true
+      end
+
+      return false unless SiteSetting.collection_by_topic_owner
+      unless current_user.in_any_groups?(SiteSetting.subcollection_by_topic_owner_allow_groups_map)
+        return false
+      end
+      return false if topic.blank?
+
+      topic.user_id == current_user.id
+    end
+
     def can_edit_collection?(collection)
       return false if current_user.nil?
       return true if collection.user_id == current_user.id

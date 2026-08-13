@@ -54,7 +54,7 @@ export default {
       api.addTopicAdminMenuButton((topic) => {
         const subcollection = topic.get("subcollection");
         const canManageSubcollection =
-          topic.get("can_create_collection") ||
+          topic.get("can_create_subcollection") ||
           subcollection?.can_edit_collection;
 
         if (!canManageSubcollection) {
@@ -112,6 +112,7 @@ export default {
           }
           if (
             post.topic.can_create_collection ||
+            post.topic.can_create_subcollection ||
             post.topic.collection?.can_edit_collection ||
             post.topic.subcollection?.can_edit_collection
           ) {

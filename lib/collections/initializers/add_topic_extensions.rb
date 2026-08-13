@@ -41,6 +41,10 @@ module ::Collections
         plugin.add_to_serializer(:topic_view, :can_create_collection) do
           scope.can_create_collection_for_topic?(object.topic)
         end
+
+        plugin.add_to_serializer(:topic_view, :can_create_subcollection) do
+          scope.can_create_subcollection_for_topic?(object.topic)
+        end
       end
     end
   end
