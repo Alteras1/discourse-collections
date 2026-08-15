@@ -44,7 +44,7 @@ module ::Collections
           collection.user_id = topic.user_id
         end
 
-        raise Discourse::InvalidAccess unless guardian.can_create_collection_for_topic?(topic)
+        raise Discourse::InvalidAccess unless guardian.can_create_subcollection_for_topic?(topic)
         collection.transaction do
           collection.save!
           Collections::CollectionHandler.attach_subcollection_to_topic(topic, collection)

@@ -31,6 +31,80 @@ RSpec.describe Collections::CollectionsController do
   describe "#create" do
     before { sign_in(user) }
 
+    it "allows an eligible topic owner to create a subcollection" do
+      SiteSetting.subcollection_by_topic_owner_allow_groups = Group::AUTO_GROUPS[:trust_level_1]
+      user.change_trust_level!(TrustLevel[1])
+
+      expect do
+        post "/collections.json",
+             params: {
+               topic_id: create_topic.id,
+               is_single_topic: true,
+               maintainer_ids: [],
+               items: [
+                 {
+                   name: "Related resource",
+                   url: "https://example.com/resource",
+                   position: 0,
+                   is_section_header: false,
+                 },
+               ],
+             },
+             as: :json
+      end.to change(Collections::Collection, :count).by(1)
+
+      expect(response.status).to eq(200)
+      expect(Collections::Collection.order(:id).last).to be_is_single_topic
+    end
+
+    it "forbids a topic owner outside the allowed subcollection groups" do
+      SiteSetting.subcollection_by_topic_owner_allow_groups = Group::AUTO_GROUPS[:trust_level_4]
+
+      expect do
+        post "/collections.json",
+             params: {
+               topic_id: create_topic.id,
+               is_single_topic: true,
+               maintainer_ids: [],
+               items: [
+                 {
+                   name: "Related resource",
+                   url: "https://example.com/resource",
+                   position: 0,
+                   is_section_header: false,
+                 },
+               ],
+             },
+             as: :json
+      end.not_to change(Collections::Collection, :count)
+
+      expect(response.status).to eq(403)
+    end
+
+    it "lets globally allowed groups create a subcollection on another user's topic" do
+      sign_in(Fabricate(:admin))
+
+      expect do
+        post "/collections.json",
+             params: {
+               topic_id: other_users_topic.id,
+               is_single_topic: true,
+               maintainer_ids: [],
+               items: [
+                 {
+                   name: "Related resource",
+                   url: "https://example.com/resource",
+                   position: 0,
+                   is_section_header: false,
+                 },
+               ],
+             },
+             as: :json
+      end.to change(Collections::Collection, :count).by(1)
+
+      expect(response.status).to eq(200)
+    end
+
     it "creates a collection with the current user's topic", :aggregate_failures do
       expect do
         post "/collections.json",

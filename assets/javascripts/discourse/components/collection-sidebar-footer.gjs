@@ -22,6 +22,8 @@ export default class CollectionSidebarFooter extends Component {
   @tracked subcollection;
   /** @type {boolean} */
   @tracked canCreate = false;
+  /** @type {boolean} */
+  @tracked canCreateSubcollection = false;
 
   constructor() {
     super(...arguments);
@@ -41,7 +43,9 @@ export default class CollectionSidebarFooter extends Component {
   }
 
   get canManageSubcollection() {
-    return this.canCreate || this.subcollection?.can_edit_collection;
+    return (
+      this.canCreateSubcollection || this.subcollection?.can_edit_collection
+    );
   }
 
   get canManageAnyCollection() {
@@ -70,6 +74,7 @@ export default class CollectionSidebarFooter extends Component {
     this.collection = collection;
     this.subcollection = subcollection;
     this.canCreate = topic?.can_create_collection;
+    this.canCreateSubcollection = topic?.can_create_subcollection;
   }
 
   setValues() {
@@ -78,11 +83,13 @@ export default class CollectionSidebarFooter extends Component {
       this.collection = null;
       this.subcollection = null;
       this.canCreate = false;
+      this.canCreateSubcollection = false;
     } else {
       this.topic = this.router.currentRoute?.parent.attributes;
       this.collection = this.topic?.collection;
       this.subcollection = this.topic?.subcollection;
       this.canCreate = this.topic?.can_create_collection;
+      this.canCreateSubcollection = this.topic?.can_create_subcollection;
     }
   }
 

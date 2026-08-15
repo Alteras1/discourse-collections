@@ -47,12 +47,18 @@ export default class CollectionPostMenuButton extends Component {
     return this.args.post.topic.can_create_collection;
   }
 
+  get canCreateSubcollection() {
+    return this.args.post.topic.can_create_subcollection;
+  }
+
   get canManageCollection() {
     return this.canCreate || this.collection?.can_edit_collection;
   }
 
   get canManageSubcollection() {
-    return this.canCreate || this.subcollection?.can_edit_collection;
+    return (
+      this.canCreateSubcollection || this.subcollection?.can_edit_collection
+    );
   }
 
   @bind
