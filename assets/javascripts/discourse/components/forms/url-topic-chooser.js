@@ -1,4 +1,3 @@
-import { set } from "@ember/object";
 import { isEmpty } from "@ember/utils";
 import { classNames } from "@ember-decorators/component";
 import { searchForTerm } from "discourse/lib/search";
@@ -19,7 +18,7 @@ export default class UrlTopicChooser extends ComboBoxComponent {
   titleProperty = "title";
 
   onOpen() {
-    set(this.selectKit, "filter", this.url || null);
+    this.selectKit.filter = this.url || null;
   }
 
   modifyComponentForRow() {

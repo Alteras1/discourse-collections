@@ -1,7 +1,6 @@
 import Component from "@glimmer/component";
 import { cached, tracked } from "@glimmer/tracking";
 import { Input, Textarea } from "@ember/component";
-import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
@@ -28,15 +27,25 @@ class CollectionFormData {
   @tracked owner;
   @tracked maintainers;
   @tracked canEditMaintainers = true;
+  @tracked canEditOwner = false;
   @autoTrackedArray list = [];
 
-  constructor({ list, title, desc, owner, maintainers, canEditMaintainers }) {
+  constructor({
+    list,
+    title,
+    desc,
+    owner,
+    maintainers,
+    canEditMaintainers,
+    canEditOwner,
+  }) {
     this.list = list;
     this.title = title;
     this.desc = desc;
     this.owner = owner;
     this.maintainers = maintainers;
     this.canEditMaintainers = canEditMaintainers ?? true;
+    this.canEditOwner = canEditOwner ?? false;
   }
 
   get ownerPath() {
@@ -132,6 +141,7 @@ export default class CollectionForm extends Component {
       owner: collection.owner,
       maintainers: collection.maintainers,
       canEditMaintainers: collection.can_edit_maintainers,
+      canEditOwner: collection.can_edit_owner,
       list: collection.collection_items.map((item) => {
         return new CollectionItem({
           router: this.router,
@@ -365,6 +375,16 @@ export default class CollectionForm extends Component {
     });
   }
 
+  @action
+  setTitle(value) {
+    this.transformedModel.title = value;
+  }
+
+  @action
+  setDesc(value) {
+    this.transformedModel.desc = value;
+  }
+
   <template>
     <DModal
       @closeModal={{@closeModal}}
@@ -401,10 +421,7 @@ export default class CollectionForm extends Component {
                 @type="text"
                 @value={{this.transformedModel.title}}
                 id="collection-name"
-                {{on
-                  "input"
-                  (withEventValue (fn (mut this.transformedModel.title)))
-                }}
+                {{on "input" (withEventValue this.setTitle)}}
               />
             </div>
 
@@ -423,10 +440,7 @@ export default class CollectionForm extends Component {
                   @value={{this.transformedModel.desc}}
                   id="collection-desc"
                   rows="2"
-                  {{on
-                    "input"
-                    (withEventValue (fn (mut this.transformedModel.desc)))
-                  }}
+                  {{on "input" (withEventValue this.setDesc)}}
                 />
               </div>
 
