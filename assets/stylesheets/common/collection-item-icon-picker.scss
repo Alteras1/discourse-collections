@@ -14,32 +14,26 @@
     display: flex;
     flex-direction: column;
     gap: 0.25em;
-    min-width: 250px;
   }
 
-  .collections-detached-icon-picker {
-    z-index: unset;
+  // Cap the content height so icon/emoji don't grow taller than the emoji picker's
+  // natural size. Color picker shrinks to its content — the anchor stays stable
+  // because the panel is always smaller than the available space above the trigger.
+  .d-icon-grid-picker__content,
+  .emoji-picker,
+  .collection-item-icon-picker__color {
+    max-height: 300px;
+  }
 
-    .select-kit-header {
-      visibility: hidden;
-      height: 0;
-      margin: 0;
-      border: none;
-      padding: 0;
-    }
-
-    .select-kit-body {
-      box-shadow: none;
-      border-radius: unset;
-    }
+  // The icon grid scrolls within the fixed height; the search/chip area sits above it.
+  .d-icon-grid-picker__grid-wrapper {
+    flex: 1;
+    overflow-y: auto;
   }
 
   .emoji-picker {
     max-width: 100%;
-
-    @include viewport.from(lg) {
-      width: 300px;
-    }
+    width: 100%;
   }
 
   .collection-item-icon-picker__color {
@@ -47,6 +41,8 @@
     flex-flow: column;
     gap: 0.5em;
     align-items: center;
+    justify-content: center;
+    min-width: 260px;
 
     .d-toggle-switch {
       width: 12em;
@@ -60,6 +56,17 @@
 
     .color-picker:last-child {
       margin-bottom: 0.5em;
+    }
+  }
+
+  .combobox.collection-item-icon-picker__icon-types {
+    // SelectKit renders <details> whose height counts the hidden body even with display:none.
+    // fit-content constrains it to the visible <summary> header only.
+    flex: none;
+    height: fit-content;
+
+    .select-kit-header {
+      height: auto;
     }
   }
 
