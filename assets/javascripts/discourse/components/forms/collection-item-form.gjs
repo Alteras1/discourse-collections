@@ -1,30 +1,43 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { Input } from "@ember/component";
-import { fn } from "@ember/helper";
+import { fn, hash } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
+import didInsert from "@ember/render-modifiers/modifiers/did-insert";
 import withEventValue from "discourse/helpers/with-event-value";
-import discourseLater from "discourse/lib/later";
 import { not } from "discourse/truth-helpers";
 import DButton from "discourse/ui-kit/d-button";
 import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
+import dDragAndDropSource from "discourse/ui-kit/modifiers/d-drag-and-drop-source";
+import dDragAndDropTarget from "discourse/ui-kit/modifiers/d-drag-and-drop-target";
 import { i18n } from "discourse-i18n";
 import CollectionItemIconPicker from "./collection-item-icon-picker";
 import UrlTopicChooser from "./url-topic-chooser";
 
 export default class CollectionItemForm extends Component {
-  /** @type {string} */
-  @tracked dragCssClass;
-  @tracked draggable = false;
-  dragCount = 0;
+  @tracked dragHandleEl = null;
 
   /**
    * @type {CollectionItem}
    */
   get link() {
     return this.args.link;
+  }
+
+  @action
+  captureDragHandle(el) {
+    this.dragHandleEl = el;
+  }
+
+  @action
+  handleDrop({ source, position }) {
+    this.args.reorderCallback(
+      source.data.link,
+      this.args.link,
+      position === "before"
+    );
   }
 
   @action
@@ -48,75 +61,6 @@ export default class CollectionItemForm extends Component {
     this.link.icon_type = iconType;
   }
 
-  isAboveElement(event) {
-    event.preventDefault();
-    const target = event.currentTarget;
-    const domRect = target.getBoundingClientRect();
-    return event.offsetY < domRect.height / 2;
-  }
-
-  @action
-  enableDrag() {
-    this.draggable = true;
-  }
-
-  @action
-  disableDrag() {
-    this.draggable = false;
-  }
-
-  @action
-  dragHasStarted(event) {
-    event.dataTransfer.effectAllowed = "move";
-    this.args.setDraggedLinkCallback(this.link);
-    this.dragCssClass = "dragging";
-  }
-
-  @action
-  dragOver(event) {
-    event.preventDefault();
-    if (this.dragCssClass !== "dragging") {
-      if (this.isAboveElement(event)) {
-        this.dragCssClass = "drag-above";
-      } else {
-        this.dragCssClass = "drag-below";
-      }
-    }
-  }
-
-  @action
-  dragEnter() {
-    this.dragCount++;
-  }
-
-  @action
-  dragLeave() {
-    this.dragCount--;
-    if (
-      this.dragCount === 0 &&
-      (this.dragCssClass === "drag-above" || this.dragCssClass === "drag-below")
-    ) {
-      discourseLater(() => {
-        this.dragCssClass = null;
-      }, 10);
-    }
-  }
-
-  @action
-  dropItem(event) {
-    event.stopPropagation();
-    this.dragCount = 0;
-    this.args.reorderCallback(this.args.link, this.isAboveElement(event));
-    this.dragCssClass = null;
-  }
-
-  @action
-  dragEnd() {
-    this.dragCount = 0;
-    this.dragCssClass = null;
-    this.disableDrag();
-  }
-
   @action
   setLinkName(value) {
     this.args.link.name = value;
@@ -128,16 +72,20 @@ export default class CollectionItemForm extends Component {
   }
 
   <template>
+    {{! eslint-disable ember/template-no-nested-interactive }}
     <div
-      {{on "dragstart" this.dragHasStarted}}
-      {{on "dragover" this.dragOver}}
-      {{on "dragenter" this.dragEnter}}
-      {{on "dragleave" this.dragLeave}}
-      {{on "dragend" this.dragEnd}}
-      {{on "drop" this.dropItem}}
+      {{dDragAndDropSource
+        type="collection-item"
+        data=(hash link=this.link)
+        dragHandle=this.dragHandleEl
+      }}
+      {{dDragAndDropTarget
+        accepts="collection-item"
+        acceptsSelf=false
+        onDrop=this.handleDrop
+      }}
       role="row"
       data-row-id={{@link.objectId}}
-      draggable={{this.draggable}}
       class={{dConcatClass
         "sidebar-section-form-link"
         "row-wrapper"
@@ -146,12 +94,8 @@ export default class CollectionItemForm extends Component {
           "collection-item__section-header"
           "collection-item__item"
         )
-        this.dragCssClass
       }}
     >
-      {{! eslint-disable ember/template-no-pointer-down-event-binding }}
-      {{! eslint-disable ember/template-no-invalid-interactive }}
-      {{! eslint-disable ember/template-no-nested-interactive }}
       {{#if @link.isSectionHeader}}
         <div class="input-group section-name">
           <label>{{i18n "collections.form.section_header"}}</label>
@@ -159,10 +103,7 @@ export default class CollectionItemForm extends Component {
       {{/if}}
 
       <div
-        {{on "mousedown" this.enableDrag}}
-        {{on "touchstart" this.enableDrag}}
-        {{on "mouseup" this.disableDrag}}
-        {{on "touchend" this.disableDrag}}
+        {{didInsert this.captureDragHandle}}
         class="draggable"
         data-link-name={{@link.name}}
       >

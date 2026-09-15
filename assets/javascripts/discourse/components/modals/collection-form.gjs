@@ -15,6 +15,7 @@ import { userPath } from "discourse/lib/url";
 import { not, or } from "discourse/truth-helpers";
 import DButton from "discourse/ui-kit/d-button";
 import DModal from "discourse/ui-kit/d-modal";
+import dDragAndDropAutoScroll from "discourse/ui-kit/modifiers/d-drag-and-drop-auto-scroll";
 import { i18n } from "discourse-i18n";
 import { CollectionItem } from "../forms/collection-item";
 import CollectionItemForm from "../forms/collection-item-form";
@@ -247,23 +248,18 @@ export default class CollectionForm extends Component {
   }
 
   @bind
-  setDraggedLink(link) {
-    this.draggedLink = link;
-  }
-
-  @bind
-  reorder(targetLink, above) {
-    if (this.draggedLink === targetLink) {
+  reorder(draggedLink, targetLink, above) {
+    if (draggedLink === targetLink) {
       return;
     }
 
-    removeValueFromArray(this.transformedModel.list, this.draggedLink);
+    removeValueFromArray(this.transformedModel.list, draggedLink);
 
     const toPosition = this.transformedModel.list.indexOf(targetLink);
     this.transformedModel.list.splice(
       above ? toPosition : toPosition + 1,
       0,
-      this.draggedLink
+      draggedLink
     );
   }
 
@@ -454,6 +450,7 @@ export default class CollectionForm extends Component {
           {{/if}}
 
           <div
+            {{dDragAndDropAutoScroll types="collection-item"}}
             role="table"
             aria-rowcount={{this.activeItems.length}}
             class="sidebar-section-form__links-wrapper"
@@ -488,7 +485,6 @@ export default class CollectionForm extends Component {
                 @isSubcollection={{this.isSubcollection}}
                 @deleteLink={{this.deleteLink}}
                 @reorderCallback={{this.reorder}}
-                @setDraggedLinkCallback={{this.setDraggedLink}}
               />
             {{/each}}
 
