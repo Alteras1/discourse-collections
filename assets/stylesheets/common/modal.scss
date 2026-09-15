@@ -32,7 +32,7 @@
     -webkit-user-drag: element;
   }
 
-  .dragging {
+  .--dragging {
     opacity: 0.4;
   }
 
@@ -251,11 +251,11 @@
       }
     }
 
-    &.drag-above {
+    &.--drag-above {
       border-top: 2px solid var(--tertiary);
     }
 
-    &.drag-below {
+    &.--drag-below {
       border-bottom: 2px solid var(--tertiary);
     }
 
