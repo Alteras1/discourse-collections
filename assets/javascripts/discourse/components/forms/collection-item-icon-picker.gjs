@@ -4,44 +4,17 @@ import { concat, fn, hash } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
 import { trustHTML } from "@ember/template";
-import { classNames } from "@ember-decorators/component";
 import EmojiPickerDetached from "discourse/components/emoji-picker/detached";
 import { isHex } from "discourse/components/sidebar/section-link";
 import DMenu from "discourse/float-kit/components/d-menu";
 import ComboBox from "discourse/select-kit/components/combo-box";
-import IconPicker from "discourse/select-kit/components/icon-picker";
-import { selectKitOptions } from "discourse/select-kit/components/select-kit";
 import { eq } from "discourse/truth-helpers";
+import DIconGridPickerContent from "discourse/ui-kit/d-icon-grid-picker/content";
 import DToggleSwitch from "discourse/ui-kit/d-toggle-switch";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import dReplaceEmoji from "discourse/ui-kit/helpers/d-replace-emoji";
 import { i18n } from "discourse-i18n";
 import ColorInput from "./color-input";
-
-@classNames("collections-detached-icon-picker")
-@selectKitOptions({
-  expandedOnInsert: true,
-})
-class DetachedIconPicker extends IconPicker {
-  search(filter = "") {
-    if (filter === null) {
-      // js default params don't work with null
-      filter = "";
-    }
-    return super.search(filter);
-  }
-
-  // the icon picker likes to scroll to the top on its own after render
-  _searchWrapper(filter) {
-    super._searchWrapper(filter).then(() => {
-      this._safeAfterRender(() => this._scrollToCurrent());
-    });
-  }
-
-  _close() {
-    // noop
-  }
-}
 
 export default class CollectionItemIconPicker extends Component {
   static iconTypes = [
@@ -58,6 +31,7 @@ export default class CollectionItemIconPicker extends Component {
   @tracked iconType = null;
   @tracked icon = null;
   @tracked selectedMenuType = null;
+  @tracked menu = null;
 
   constructor() {
     super(...arguments);
@@ -74,16 +48,15 @@ export default class CollectionItemIconPicker extends Component {
     switch (this.iconType) {
       case "emoji":
         return `:${this.icon}:`;
-      case "square":
-        let hexValues = this.icon;
-        hexValues = hexValues.split(",");
-        hexValues = hexValues.reduce((acc, color) => {
+      case "square": {
+        if (!this.icon) {
+          return;
+        }
+        const hexValues = this.icon.split(",").reduce((acc, color) => {
           const hexCode = isHex(color);
-
           if (hexCode) {
             acc.push(`#${hexCode} 50%`);
           }
-
           return acc;
         }, []);
 
@@ -92,6 +65,7 @@ export default class CollectionItemIconPicker extends Component {
         }
 
         return hexValues.join(", ");
+      }
       default:
         return this.icon;
     }
@@ -118,7 +92,7 @@ export default class CollectionItemIconPicker extends Component {
   }
 
   get squareIsDualColor() {
-    if (this.iconType !== "square") {
+    if (this.iconType !== "square" || !this.icon) {
       return false;
     }
     const colors = this.icon.split(",");
@@ -126,14 +100,16 @@ export default class CollectionItemIconPicker extends Component {
   }
 
   @action
-  updateIconIconStyle(icon_value) {
-    if (!icon_value || !icon_value.length) {
-      this.icon = null;
-    } else {
-      this.icon = icon_value[icon_value.length - 1];
-    }
+  registerMenu(api) {
+    this.menu = api;
+  }
+
+  @action
+  updateIconIconStyle(iconId) {
+    this.icon = iconId || null;
     this.iconType = "icon";
     this.args.onChange?.(this.icon, this.iconType);
+    this.menu?.close();
   }
 
   @action
@@ -188,9 +164,11 @@ export default class CollectionItemIconPicker extends Component {
   <template>
     <DMenu
       @triggerClass="btn btn-default btn-icon-picker"
-      @contentClass="collection-item-icon-picker"
+      @contentClass="collection-item-icon-picker d-icon-grid-picker-content"
       @identifier="collection-item-icon-picker"
-      @inline="true"
+      @inline={{true}}
+      @maxWidth={{490}}
+      @onRegisterApi={{this.registerMenu}}
     >
       <:trigger>
         {{#if (eq this.iconType "icon")}}
@@ -217,11 +195,10 @@ export default class CollectionItemIconPicker extends Component {
           class="collection-item-icon-picker__icon-types"
         />
         {{#if (eq this.selectedMenuType "icon")}}
-          <DetachedIconPicker
+          <DIconGridPickerContent
             @onlyAvailable={{true}}
-            @value={{if (eq this.selectedMenuType "icon") this.icon}}
-            @options={{hash icons=this.icon}}
-            @onChange={{this.updateIconIconStyle}}
+            @value={{this.icon}}
+            @onSelect={{this.updateIconIconStyle}}
           />
         {{else if (eq this.selectedMenuType "emoji")}}
           <EmojiPickerDetached
