@@ -115,7 +115,7 @@ export default class OwnerMaintainerForm extends Component {
         {{else}}
           <a
             class="collection-modal-form__owner"
-            href={{this.ownerPath}}
+            href={{@transformedModel.ownerPath}}
             data-user-card={{@transformedModel.owner.username}}
           >
             {{dAvatar @transformedModel.owner imageSize="small"}}

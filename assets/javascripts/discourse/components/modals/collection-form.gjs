@@ -441,7 +441,7 @@ export default class CollectionForm extends Component {
 
           <div
             role="table"
-            aria-rowcount={{this.activeLinks.length}}
+            aria-rowcount={{this.activeItems.length}}
             class="sidebar-section-form__links-wrapper"
           >
             <div class="row-wrapper header primary-header" role="row">
