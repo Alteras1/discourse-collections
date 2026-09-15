@@ -2,7 +2,6 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { hash } from "@ember/helper";
 import { action } from "@ember/object";
-import { service } from "@ember/service";
 import { bind } from "discourse/lib/decorators";
 import UserChooser from "discourse/select-kit/components/user-chooser";
 import { not } from "discourse/truth-helpers";
@@ -11,19 +10,12 @@ import dAvatar from "discourse/ui-kit/helpers/d-avatar";
 import { i18n } from "discourse-i18n";
 
 export default class OwnerMaintainerForm extends Component {
-  @service siteSettings;
-  @service currentUser;
-
   @tracked changeOwner = false;
   @tracked tempOwner;
   @tracked tempOwnerUsername;
 
   get canEditOwner() {
-    const groups = this.currentUser.groups.map((i) => i.id);
-    return this.siteSettings.collection_modification_by_allowed_groups
-      .split("|")
-      .map((i) => parseInt(i, 10))
-      .some((i) => groups.includes(i));
+    return this.args.transformedModel.canEditOwner;
   }
 
   get ownerUsername() {

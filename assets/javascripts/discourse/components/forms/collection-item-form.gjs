@@ -117,6 +117,16 @@ export default class CollectionItemForm extends Component {
     this.disableDrag();
   }
 
+  @action
+  setLinkName(value) {
+    this.args.link.name = value;
+  }
+
+  @action
+  setLinkUrl(value) {
+    this.args.link.url = value;
+  }
+
   <template>
     <div
       {{on "dragstart" this.dragHasStarted}}
@@ -166,7 +176,7 @@ export default class CollectionItemForm extends Component {
           aria-colindex="2"
         >
           <Input
-            {{on "input" (withEventValue (fn (mut @link.name)))}}
+            {{on "input" (withEventValue this.setLinkName)}}
             @type="text"
             @value={{@link.name}}
             name="section-header-name"
@@ -196,7 +206,7 @@ export default class CollectionItemForm extends Component {
 
         <div class="input-group field__name" role="cell">
           <Input
-            {{on "input" (withEventValue (fn (mut @link.name)))}}
+            {{on "input" (withEventValue this.setLinkName)}}
             @type="text"
             @value={{@link.name}}
             placeholder={{i18n "collections.form.name"}}
@@ -216,7 +226,7 @@ export default class CollectionItemForm extends Component {
         <div class="input-group field__url" role="cell">
           {{#if @isSubcollection}}
             <Input
-              {{on "input" (withEventValue (fn (mut @link.url)))}}
+              {{on "input" (withEventValue this.setLinkUrl)}}
               @type="text"
               @value={{@link.url}}
               placeholder={{i18n "collections.form.link"}}

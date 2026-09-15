@@ -142,7 +142,7 @@ acceptance("Collections | Topic admin menu", function (needs) {
       moderator: false,
       admin: false,
       trust_level: 1,
-      groups: [{ id: 123, name: "regular_users" }],
+      visibleGroups: [{ id: 123, name: "regular_users" }],
     });
     this.siteSettings.collection_modification_by_allowed_groups = "9999";
 
