@@ -189,6 +189,39 @@ acceptance("Collections | Topic admin menu", function (needs) {
     assert.deepEqual(savedMaintainerIds, [101, 102]);
   });
 
+  test("links the collection owner's profile in the manage collection modal", async function (assert) {
+    const owner = {
+      id: 9999,
+      username: "collection_owner",
+      name: "Collection Owner",
+      avatar_template: "/letter_avatar_proxy/v4/letter/c/333333/{size}.png",
+    };
+
+    updateCurrentUser({
+      username: "maintainer_a",
+      moderator: false,
+      admin: false,
+      trust_level: 1,
+    });
+
+    await visit("/t/topic-for-group-moderators/2480");
+
+    const topic = this.owner.lookup("controller:topic").model;
+    topic.set("collection", collectionResponse([maintainerUsers[101]], owner));
+    topic.set("subcollection", null);
+
+    await click(".toggle-admin-menu");
+    await click(".topic-admin-collections");
+
+    assert
+      .dom(".collection-modal-form__owner")
+      .hasAttribute(
+        "href",
+        `/u/${owner.username}`,
+        "owner link points to the owner's profile page"
+      );
+  });
+
   test("shows maintainer list as read-only for maintainers who are not the owner", async function (assert) {
     updateCurrentUser({
       username: "maintainer_a",

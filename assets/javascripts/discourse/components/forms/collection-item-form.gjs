@@ -139,14 +139,15 @@ export default class CollectionItemForm extends Component {
         this.dragCssClass
       }}
     >
+      {{! eslint-disable ember/template-no-pointer-down-event-binding }}
+      {{! eslint-disable ember/template-no-invalid-interactive }}
+      {{! eslint-disable ember/template-no-nested-interactive }}
       {{#if @link.isSectionHeader}}
         <div class="input-group section-name">
           <label>{{i18n "collections.form.section_header"}}</label>
         </div>
       {{/if}}
 
-      {{! eslint-disable ember/template-no-pointer-down-event-binding }}
-      {{! eslint-disable ember/template-no-invalid-interactive }}
       <div
         {{on "mousedown" this.enableDrag}}
         {{on "touchstart" this.enableDrag}}
